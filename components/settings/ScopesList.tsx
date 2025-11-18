@@ -1,6 +1,6 @@
 "use***REMOVED***client";
 
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
+import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
 import***REMOVED***{***REMOVED***Badge***REMOVED***}***REMOVED***from***REMOVED***"@/components/ui/badge";
 import***REMOVED***{
 ***REMOVED******REMOVED***Tooltip,
@@ -47,14 +47,13 @@ const***REMOVED***SCOPE_DESCRIPTIONS:***REMOVED***Record<string,***REMOVED***{**
 };
 
 export***REMOVED***function***REMOVED***ScopesList()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***session***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+***REMOVED******REMOVED***const***REMOVED***{***REMOVED***user,***REMOVED***googleOAuthStatus***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
 
-***REMOVED******REMOVED***if***REMOVED***(!session)***REMOVED***{
+***REMOVED******REMOVED***if***REMOVED***(!user)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***null;
 ***REMOVED******REMOVED***}
 
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***oauthStatus***REMOVED***}***REMOVED***=***REMOVED***session;
-***REMOVED******REMOVED***const***REMOVED***grantedScopes***REMOVED***=***REMOVED***oauthStatus.scopes***REMOVED***||***REMOVED***[];
+***REMOVED******REMOVED***const***REMOVED***grantedScopes***REMOVED***=***REMOVED***googleOAuthStatus.scopes***REMOVED***||***REMOVED***[];
 
 ***REMOVED******REMOVED***//***REMOVED***Get***REMOVED***all***REMOVED***requested***REMOVED***scopes***REMOVED***(from***REMOVED***the***REMOVED***login***REMOVED***function)
 ***REMOVED******REMOVED***const***REMOVED***requestedScopes***REMOVED***=***REMOVED***[

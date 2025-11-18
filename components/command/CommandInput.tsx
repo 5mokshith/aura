@@ -75,8 +75,8 @@ export***REMOVED***function***REMOVED***CommandInput({
 ***REMOVED******REMOVED***};
 
 ***REMOVED******REMOVED***const***REMOVED***handleKeyDown***REMOVED***=***REMOVED***(e:***REMOVED***KeyboardEvent<HTMLTextAreaElement>)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Submit***REMOVED***on***REMOVED***Ctrl+Enter***REMOVED***or***REMOVED***Cmd+Enter
-***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***((e.ctrlKey***REMOVED***||***REMOVED***e.metaKey)***REMOVED***&&***REMOVED***e.key***REMOVED***===***REMOVED***"Enter")***REMOVED***{
+***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Submit***REMOVED***on***REMOVED***Enter***REMOVED***(without***REMOVED***Shift***REMOVED***for***REMOVED***new***REMOVED***line)
+***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(e.key***REMOVED***===***REMOVED***"Enter"***REMOVED***&&***REMOVED***!e.shiftKey)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***e.preventDefault();
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***handleSubmit();
 ***REMOVED******REMOVED******REMOVED******REMOVED***}
@@ -150,14 +150,19 @@ export***REMOVED***function***REMOVED***CommandInput({
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</div>
 
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<div***REMOVED***className="text-2xs***REMOVED***xs:text-xs***REMOVED***text-muted-foreground">
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***Press***REMOVED***<kbd***REMOVED***className="px-1***REMOVED***xs:px-1.5***REMOVED***py-0.5***REMOVED***rounded***REMOVED***bg-muted***REMOVED***border***REMOVED***text-[10px]***REMOVED***font-mono">
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***{typeof***REMOVED***navigator***REMOVED***!==***REMOVED***"undefined"***REMOVED***&&***REMOVED***navigator.platform.includes("Mac")***REMOVED***?***REMOVED***"⌘"***REMOVED***:***REMOVED***"Ctrl"}
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***Press{"***REMOVED***"}
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<kbd***REMOVED***className="px-1***REMOVED***xs:px-1.5***REMOVED***py-0.5***REMOVED***rounded***REMOVED***bg-muted***REMOVED***border***REMOVED***text-[10px]***REMOVED***font-mono">
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***Enter
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</kbd>{"***REMOVED***"}
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***to***REMOVED***submit,***REMOVED***or{"***REMOVED***"}
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<kbd***REMOVED***className="px-1***REMOVED***xs:px-1.5***REMOVED***py-0.5***REMOVED***rounded***REMOVED***bg-muted***REMOVED***border***REMOVED***text-[10px]***REMOVED***font-mono">
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***Shift
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</kbd>{"***REMOVED***"}
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***+{"***REMOVED***"}
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<kbd***REMOVED***className="px-1***REMOVED***xs:px-1.5***REMOVED***py-0.5***REMOVED***rounded***REMOVED***bg-muted***REMOVED***border***REMOVED***text-[10px]***REMOVED***font-mono">
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***Enter
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</kbd>{"***REMOVED***"}
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***to***REMOVED***submit
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***for***REMOVED***new***REMOVED***line
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</div>
 ***REMOVED******REMOVED******REMOVED******REMOVED***</div>
 ***REMOVED******REMOVED***);

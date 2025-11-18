@@ -2,7 +2,7 @@
 
 import***REMOVED***{***REMOVED***useState***REMOVED***}***REMOVED***from***REMOVED***"react";
 import***REMOVED***Link***REMOVED***from***REMOVED***"next/link";
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
+import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
 import***REMOVED***{***REMOVED***Button***REMOVED***}***REMOVED***from***REMOVED***"@/components/ui/button";
 import***REMOVED***{
 ***REMOVED******REMOVED***DropdownMenu,
@@ -17,11 +17,11 @@ import***REMOVED***{***REMOVED***Sheet,***REMOVED***SheetContent,***REMOVED***Sh
 import***REMOVED***{***REMOVED***Menu,***REMOVED***Home,***REMOVED***History,***REMOVED***Settings,***REMOVED***LogOut,***REMOVED***CheckCircle2,***REMOVED***XCircle***REMOVED***}***REMOVED***from***REMOVED***"lucide-react";
 
 export***REMOVED***function***REMOVED***TopNavigation()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***session,***REMOVED***logout***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+***REMOVED******REMOVED***const***REMOVED***{***REMOVED***user,***REMOVED***googleOAuthStatus,***REMOVED***signOut***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
 ***REMOVED******REMOVED***const***REMOVED***[mobileMenuOpen,***REMOVED***setMobileMenuOpen]***REMOVED***=***REMOVED***useState(false);
 
-***REMOVED******REMOVED***const***REMOVED***isConnected***REMOVED***=***REMOVED***session?.oauthStatus.isConnected***REMOVED***??***REMOVED***false;
-***REMOVED******REMOVED***const***REMOVED***userEmail***REMOVED***=***REMOVED***session?.email***REMOVED***??***REMOVED***"";
+***REMOVED******REMOVED***const***REMOVED***isConnected***REMOVED***=***REMOVED***googleOAuthStatus?.isConnected***REMOVED***??***REMOVED***false;
+***REMOVED******REMOVED***const***REMOVED***userEmail***REMOVED***=***REMOVED***user?.email***REMOVED***??***REMOVED***"";
 ***REMOVED******REMOVED***const***REMOVED***userInitials***REMOVED***=***REMOVED***userEmail
 ***REMOVED******REMOVED******REMOVED******REMOVED***.split("@")[0]
 ***REMOVED******REMOVED******REMOVED******REMOVED***.split(".")
@@ -31,14 +31,14 @@ export***REMOVED***function***REMOVED***TopNavigation()***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***.slice(0,***REMOVED***2);
 
 ***REMOVED******REMOVED***const***REMOVED***navigationLinks***REMOVED***=***REMOVED***[
-***REMOVED******REMOVED******REMOVED******REMOVED***{***REMOVED***href:***REMOVED***"/",***REMOVED***label:***REMOVED***"Dashboard",***REMOVED***icon:***REMOVED***Home***REMOVED***},
+***REMOVED******REMOVED******REMOVED******REMOVED***{***REMOVED***href:***REMOVED***"/dashboard",***REMOVED***label:***REMOVED***"Dashboard",***REMOVED***icon:***REMOVED***Home***REMOVED***},
 ***REMOVED******REMOVED******REMOVED******REMOVED***{***REMOVED***href:***REMOVED***"/history",***REMOVED***label:***REMOVED***"History",***REMOVED***icon:***REMOVED***History***REMOVED***},
 ***REMOVED******REMOVED******REMOVED******REMOVED***{***REMOVED***href:***REMOVED***"/settings",***REMOVED***label:***REMOVED***"Settings",***REMOVED***icon:***REMOVED***Settings***REMOVED***},
 ***REMOVED******REMOVED***];
 
 ***REMOVED******REMOVED***const***REMOVED***handleLogout***REMOVED***=***REMOVED***async***REMOVED***()***REMOVED***=>***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***try***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***await***REMOVED***logout();
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***await***REMOVED***signOut();
 ***REMOVED******REMOVED******REMOVED******REMOVED***}***REMOVED***catch***REMOVED***(error)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***console.error("Logout***REMOVED***failed:",***REMOVED***error);
 ***REMOVED******REMOVED******REMOVED******REMOVED***}
@@ -49,7 +49,7 @@ export***REMOVED***function***REMOVED***TopNavigation()***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<div***REMOVED***className="container***REMOVED***flex***REMOVED***h-16***REMOVED***items-center***REMOVED***justify-between***REMOVED***px-4">
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***{/****REMOVED***Logo***REMOVED****/}
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<div***REMOVED***className="flex***REMOVED***items-center***REMOVED***gap-6">
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<Link***REMOVED***href="/"***REMOVED***className="flex***REMOVED***items-center***REMOVED***gap-2">
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<Link***REMOVED***href="/dashboard"***REMOVED***className="flex***REMOVED***items-center***REMOVED***gap-2">
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<div***REMOVED***className="flex***REMOVED***h-8***REMOVED***w-8***REMOVED***items-center***REMOVED***justify-center***REMOVED***rounded-lg***REMOVED***bg-primary***REMOVED***text-primary-foreground***REMOVED***font-bold***REMOVED***text-sm"***REMOVED***aria-hidden="true">
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***A
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</div>
@@ -108,7 +108,7 @@ export***REMOVED***function***REMOVED***TopNavigation()***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</DropdownMenuLabel>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<DropdownMenuSeparator***REMOVED***/>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<DropdownMenuItem***REMOVED***asChild>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<Link***REMOVED***href="/"***REMOVED***className="cursor-pointer">
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<Link***REMOVED***href="/dashboard"***REMOVED***className="cursor-pointer">
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<Home***REMOVED***className="mr-2***REMOVED***h-4***REMOVED***w-4"***REMOVED***/>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***Dashboard
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</Link>

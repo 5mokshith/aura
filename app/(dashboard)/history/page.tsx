@@ -1,7 +1,7 @@
 "use***REMOVED***client";
 
 import***REMOVED***React,***REMOVED***{***REMOVED***useState***REMOVED***}***REMOVED***from***REMOVED***"react";
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
+import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
 import***REMOVED***{***REMOVED***useRouter***REMOVED***}***REMOVED***from***REMOVED***"next/navigation";
 import***REMOVED***{***REMOVED***useEffect***REMOVED***}***REMOVED***from***REMOVED***"react";
 import***REMOVED***dynamic***REMOVED***from***REMOVED***"next/dynamic";
@@ -75,15 +75,15 @@ function***REMOVED***HistoryPageContent()***REMOVED***{
 }
 
 export***REMOVED***default***REMOVED***function***REMOVED***HistoryPage()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***session,***REMOVED***isLoading***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+***REMOVED******REMOVED***const***REMOVED***{***REMOVED***user,***REMOVED***isLoading***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
 ***REMOVED******REMOVED***const***REMOVED***router***REMOVED***=***REMOVED***useRouter();
 
 ***REMOVED******REMOVED***useEffect(()***REMOVED***=>***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Redirect***REMOVED***to***REMOVED***login***REMOVED***if***REMOVED***not***REMOVED***authenticated
-***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(!isLoading***REMOVED***&&***REMOVED***!session?.isAuthenticated)***REMOVED***{
+***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(!isLoading***REMOVED***&&***REMOVED***!user)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***router.push("/login");
 ***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED***},***REMOVED***[session,***REMOVED***isLoading,***REMOVED***router]);
+***REMOVED******REMOVED***},***REMOVED***[user,***REMOVED***isLoading,***REMOVED***router]);
 
 ***REMOVED******REMOVED***if***REMOVED***(isLoading)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***(
@@ -96,7 +96,7 @@ export***REMOVED***default***REMOVED***function***REMOVED***HistoryPage()***REMO
 ***REMOVED******REMOVED******REMOVED******REMOVED***);
 ***REMOVED******REMOVED***}
 
-***REMOVED******REMOVED***if***REMOVED***(!session?.isAuthenticated)***REMOVED***{
+***REMOVED******REMOVED***if***REMOVED***(!user)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***null;***REMOVED***//***REMOVED***Will***REMOVED***redirect***REMOVED***to***REMOVED***login
 ***REMOVED******REMOVED***}
 

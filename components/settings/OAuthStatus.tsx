@@ -1,20 +1,19 @@
 "use***REMOVED***client";
 
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
+import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
 import***REMOVED***{***REMOVED***Badge***REMOVED***}***REMOVED***from***REMOVED***"@/components/ui/badge";
 import***REMOVED***{***REMOVED***CheckCircle2,***REMOVED***XCircle,***REMOVED***Clock***REMOVED***}***REMOVED***from***REMOVED***"lucide-react";
 import***REMOVED***{***REMOVED***formatDistanceToNow***REMOVED***}***REMOVED***from***REMOVED***"date-fns";
 
 export***REMOVED***function***REMOVED***OAuthStatus()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***session***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+***REMOVED******REMOVED***const***REMOVED***{***REMOVED***user,***REMOVED***googleOAuthStatus***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
 
-***REMOVED******REMOVED***if***REMOVED***(!session)***REMOVED***{
+***REMOVED******REMOVED***if***REMOVED***(!user)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***null;
 ***REMOVED******REMOVED***}
 
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***oauthStatus***REMOVED***}***REMOVED***=***REMOVED***session;
-***REMOVED******REMOVED***const***REMOVED***isConnected***REMOVED***=***REMOVED***oauthStatus.isConnected;
-***REMOVED******REMOVED***const***REMOVED***expiresAt***REMOVED***=***REMOVED***oauthStatus.expiresAt***REMOVED***?***REMOVED***new***REMOVED***Date(oauthStatus.expiresAt)***REMOVED***:***REMOVED***null;
+***REMOVED******REMOVED***const***REMOVED***isConnected***REMOVED***=***REMOVED***googleOAuthStatus.isConnected;
+***REMOVED******REMOVED***const***REMOVED***expiresAt***REMOVED***=***REMOVED***googleOAuthStatus.expiresAt;
 ***REMOVED******REMOVED***const***REMOVED***now***REMOVED***=***REMOVED***new***REMOVED***Date();
 ***REMOVED******REMOVED***const***REMOVED***isExpiringSoon***REMOVED***=***REMOVED***expiresAt***REMOVED***?***REMOVED***expiresAt.getTime()***REMOVED***-***REMOVED***now.getTime()***REMOVED***<***REMOVED***24***REMOVED*******REMOVED***60***REMOVED*******REMOVED***60***REMOVED*******REMOVED***1000***REMOVED***:***REMOVED***false;
 
@@ -51,7 +50,7 @@ export***REMOVED***function***REMOVED***OAuthStatus()***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<div***REMOVED***className="space-y-1***REMOVED***flex-1">
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<p***REMOVED***className="text-sm***REMOVED***font-medium">Connected***REMOVED***Account</p>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<p***REMOVED***className="text-sm***REMOVED***text-muted-foreground">
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***{oauthStatus.userEmail***REMOVED***||***REMOVED***session.email}
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***{user.email}
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</p>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</div>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</div>

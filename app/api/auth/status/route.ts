@@ -28,8 +28,8 @@ export***REMOVED***async***REMOVED***function***REMOVED***GET()***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***let***REMOVED***googleOAuthStatus***REMOVED***=***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***isConnected:***REMOVED***false,
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***userEmail:***REMOVED***user.email,
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***scopes:***REMOVED***[],
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***expiresAt:***REMOVED***null,
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***scopes:***REMOVED***[]***REMOVED***as***REMOVED***string[],
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***expiresAt:***REMOVED***null***REMOVED***as***REMOVED***string***REMOVED***|***REMOVED***null,
 ***REMOVED******REMOVED******REMOVED******REMOVED***};
 
 ***REMOVED******REMOVED******REMOVED******REMOVED***try***REMOVED***{

@@ -1,19 +1,19 @@
 "use***REMOVED***client";
 
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
+import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
 import***REMOVED***{***REMOVED***useEffect***REMOVED***}***REMOVED***from***REMOVED***"react";
 import***REMOVED***{***REMOVED***useRouter***REMOVED***}***REMOVED***from***REMOVED***"next/navigation";
 
 export***REMOVED***default***REMOVED***function***REMOVED***LoginPage()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***session,***REMOVED***isLoading,***REMOVED***login***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+***REMOVED******REMOVED***const***REMOVED***{***REMOVED***user,***REMOVED***isLoading,***REMOVED***signInWithGoogle***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
 ***REMOVED******REMOVED***const***REMOVED***router***REMOVED***=***REMOVED***useRouter();
 
 ***REMOVED******REMOVED***useEffect(()***REMOVED***=>***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Redirect***REMOVED***to***REMOVED***dashboard***REMOVED***if***REMOVED***already***REMOVED***authenticated
-***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(session?.isAuthenticated)***REMOVED***{
+***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(user)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***router.push("/");
 ***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED***},***REMOVED***[session,***REMOVED***router]);
+***REMOVED******REMOVED***},***REMOVED***[user,***REMOVED***router]);
 
 ***REMOVED******REMOVED***if***REMOVED***(isLoading)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***(
@@ -48,7 +48,7 @@ export***REMOVED***default***REMOVED***function***REMOVED***LoginPage()***REMOVE
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</div>
 
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<button
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***onClick={login}
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***onClick={signInWithGoogle}
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***className="flex***REMOVED***w-full***REMOVED***items-center***REMOVED***justify-center***REMOVED***gap-3***REMOVED***rounded-lg***REMOVED***bg-blue-600***REMOVED***px-4***REMOVED***py-3***REMOVED***text-white***REMOVED***font-medium***REMOVED***hover:bg-blue-700***REMOVED***focus:outline-none***REMOVED***focus:ring-2***REMOVED***focus:ring-blue-500***REMOVED***focus:ring-offset-2***REMOVED***transition-colors"
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<svg***REMOVED***className="h-5***REMOVED***w-5"***REMOVED***viewBox="0***REMOVED***0***REMOVED***24***REMOVED***24">

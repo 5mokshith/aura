@@ -1,7 +1,7 @@
 import***REMOVED***type***REMOVED***{***REMOVED***Config***REMOVED***}***REMOVED***from***REMOVED***"tailwindcss";
 
 const***REMOVED***config:***REMOVED***Config***REMOVED***=***REMOVED***{
-***REMOVED******REMOVED***darkMode:***REMOVED***["class"],
+***REMOVED******REMOVED***darkMode:***REMOVED***"class",
 ***REMOVED******REMOVED***content:***REMOVED***[
 ***REMOVED******REMOVED******REMOVED******REMOVED***"./pages/**/*.{js,ts,jsx,tsx,mdx}",
 ***REMOVED******REMOVED******REMOVED******REMOVED***"./components/**/*.{js,ts,jsx,tsx,mdx}",

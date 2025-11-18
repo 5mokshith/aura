@@ -1,7 +1,7 @@
 "use***REMOVED***client";
 
 import***REMOVED***{***REMOVED***useState***REMOVED***}***REMOVED***from***REMOVED***"react";
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
+import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
 import***REMOVED***{***REMOVED***useRouter***REMOVED***}***REMOVED***from***REMOVED***"next/navigation";
 import***REMOVED***{***REMOVED***Button***REMOVED***}***REMOVED***from***REMOVED***"@/components/ui/button";
 import***REMOVED***{
@@ -15,7 +15,7 @@ import***REMOVED***{
 import***REMOVED***{***REMOVED***AlertTriangle,***REMOVED***LogOut***REMOVED***}***REMOVED***from***REMOVED***"lucide-react";
 
 export***REMOVED***function***REMOVED***DisconnectButton()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***session,***REMOVED***logout***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+***REMOVED******REMOVED***const***REMOVED***{***REMOVED***googleOAuthStatus,***REMOVED***signOut***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
 ***REMOVED******REMOVED***const***REMOVED***router***REMOVED***=***REMOVED***useRouter();
 ***REMOVED******REMOVED***const***REMOVED***[showConfirmDialog,***REMOVED***setShowConfirmDialog]***REMOVED***=***REMOVED***useState(false);
 ***REMOVED******REMOVED***const***REMOVED***[isDisconnecting,***REMOVED***setIsDisconnecting]***REMOVED***=***REMOVED***useState(false);
@@ -26,7 +26,7 @@ export***REMOVED***function***REMOVED***DisconnectButton()***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***setError(null);
 
 ***REMOVED******REMOVED******REMOVED******REMOVED***try***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***await***REMOVED***logout();
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***await***REMOVED***signOut();
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Close***REMOVED***the***REMOVED***dialog
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***setShowConfirmDialog(false);
@@ -41,7 +41,7 @@ export***REMOVED***function***REMOVED***DisconnectButton()***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***}
 ***REMOVED******REMOVED***};
 
-***REMOVED******REMOVED***if***REMOVED***(!session?.oauthStatus.isConnected)***REMOVED***{
+***REMOVED******REMOVED***if***REMOVED***(!googleOAuthStatus.isConnected)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***null;
 ***REMOVED******REMOVED***}
 

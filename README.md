@@ -222,7 +222,8 @@ Backend
 
 -***REMOVED***Node.js
 -***REMOVED***TypeScript
--***REMOVED***LLM***REMOVED***Integration
+-***REMOVED*****Google***REMOVED***Gemini***REMOVED***2.5***REMOVED***Flash*****REMOVED***(LLM)***REMOVED***-***REMOVED***Fast,***REMOVED***cost-effective***REMOVED***AI
+-***REMOVED***OpenAI***REMOVED***GPT***REMOVED***(alternative***REMOVED***LLM***REMOVED***provider)
 -***REMOVED***Google***REMOVED***API***REMOVED***Clients
 
 Database
@@ -264,10 +265,14 @@ cp***REMOVED***.env.local.example***REMOVED***.env.local
 
 Edit***REMOVED***`.env.local`***REMOVED***and***REMOVED***add***REMOVED***your***REMOVED***configuration:
 
+-***REMOVED***`GOOGLE_GEMINI_API_KEY`***REMOVED***-***REMOVED***Get***REMOVED***from***REMOVED***[Google***REMOVED***AI***REMOVED***Studio](https://aistudio.google.com/app/apikey)***REMOVED***(free!)
+-***REMOVED***`LLM_PROVIDER`***REMOVED***-***REMOVED***Set***REMOVED***to***REMOVED***`gemini`***REMOVED***(recommended)***REMOVED***or***REMOVED***`openai`
 -***REMOVED***`GOOGLE_CLIENT_ID`***REMOVED***-***REMOVED***Your***REMOVED***Google***REMOVED***OAuth***REMOVED***client***REMOVED***ID
 -***REMOVED***`GOOGLE_CLIENT_SECRET`***REMOVED***-***REMOVED***Your***REMOVED***Google***REMOVED***OAuth***REMOVED***client***REMOVED***secret
 -***REMOVED***`NEXTAUTH_SECRET`***REMOVED***-***REMOVED***Generate***REMOVED***with***REMOVED***`openssl***REMOVED***rand***REMOVED***-base64***REMOVED***32`
 -***REMOVED***`BFF_API_URL`***REMOVED***-***REMOVED***Backend***REMOVED***API***REMOVED***URL***REMOVED***(if***REMOVED***separate)
+
+**Quick***REMOVED***LLM***REMOVED***Setup**:***REMOVED***See***REMOVED***[Gemini***REMOVED***Setup***REMOVED***Guide](./docs/GEMINI_SETUP.md)***REMOVED***for***REMOVED***a***REMOVED***5-minute***REMOVED***setup!
 
 4.***REMOVED***Run***REMOVED***the***REMOVED***development***REMOVED***server:
 

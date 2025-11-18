@@ -2,6 +2,9 @@
 export***REMOVED***{***REMOVED***ErrorBoundary***REMOVED***}***REMOVED***from***REMOVED***"./ErrorBoundary";
 export***REMOVED***{***REMOVED***ToastProvider,***REMOVED***useToast***REMOVED***}***REMOVED***from***REMOVED***"./Toast";
 
+//***REMOVED***Performance
+export***REMOVED***{***REMOVED***SwrProvider***REMOVED***}***REMOVED***from***REMOVED***"./SwrProvider";
+
 //***REMOVED***Loading***REMOVED***States
 export***REMOVED***{***REMOVED***LoadingSpinner,***REMOVED***LoadingOverlay,***REMOVED***DelayedLoading***REMOVED***}***REMOVED***from***REMOVED***"./LoadingSpinner";
 export***REMOVED***{***REMOVED***LoadingButton***REMOVED***}***REMOVED***from***REMOVED***"./LoadingButton";
@@ -27,3 +30,14 @@ export***REMOVED***{***REMOVED***LazyLoad***REMOVED***}***REMOVED***from***REMOV
 export***REMOVED***{***REMOVED***OptimizedImage***REMOVED***}***REMOVED***from***REMOVED***"./OptimizedImage";
 export***REMOVED***{***REMOVED***PullToRefresh***REMOVED***}***REMOVED***from***REMOVED***"./PullToRefresh";
 export***REMOVED***{***REMOVED***SkipLink***REMOVED***}***REMOVED***from***REMOVED***"./SkipLink";
+
+//***REMOVED***Dynamic***REMOVED***imports***REMOVED***for***REMOVED***code***REMOVED***splitting
+export***REMOVED***{
+***REMOVED******REMOVED***DynamicTaskDetailModal,
+***REMOVED******REMOVED***DynamicKeyboardShortcutsModal,
+***REMOVED******REMOVED***DynamicQuickActionParameterModal,
+}***REMOVED***from***REMOVED***"./DynamicModals";
+
+//***REMOVED***PWA
+export***REMOVED***{***REMOVED***ServiceWorkerRegistration***REMOVED***}***REMOVED***from***REMOVED***"./ServiceWorkerRegistration";
+export***REMOVED***{***REMOVED***WebVitalsReporter***REMOVED***}***REMOVED***from***REMOVED***"./WebVitalsReporter";

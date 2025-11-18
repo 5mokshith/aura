@@ -1,6 +1,6 @@
 "use***REMOVED***client";
 
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
+import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
 import***REMOVED***{***REMOVED***useRouter***REMOVED***}***REMOVED***from***REMOVED***"next/navigation";
 import***REMOVED***{***REMOVED***useEffect***REMOVED***}***REMOVED***from***REMOVED***"react";
 import***REMOVED***{***REMOVED***DashboardLayout***REMOVED***}***REMOVED***from***REMOVED***"@/components/layout/DashboardLayout";
@@ -11,15 +11,15 @@ import***REMOVED***{***REMOVED***ScopesList***REMOVED***}***REMOVED***from***REM
 import***REMOVED***{***REMOVED***DisconnectButton***REMOVED***}***REMOVED***from***REMOVED***"@/components/settings/DisconnectButton";
 
 export***REMOVED***default***REMOVED***function***REMOVED***SettingsPage()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***session,***REMOVED***isLoading***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+***REMOVED******REMOVED***const***REMOVED***{***REMOVED***user,***REMOVED***isLoading***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
 ***REMOVED******REMOVED***const***REMOVED***router***REMOVED***=***REMOVED***useRouter();
 
 ***REMOVED******REMOVED***useEffect(()***REMOVED***=>***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Redirect***REMOVED***to***REMOVED***login***REMOVED***if***REMOVED***not***REMOVED***authenticated
-***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(!isLoading***REMOVED***&&***REMOVED***!session?.isAuthenticated)***REMOVED***{
+***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(!isLoading***REMOVED***&&***REMOVED***!user)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***router.push("/login");
 ***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED***},***REMOVED***[session,***REMOVED***isLoading,***REMOVED***router]);
+***REMOVED******REMOVED***},***REMOVED***[user,***REMOVED***isLoading,***REMOVED***router]);
 
 ***REMOVED******REMOVED***if***REMOVED***(isLoading)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***(
@@ -32,7 +32,7 @@ export***REMOVED***default***REMOVED***function***REMOVED***SettingsPage()***REM
 ***REMOVED******REMOVED******REMOVED******REMOVED***);
 ***REMOVED******REMOVED***}
 
-***REMOVED******REMOVED***if***REMOVED***(!session?.isAuthenticated)***REMOVED***{
+***REMOVED******REMOVED***if***REMOVED***(!user)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***null;***REMOVED***//***REMOVED***Will***REMOVED***redirect***REMOVED***to***REMOVED***login
 ***REMOVED******REMOVED***}
 
@@ -103,11 +103,11 @@ export***REMOVED***default***REMOVED***function***REMOVED***SettingsPage()***REM
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</div>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<div***REMOVED***className="flex***REMOVED***justify-between***REMOVED***py-2***REMOVED***border-b">
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<span***REMOVED***className="font-medium">User***REMOVED***ID</span>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<span***REMOVED***className="text-muted-foreground">{session.userId}</span>
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<span***REMOVED***className="text-muted-foreground">{user.id}</span>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</div>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<div***REMOVED***className="flex***REMOVED***justify-between***REMOVED***py-2">
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<span***REMOVED***className="font-medium">Email</span>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<span***REMOVED***className="text-muted-foreground">{session.email}</span>
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<span***REMOVED***className="text-muted-foreground">{user.email}</span>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</div>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</div>
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</CardContent>

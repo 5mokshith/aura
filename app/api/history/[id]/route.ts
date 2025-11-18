@@ -4,7 +4,7 @@ import***REMOVED***{***REMOVED***getWorkflow***REMOVED***}***REMOVED***from***RE
 
 export***REMOVED***async***REMOVED***function***REMOVED***GET(
 ***REMOVED******REMOVED***request:***REMOVED***NextRequest,
-***REMOVED******REMOVED***{***REMOVED***params***REMOVED***}:***REMOVED***{***REMOVED***params:***REMOVED***{***REMOVED***id:***REMOVED***string***REMOVED***}***REMOVED***}
+***REMOVED******REMOVED***{***REMOVED***params***REMOVED***}:***REMOVED***{***REMOVED***params:***REMOVED***Promise<{***REMOVED***id:***REMOVED***string***REMOVED***}>***REMOVED***}
 )***REMOVED***{
 ***REMOVED******REMOVED***try***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***await***REMOVED***createClient();
@@ -19,7 +19,7 @@ export***REMOVED***async***REMOVED***function***REMOVED***GET(
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***);
 ***REMOVED******REMOVED******REMOVED******REMOVED***}
 
-***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***workflowId***REMOVED***=***REMOVED***params.id;
+***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***{***REMOVED***id:***REMOVED***workflowId***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***params;
 
 ***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Get***REMOVED***workflow***REMOVED***details
 ***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***workflow***REMOVED***=***REMOVED***await***REMOVED***getWorkflow(workflowId);
