@@ -1,0 +1,9 @@
+{
+***REMOVED******REMOVED***"semi":***REMOVED***true,
+***REMOVED******REMOVED***"trailingComma":***REMOVED***"es5",
+***REMOVED******REMOVED***"singleQuote":***REMOVED***false,
+***REMOVED******REMOVED***"printWidth":***REMOVED***100,
+***REMOVED******REMOVED***"tabWidth":***REMOVED***2,
+***REMOVED******REMOVED***"useTabs":***REMOVED***false,
+***REMOVED******REMOVED***"plugins":***REMOVED***["prettier-plugin-tailwindcss"]
+}

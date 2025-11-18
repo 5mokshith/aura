@@ -7,9 +7,11 @@ An***REMOVED***AI-powered***REMOVED***agent***REMOVED***system***REMOVED***that*
 AURA***REMOVED***is***REMOVED***an***REMOVED***agentic***REMOVED***AI***REMOVED***system***REMOVED***that***REMOVED***can***REMOVED***plan***REMOVED***and***REMOVED***execute***REMOVED***multi-step***REMOVED***tasks***REMOVED***across***REMOVED***Gmail,***REMOVED***Google***REMOVED***Drive,***REMOVED***Docs,***REMOVED***Sheets,***REMOVED***and***REMOVED***Google***REMOVED***Calendar.
 
 Users***REMOVED***describe***REMOVED***what***REMOVED***they***REMOVED***want***REMOVED***in***REMOVED***natural***REMOVED***language,***REMOVED***for***REMOVED***example:
+
 >***REMOVED***“Find***REMOVED***the***REMOVED***latest***REMOVED***sales***REMOVED***report***REMOVED***from***REMOVED***Drive,***REMOVED***summarize***REMOVED***it,***REMOVED***create***REMOVED***a***REMOVED***Google***REMOVED***Doc,***REMOVED***and***REMOVED***email***REMOVED***it***REMOVED***to***REMOVED***the***REMOVED***Marketing***REMOVED***team.”
 
 AURA***REMOVED***automatically:
+
 -***REMOVED***Understands***REMOVED***the***REMOVED***request
 -***REMOVED***Breaks***REMOVED***it***REMOVED***into***REMOVED***steps
 -***REMOVED***Executes***REMOVED***each***REMOVED***step***REMOVED***using***REMOVED***integrated***REMOVED***Google***REMOVED***services
@@ -23,6 +25,7 @@ This***REMOVED***is***REMOVED***a***REMOVED***Gemini-style***REMOVED***workflow*
 ##***REMOVED***🚀***REMOVED***Features
 
 ###***REMOVED***🧠***REMOVED***Agentic***REMOVED***Automation
+
 -***REMOVED***Natural***REMOVED***language***REMOVED***instructions
 -***REMOVED***Automatic***REMOVED***task***REMOVED***planning
 -***REMOVED***Execution***REMOVED***across***REMOVED***multiple***REMOVED***apps
@@ -30,24 +33,28 @@ This***REMOVED***is***REMOVED***a***REMOVED***Gemini-style***REMOVED***workflow*
 -***REMOVED***Automatic***REMOVED***verification***REMOVED***&***REMOVED***correction
 
 ###***REMOVED***📧***REMOVED***Gmail***REMOVED***Integration
+
 -***REMOVED***Send***REMOVED***emails***REMOVED***(with/without***REMOVED***attachments)
 -***REMOVED***Fetch***REMOVED***latest***REMOVED***emails
 -***REMOVED***Search***REMOVED***inbox***REMOVED***(e.g.,***REMOVED***“emails***REMOVED***from***REMOVED***HR”,***REMOVED***“unread***REMOVED***mails”)
 -***REMOVED***Compose***REMOVED***formatted***REMOVED***messages
 
 ###***REMOVED***📄***REMOVED***Google***REMOVED***Docs***REMOVED***Integration
+
 -***REMOVED***Create***REMOVED***new***REMOVED***documents
 -***REMOVED***Insert***REMOVED***formatted***REMOVED***text***REMOVED***(headings,***REMOVED***lists,***REMOVED***tables)
 -***REMOVED***Read***REMOVED***document***REMOVED***content
 -***REMOVED***Append***REMOVED***summaries***REMOVED***to***REMOVED***existing***REMOVED***docs
 
 ###***REMOVED***📁***REMOVED***Google***REMOVED***Drive***REMOVED***Integration
+
 -***REMOVED***Search***REMOVED***files***REMOVED***by***REMOVED***name,***REMOVED***type,***REMOVED***or***REMOVED***recency
 -***REMOVED***Download***REMOVED***PDFs,***REMOVED***Docs,***REMOVED***Sheets
 -***REMOVED***Upload***REMOVED***generated***REMOVED***documents
 -***REMOVED***Organize***REMOVED***files***REMOVED***in***REMOVED***folders
 
 ###***REMOVED***📊***REMOVED***Google***REMOVED***Sheets***REMOVED***Integration
+
 -***REMOVED***Read***REMOVED***sheet***REMOVED***data
 -***REMOVED***Append***REMOVED***new***REMOVED***rows
 -***REMOVED***Update***REMOVED***cells
@@ -55,6 +62,7 @@ This***REMOVED***is***REMOVED***a***REMOVED***Gemini-style***REMOVED***workflow*
 -***REMOVED***Generate***REMOVED***insights
 
 ###***REMOVED***🗓***REMOVED***Google***REMOVED***Calendar***REMOVED***Integration
+
 -***REMOVED***Create***REMOVED***events
 -***REMOVED***Modify***REMOVED***or***REMOVED***delete***REMOVED***events
 -***REMOVED***Fetch***REMOVED***upcoming***REMOVED***schedules
@@ -138,20 +146,25 @@ AURA***REMOVED***uses***REMOVED***Google***REMOVED***OAuth***REMOVED***2.0***REM
 ###***REMOVED***Scopes***REMOVED***Requested
 
 Gmail
+
 -***REMOVED***https://www.googleapis.com/auth/gmail.send
 -***REMOVED***https://www.googleapis.com/auth/gmail.readonly
 
 Drive
+
 -***REMOVED***https://www.googleapis.com/auth/drive
 
 Docs
+
 -***REMOVED***https://www.googleapis.com/auth/documents
 -***REMOVED***https://www.googleapis.com/auth/drive.file
 
 Sheets
+
 -***REMOVED***https://www.googleapis.com/auth/spreadsheets
 
 Calendar
+
 -***REMOVED***https://www.googleapis.com/auth/calendar
 
 ---
@@ -161,6 +174,7 @@ Calendar
 Table:***REMOVED***`user_tokens`
 
 Fields:
+
 -***REMOVED***`id`***REMOVED***(uuid)***REMOVED***—***REMOVED***PK
 -***REMOVED***`user_id`***REMOVED***(uuid)***REMOVED***—***REMOVED***FK***REMOVED***→***REMOVED***auth.users
 -***REMOVED***`provider`***REMOVED***(text)***REMOVED***—***REMOVED***"google"
@@ -176,9 +190,11 @@ Tokens***REMOVED***are***REMOVED***encrypted***REMOVED***before***REMOVED***stor
 ##***REMOVED***⚙️***REMOVED***Execution***REMOVED***Flow***REMOVED***(Example)
 
 User***REMOVED***request:
+
 >***REMOVED***“Find***REMOVED***the***REMOVED***latest***REMOVED***sales***REMOVED***sheet,***REMOVED***summarize***REMOVED***it,***REMOVED***create***REMOVED***a***REMOVED***Google***REMOVED***Doc,***REMOVED***and***REMOVED***email***REMOVED***it***REMOVED***to***REMOVED***the***REMOVED***finance***REMOVED***team.”
 
 Steps:
+
 1.***REMOVED***User***REMOVED***sends***REMOVED***instruction
 2.***REMOVED***Planner***REMOVED***Agent***REMOVED***generates***REMOVED***workflow
 3.***REMOVED***Drive***REMOVED***Agent***REMOVED***→***REMOVED***find***REMOVED***file
@@ -194,18 +210,117 @@ Steps:
 ##***REMOVED***🧱***REMOVED***Tech***REMOVED***Stack
 
 Frontend
--***REMOVED***Next.js***REMOVED***15
--***REMOVED***Tailwind***REMOVED***CSS
--***REMOVED***OAuth***REMOVED***UI
--***REMOVED***Realtime***REMOVED***task***REMOVED***logs
+
+-***REMOVED***Next.js***REMOVED***16***REMOVED***(App***REMOVED***Router)
+-***REMOVED***React***REMOVED***19
+-***REMOVED***TypeScript
+-***REMOVED***Tailwind***REMOVED***CSS***REMOVED***v4
+-***REMOVED***shadcn/ui***REMOVED***components
+-***REMOVED***Lucide***REMOVED***React***REMOVED***icons
 
 Backend
+
 -***REMOVED***Node.js
 -***REMOVED***TypeScript
 -***REMOVED***LLM***REMOVED***Integration
 -***REMOVED***Google***REMOVED***API***REMOVED***Clients
 
 Database
+
 -***REMOVED***Supabase***REMOVED***(Postgres)
 -***REMOVED***Supabase***REMOVED***Auth
 -***REMOVED***Supabase***REMOVED***Storage***REMOVED***(optional)
+
+---
+
+##***REMOVED***🛠️***REMOVED***Development***REMOVED***Setup
+
+###***REMOVED***Prerequisites
+
+-***REMOVED***Node.js***REMOVED***20+***REMOVED***and***REMOVED***npm
+-***REMOVED***Google***REMOVED***Cloud***REMOVED***Project***REMOVED***with***REMOVED***OAuth***REMOVED***credentials
+-***REMOVED***Supabase***REMOVED***account***REMOVED***(optional***REMOVED***for***REMOVED***local***REMOVED***development)
+
+###***REMOVED***Installation
+
+1.***REMOVED***Clone***REMOVED***the***REMOVED***repository:
+
+```bash
+git***REMOVED***clone***REMOVED***<repository-url>
+cd***REMOVED***aura
+```
+
+2.***REMOVED***Install***REMOVED***dependencies:
+
+```bash
+npm***REMOVED***install
+```
+
+3.***REMOVED***Set***REMOVED***up***REMOVED***environment***REMOVED***variables:
+
+```bash
+cp***REMOVED***.env.local.example***REMOVED***.env.local
+```
+
+Edit***REMOVED***`.env.local`***REMOVED***and***REMOVED***add***REMOVED***your***REMOVED***configuration:
+
+-***REMOVED***`GOOGLE_CLIENT_ID`***REMOVED***-***REMOVED***Your***REMOVED***Google***REMOVED***OAuth***REMOVED***client***REMOVED***ID
+-***REMOVED***`GOOGLE_CLIENT_SECRET`***REMOVED***-***REMOVED***Your***REMOVED***Google***REMOVED***OAuth***REMOVED***client***REMOVED***secret
+-***REMOVED***`NEXTAUTH_SECRET`***REMOVED***-***REMOVED***Generate***REMOVED***with***REMOVED***`openssl***REMOVED***rand***REMOVED***-base64***REMOVED***32`
+-***REMOVED***`BFF_API_URL`***REMOVED***-***REMOVED***Backend***REMOVED***API***REMOVED***URL***REMOVED***(if***REMOVED***separate)
+
+4.***REMOVED***Run***REMOVED***the***REMOVED***development***REMOVED***server:
+
+```bash
+npm***REMOVED***run***REMOVED***dev
+```
+
+Open***REMOVED***[http://localhost:3000](http://localhost:3000)***REMOVED***in***REMOVED***your***REMOVED***browser.
+
+###***REMOVED***Available***REMOVED***Scripts
+
+-***REMOVED***`npm***REMOVED***run***REMOVED***dev`***REMOVED***-***REMOVED***Start***REMOVED***development***REMOVED***server
+-***REMOVED***`npm***REMOVED***run***REMOVED***build`***REMOVED***-***REMOVED***Build***REMOVED***for***REMOVED***production
+-***REMOVED***`npm***REMOVED***run***REMOVED***start`***REMOVED***-***REMOVED***Start***REMOVED***production***REMOVED***server
+-***REMOVED***`npm***REMOVED***run***REMOVED***lint`***REMOVED***-***REMOVED***Run***REMOVED***ESLint
+-***REMOVED***`npm***REMOVED***run***REMOVED***format`***REMOVED***-***REMOVED***Format***REMOVED***code***REMOVED***with***REMOVED***Prettier
+-***REMOVED***`npm***REMOVED***run***REMOVED***format:check`***REMOVED***-***REMOVED***Check***REMOVED***code***REMOVED***formatting
+
+###***REMOVED***Project***REMOVED***Structure
+
+```
+aura/
+├──***REMOVED***app/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Next.js***REMOVED***App***REMOVED***Router***REMOVED***pages
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***(auth)/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Authentication***REMOVED***routes
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***(dashboard)/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Dashboard***REMOVED***routes
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***api/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***API***REMOVED***routes
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***globals.css***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Global***REMOVED***styles***REMOVED***with***REMOVED***Tailwind
+│***REMOVED******REMOVED******REMOVED***└──***REMOVED***layout.tsx***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Root***REMOVED***layout
+├──***REMOVED***components/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***React***REMOVED***components
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***command/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Command***REMOVED***input***REMOVED***components
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***execution/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Execution***REMOVED***tracker***REMOVED***components
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***history/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***History***REMOVED***components
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***layout/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Layout***REMOVED***components
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***results/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Results***REMOVED***display***REMOVED***components
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***settings/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Settings***REMOVED***components
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***shared/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Shared***REMOVED***components
+│***REMOVED******REMOVED******REMOVED***└──***REMOVED***ui/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***shadcn/ui***REMOVED***components
+├──***REMOVED***hooks/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Custom***REMOVED***React***REMOVED***hooks
+├──***REMOVED***lib/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Utility***REMOVED***functions
+│***REMOVED******REMOVED******REMOVED***├──***REMOVED***env.ts***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Environment***REMOVED***variables
+│***REMOVED******REMOVED******REMOVED***└──***REMOVED***utils.ts***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Helper***REMOVED***functions
+├──***REMOVED***types/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***TypeScript***REMOVED***type***REMOVED***definitions
+│***REMOVED******REMOVED******REMOVED***└──***REMOVED***index.ts***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Core***REMOVED***types
+└──***REMOVED***public/***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Static***REMOVED***assets
+```
+
+###***REMOVED***Code***REMOVED***Quality
+
+This***REMOVED***project***REMOVED***uses:
+
+-***REMOVED*****ESLint*****REMOVED***for***REMOVED***code***REMOVED***linting
+-***REMOVED*****Prettier*****REMOVED***for***REMOVED***code***REMOVED***formatting
+-***REMOVED*****TypeScript*****REMOVED***for***REMOVED***type***REMOVED***safety
+-***REMOVED*****Tailwind***REMOVED***CSS*****REMOVED***for***REMOVED***styling
+
+All***REMOVED***code***REMOVED***is***REMOVED***automatically***REMOVED***formatted***REMOVED***on***REMOVED***commit.

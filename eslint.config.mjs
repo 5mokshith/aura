@@ -1,10 +1,12 @@
 import***REMOVED***{***REMOVED***defineConfig,***REMOVED***globalIgnores***REMOVED***}***REMOVED***from***REMOVED***"eslint/config";
 import***REMOVED***nextVitals***REMOVED***from***REMOVED***"eslint-config-next/core-web-vitals";
 import***REMOVED***nextTs***REMOVED***from***REMOVED***"eslint-config-next/typescript";
+import***REMOVED***prettierConfig***REMOVED***from***REMOVED***"eslint-config-prettier";
 
 const***REMOVED***eslintConfig***REMOVED***=***REMOVED***defineConfig([
 ***REMOVED******REMOVED***...nextVitals,
 ***REMOVED******REMOVED***...nextTs,
+***REMOVED******REMOVED***prettierConfig,
 ***REMOVED******REMOVED***//***REMOVED***Override***REMOVED***default***REMOVED***ignores***REMOVED***of***REMOVED***eslint-config-next.
 ***REMOVED******REMOVED***globalIgnores([
 ***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Default***REMOVED***ignores***REMOVED***of***REMOVED***eslint-config-next:
@@ -12,6 +14,7 @@ const***REMOVED***eslintConfig***REMOVED***=***REMOVED***defineConfig([
 ***REMOVED******REMOVED******REMOVED******REMOVED***"out/**",
 ***REMOVED******REMOVED******REMOVED******REMOVED***"build/**",
 ***REMOVED******REMOVED******REMOVED******REMOVED***"next-env.d.ts",
+***REMOVED******REMOVED******REMOVED******REMOVED***"node_modules/**",
 ***REMOVED******REMOVED***]),
 ]);
 
