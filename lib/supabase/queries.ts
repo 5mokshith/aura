@@ -1,5 +1,6 @@
 import***REMOVED***{***REMOVED***createClient***REMOVED***}***REMOVED***from***REMOVED***"./client";
 import***REMOVED***type***REMOVED***{***REMOVED***Database***REMOVED***}***REMOVED***from***REMOVED***"./database.types";
+import***REMOVED***type***REMOVED***{***REMOVED***SupabaseClient***REMOVED***}***REMOVED***from***REMOVED***"@supabase/supabase-js";
 
 type***REMOVED***Profile***REMOVED***=***REMOVED***Database["public"]["Tables"]["profiles"]["Row"];
 type***REMOVED***Workflow***REMOVED***=***REMOVED***Database["public"]["Tables"]["workflows"]["Row"];
@@ -54,9 +55,10 @@ export***REMOVED***async***REMOVED***function***REMOVED***upsertProfile(
 
 //***REMOVED***Workflow***REMOVED***queries
 export***REMOVED***async***REMOVED***function***REMOVED***createWorkflow(
-***REMOVED******REMOVED***workflow:***REMOVED***Database["public"]["Tables"]["workflows"]["Insert"]
+***REMOVED******REMOVED***workflow:***REMOVED***Database["public"]["Tables"]["workflows"]["Insert"],
+***REMOVED******REMOVED***client?:***REMOVED***SupabaseClient<Database>
 )***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***createClient();
+***REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***client***REMOVED***||***REMOVED***createClient();
 ***REMOVED******REMOVED***
 ***REMOVED******REMOVED***const***REMOVED***{***REMOVED***data,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase
 ***REMOVED******REMOVED******REMOVED******REMOVED***.from("workflows")
@@ -83,9 +85,10 @@ export***REMOVED***async***REMOVED***function***REMOVED***getWorkflow(workflowId
 
 export***REMOVED***async***REMOVED***function***REMOVED***updateWorkflow(
 ***REMOVED******REMOVED***workflowId:***REMOVED***string,
-***REMOVED******REMOVED***updates:***REMOVED***Database["public"]["Tables"]["workflows"]["Update"]
+***REMOVED******REMOVED***updates:***REMOVED***Database["public"]["Tables"]["workflows"]["Update"],
+***REMOVED******REMOVED***client?:***REMOVED***SupabaseClient<Database>
 )***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***createClient();
+***REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***client***REMOVED***||***REMOVED***createClient();
 ***REMOVED******REMOVED***
 ***REMOVED******REMOVED***const***REMOVED***{***REMOVED***data,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase
 ***REMOVED******REMOVED******REMOVED******REMOVED***.from("workflows")
@@ -114,9 +117,10 @@ export***REMOVED***async***REMOVED***function***REMOVED***getUserWorkflows(userI
 
 //***REMOVED***Workflow***REMOVED***history***REMOVED***queries
 export***REMOVED***async***REMOVED***function***REMOVED***addWorkflowHistory(
-***REMOVED******REMOVED***history:***REMOVED***Database["public"]["Tables"]["workflow_history"]["Insert"]
+***REMOVED******REMOVED***history:***REMOVED***Database["public"]["Tables"]["workflow_history"]["Insert"],
+***REMOVED******REMOVED***client?:***REMOVED***SupabaseClient<Database>
 )***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***createClient();
+***REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***client***REMOVED***||***REMOVED***createClient();
 ***REMOVED******REMOVED***
 ***REMOVED******REMOVED***const***REMOVED***{***REMOVED***data,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase
 ***REMOVED******REMOVED******REMOVED******REMOVED***.from("workflow_history")
@@ -194,22 +198,27 @@ export***REMOVED***async***REMOVED***function***REMOVED***storeGoogleOAuthTokens
 export***REMOVED***async***REMOVED***function***REMOVED***getGoogleOAuthTokens(userId:***REMOVED***string)***REMOVED***{
 ***REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***createClient();
 ***REMOVED******REMOVED***
+***REMOVED******REMOVED***//***REMOVED***Use***REMOVED***the***REMOVED***SECURITY***REMOVED***DEFINER***REMOVED***function***REMOVED***to***REMOVED***bypass***REMOVED***RLS
 ***REMOVED******REMOVED***const***REMOVED***{***REMOVED***data,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase
-***REMOVED******REMOVED******REMOVED******REMOVED***.from("oauth_tokens")
-***REMOVED******REMOVED******REMOVED******REMOVED***.select("*")
-***REMOVED******REMOVED******REMOVED******REMOVED***.eq("user_id",***REMOVED***userId)
-***REMOVED******REMOVED******REMOVED******REMOVED***.eq("provider",***REMOVED***"google")
-***REMOVED******REMOVED******REMOVED******REMOVED***.single();
+***REMOVED******REMOVED******REMOVED******REMOVED***.rpc("get_google_oauth_token",***REMOVED***{***REMOVED***p_user_id:***REMOVED***userId***REMOVED***});
 
 ***REMOVED******REMOVED***if***REMOVED***(error)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(error.code***REMOVED***===***REMOVED***"PGRST116")***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***No***REMOVED***tokens***REMOVED***found
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***null;
-***REMOVED******REMOVED******REMOVED******REMOVED***}
+***REMOVED******REMOVED******REMOVED******REMOVED***console.error("Error***REMOVED***fetching***REMOVED***OAuth***REMOVED***tokens:",***REMOVED***error);
 ***REMOVED******REMOVED******REMOVED******REMOVED***throw***REMOVED***error;
 ***REMOVED******REMOVED***}
 ***REMOVED******REMOVED***
-***REMOVED******REMOVED***return***REMOVED***data***REMOVED***as***REMOVED***OAuthToken;
+***REMOVED******REMOVED***//***REMOVED***The***REMOVED***function***REMOVED***returns***REMOVED***an***REMOVED***array***REMOVED***with***REMOVED***one***REMOVED***row***REMOVED***or***REMOVED***empty***REMOVED***array
+***REMOVED******REMOVED***if***REMOVED***(!data***REMOVED***||***REMOVED***data.length***REMOVED***===***REMOVED***0)***REMOVED***{
+***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***null;
+***REMOVED******REMOVED***}
+***REMOVED******REMOVED***
+***REMOVED******REMOVED***const***REMOVED***token***REMOVED***=***REMOVED***data[0];
+***REMOVED******REMOVED***return***REMOVED***{
+***REMOVED******REMOVED******REMOVED******REMOVED***access_token:***REMOVED***token.access_token,
+***REMOVED******REMOVED******REMOVED******REMOVED***refresh_token:***REMOVED***token.refresh_token,
+***REMOVED******REMOVED******REMOVED******REMOVED***expires_at:***REMOVED***token.expires_at,
+***REMOVED******REMOVED******REMOVED******REMOVED***is_expired:***REMOVED***token.is_expired,
+***REMOVED******REMOVED***}***REMOVED***as***REMOVED***any;
 }
 
 export***REMOVED***async***REMOVED***function***REMOVED***deleteGoogleOAuthTokens(userId:***REMOVED***string)***REMOVED***{

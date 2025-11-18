@@ -1,6 +1,11 @@
 import***REMOVED***{***REMOVED***createServerClient***REMOVED***}***REMOVED***from***REMOVED***"@supabase/ssr";
 import***REMOVED***{***REMOVED***cookies***REMOVED***}***REMOVED***from***REMOVED***"next/headers";
 
+/**
+***REMOVED*******REMOVED***Creates***REMOVED***a***REMOVED***Supabase***REMOVED***client***REMOVED***for***REMOVED***server-side***REMOVED***operations***REMOVED***with***REMOVED***anon***REMOVED***key.
+***REMOVED*******REMOVED***This***REMOVED***client***REMOVED***is***REMOVED***subject***REMOVED***to***REMOVED***Row***REMOVED***Level***REMOVED***Security***REMOVED***(RLS)***REMOVED***policies.
+***REMOVED*******REMOVED***Use***REMOVED***for***REMOVED***user***REMOVED***authentication***REMOVED***and***REMOVED***operations***REMOVED***that***REMOVED***should***REMOVED***respect***REMOVED***RLS.
+***REMOVED****/
 export***REMOVED***async***REMOVED***function***REMOVED***createClient()***REMOVED***{
 ***REMOVED******REMOVED***const***REMOVED***cookieStore***REMOVED***=***REMOVED***await***REMOVED***cookies();
 
@@ -23,6 +28,27 @@ export***REMOVED***async***REMOVED***function***REMOVED***createClient()***REMOV
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***user***REMOVED***sessions.
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***}
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***},
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***},
+***REMOVED******REMOVED******REMOVED******REMOVED***}
+***REMOVED******REMOVED***);
+}
+
+/**
+***REMOVED*******REMOVED***Creates***REMOVED***a***REMOVED***Supabase***REMOVED***client***REMOVED***with***REMOVED***service***REMOVED***role***REMOVED***privileges.
+***REMOVED*******REMOVED***This***REMOVED***client***REMOVED***bypasses***REMOVED***Row***REMOVED***Level***REMOVED***Security***REMOVED***(RLS)***REMOVED***policies.
+***REMOVED*******REMOVED***Use***REMOVED***ONLY***REMOVED***for***REMOVED***server-side***REMOVED***system***REMOVED***operations***REMOVED***that***REMOVED***require***REMOVED***elevated***REMOVED***permissions.
+***REMOVED*******REMOVED***
+***REMOVED*******REMOVED***WARNING:***REMOVED***Never***REMOVED***expose***REMOVED***this***REMOVED***client***REMOVED***or***REMOVED***its***REMOVED***key***REMOVED***to***REMOVED***client-side***REMOVED***code.
+***REMOVED*******REMOVED***Only***REMOVED***use***REMOVED***in***REMOVED***API***REMOVED***routes***REMOVED***and***REMOVED***server-side***REMOVED***functions.
+***REMOVED****/
+export***REMOVED***function***REMOVED***createServiceClient()***REMOVED***{
+***REMOVED******REMOVED***return***REMOVED***createServerClient(
+***REMOVED******REMOVED******REMOVED******REMOVED***process.env.NEXT_PUBLIC_SUPABASE_URL!,
+***REMOVED******REMOVED******REMOVED******REMOVED***process.env.SUPABASE_SERVICE_ROLE_KEY!,
+***REMOVED******REMOVED******REMOVED******REMOVED***{
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***cookies:***REMOVED***{
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***getAll:***REMOVED***()***REMOVED***=>***REMOVED***[],
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***setAll:***REMOVED***()***REMOVED***=>***REMOVED***{},
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***},
 ***REMOVED******REMOVED******REMOVED******REMOVED***}
 ***REMOVED******REMOVED***);

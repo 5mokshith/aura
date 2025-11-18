@@ -1,5 +1,5 @@
 import***REMOVED***{***REMOVED***NextRequest,***REMOVED***NextResponse***REMOVED***}***REMOVED***from***REMOVED***"next/server";
-import***REMOVED***{***REMOVED***createClient***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/server";
+import***REMOVED***{***REMOVED***createClient,***REMOVED***createServiceClient***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/server";
 import***REMOVED***{***REMOVED***getWorkflow***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/queries";
 import***REMOVED***{***REMOVED***cancelWorkflow***REMOVED***}***REMOVED***from***REMOVED***"@/lib/services/workflowService";
 import***REMOVED***{***REMOVED***sendWorkflowEvent***REMOVED***}***REMOVED***from***REMOVED***"../stream/route";
@@ -8,10 +8,11 @@ export***REMOVED***async***REMOVED***function***REMOVED***POST(request:***REMOVE
 ***REMOVED******REMOVED***const***REMOVED***startTime***REMOVED***=***REMOVED***Date.now();
 ***REMOVED******REMOVED***
 ***REMOVED******REMOVED***try***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***await***REMOVED***createClient();
+***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Use***REMOVED***anon***REMOVED***client***REMOVED***for***REMOVED***authentication***REMOVED***check
+***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***anonClient***REMOVED***=***REMOVED***await***REMOVED***createClient();
 ***REMOVED******REMOVED******REMOVED******REMOVED***
 ***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Verify***REMOVED***user***REMOVED***is***REMOVED***authenticated
-***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***{***REMOVED***data:***REMOVED***{***REMOVED***user***REMOVED***},***REMOVED***error:***REMOVED***authError***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.auth.getUser();
+***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***{***REMOVED***data:***REMOVED***{***REMOVED***user***REMOVED***},***REMOVED***error:***REMOVED***authError***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***anonClient.auth.getUser();
 ***REMOVED******REMOVED******REMOVED******REMOVED***
 ***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(authError***REMOVED***||***REMOVED***!user)***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***NextResponse.json(
@@ -31,7 +32,7 @@ export***REMOVED***async***REMOVED***function***REMOVED***POST(request:***REMOVE
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***);
 ***REMOVED******REMOVED******REMOVED******REMOVED***}
 
-***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Verify***REMOVED***workflow***REMOVED***belongs***REMOVED***to***REMOVED***user
+***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Verify***REMOVED***workflow***REMOVED***belongs***REMOVED***to***REMOVED***user***REMOVED***(uses***REMOVED***anon***REMOVED***client***REMOVED***with***REMOVED***RLS)
 ***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***workflow***REMOVED***=***REMOVED***await***REMOVED***getWorkflow(workflowId);
 ***REMOVED******REMOVED******REMOVED******REMOVED***
 ***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(workflow.user_id***REMOVED***!==***REMOVED***user.id)***REMOVED***{
@@ -41,8 +42,11 @@ export***REMOVED***async***REMOVED***function***REMOVED***POST(request:***REMOVE
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***);
 ***REMOVED******REMOVED******REMOVED******REMOVED***}
 
-***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Cancel***REMOVED***the***REMOVED***workflow
-***REMOVED******REMOVED******REMOVED******REMOVED***await***REMOVED***cancelWorkflow(workflowId);
+***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Create***REMOVED***service***REMOVED***role***REMOVED***client***REMOVED***for***REMOVED***database***REMOVED***mutations
+***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***serviceClient***REMOVED***=***REMOVED***createServiceClient();
+
+***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Cancel***REMOVED***the***REMOVED***workflow***REMOVED***using***REMOVED***service***REMOVED***client
+***REMOVED******REMOVED******REMOVED******REMOVED***await***REMOVED***cancelWorkflow(workflowId,***REMOVED***serviceClient);
 
 ***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Send***REMOVED***SSE***REMOVED***event
 ***REMOVED******REMOVED******REMOVED******REMOVED***sendWorkflowEvent(workflowId,***REMOVED***{
