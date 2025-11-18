@@ -288,35 +288,35 @@
 ***REMOVED******REMOVED***-***REMOVED***Design***REMOVED***error***REMOVED***state***REMOVED***with***REMOVED***clear***REMOVED***message***REMOVED***and***REMOVED***actions
 ***REMOVED******REMOVED***-***REMOVED***_Requirements:***REMOVED***8.1,***REMOVED***8.2,***REMOVED***8.3,***REMOVED***8.4_
 
--***REMOVED***[-]***REMOVED***14.***REMOVED***Add***REMOVED***API***REMOVED***routes***REMOVED***and***REMOVED***backend***REMOVED***integration
--***REMOVED***[-]***REMOVED***14.1***REMOVED***Create***REMOVED***workflow***REMOVED***execution***REMOVED***API***REMOVED***routes
+-***REMOVED***[x]***REMOVED***14.***REMOVED***Add***REMOVED***API***REMOVED***routes***REMOVED***and***REMOVED***backend***REMOVED***integration
+-***REMOVED***[x]***REMOVED***14.1***REMOVED***Create***REMOVED***workflow***REMOVED***execution***REMOVED***API***REMOVED***routes
 ***REMOVED******REMOVED***-***REMOVED***Implement***REMOVED***POST***REMOVED***/api/workflow/execute***REMOVED***route
 ***REMOVED******REMOVED***-***REMOVED***Create***REMOVED***GET***REMOVED***/api/workflow/stream***REMOVED***SSE***REMOVED***endpoint
 ***REMOVED******REMOVED***-***REMOVED***Add***REMOVED***POST***REMOVED***/api/workflow/cancel***REMOVED***route
 ***REMOVED******REMOVED***-***REMOVED***Implement***REMOVED***error***REMOVED***handling***REMOVED***and***REMOVED***validation
 ***REMOVED******REMOVED***-***REMOVED***_Requirements:***REMOVED***2.1,***REMOVED***2.2,***REMOVED***10.2_
 
--***REMOVED***[***REMOVED***]***REMOVED***14.2***REMOVED***Build***REMOVED***history***REMOVED***API***REMOVED***routes
+-***REMOVED***[x]***REMOVED***14.2***REMOVED***Build***REMOVED***history***REMOVED***API***REMOVED***routes
 ***REMOVED******REMOVED***-***REMOVED***Create***REMOVED***GET***REMOVED***/api/history***REMOVED***route***REMOVED***with***REMOVED***pagination
 ***REMOVED******REMOVED***-***REMOVED***Add***REMOVED***filtering***REMOVED***and***REMOVED***search***REMOVED***query***REMOVED***parameters
 ***REMOVED******REMOVED***-***REMOVED***Implement***REMOVED***GET***REMOVED***/api/history/[id]***REMOVED***for***REMOVED***detail***REMOVED***view
 ***REMOVED******REMOVED***-***REMOVED***Add***REMOVED***POST***REMOVED***/api/history/rerun***REMOVED***route
 ***REMOVED******REMOVED***-***REMOVED***_Requirements:***REMOVED***5.1,***REMOVED***5.3,***REMOVED***5.5_
 
--***REMOVED***[***REMOVED***]***REMOVED***14.3***REMOVED***Implement***REMOVED***authentication***REMOVED***API***REMOVED***routes
+-***REMOVED***[x]***REMOVED***14.3***REMOVED***Implement***REMOVED***authentication***REMOVED***API***REMOVED***routes
 ***REMOVED******REMOVED***-***REMOVED***Create***REMOVED***GET***REMOVED***/api/auth/status***REMOVED***route
 ***REMOVED******REMOVED***-***REMOVED***Build***REMOVED***POST***REMOVED***/api/auth/disconnect***REMOVED***route
 ***REMOVED******REMOVED***-***REMOVED***Add***REMOVED***token***REMOVED***refresh***REMOVED***endpoint
 ***REMOVED******REMOVED***-***REMOVED***Implement***REMOVED***OAuth***REMOVED***callback***REMOVED***handler
 ***REMOVED******REMOVED***-***REMOVED***_Requirements:***REMOVED***6.1,***REMOVED***6.4,***REMOVED***6.5_
 
--***REMOVED***[***REMOVED***]***REMOVED***14.4***REMOVED***Add***REMOVED***quick***REMOVED***actions***REMOVED***and***REMOVED***feedback***REMOVED***API***REMOVED***routes
+-***REMOVED***[x]***REMOVED***14.4***REMOVED***Add***REMOVED***quick***REMOVED***actions***REMOVED***and***REMOVED***feedback***REMOVED***API***REMOVED***routes
 ***REMOVED******REMOVED***-***REMOVED***Create***REMOVED***GET***REMOVED***/api/quick-actions***REMOVED***route
 ***REMOVED******REMOVED***-***REMOVED***Implement***REMOVED***POST***REMOVED***/api/quick-actions/favorite***REMOVED***route
 ***REMOVED******REMOVED***-***REMOVED***Add***REMOVED***POST***REMOVED***/api/feedback***REMOVED***route***REMOVED***for***REMOVED***result***REMOVED***ratings
 ***REMOVED******REMOVED***-***REMOVED***_Requirements:***REMOVED***4.3,***REMOVED***3.4_
 
--***REMOVED***[***REMOVED***]***REMOVED***15.***REMOVED***Implement***REMOVED***caching***REMOVED***and***REMOVED***performance***REMOVED***optimizations
+-***REMOVED***[-]***REMOVED***15.***REMOVED***Implement***REMOVED***caching***REMOVED***and***REMOVED***performance***REMOVED***optimizations
 ***REMOVED******REMOVED***-***REMOVED***Configure***REMOVED***SWR***REMOVED***for***REMOVED***API***REMOVED***response***REMOVED***caching
 ***REMOVED******REMOVED***-***REMOVED***Implement***REMOVED***route-based***REMOVED***code***REMOVED***splitting
 ***REMOVED******REMOVED***-***REMOVED***Add***REMOVED***dynamic***REMOVED***imports***REMOVED***for***REMOVED***heavy***REMOVED***components***REMOVED***(modals)

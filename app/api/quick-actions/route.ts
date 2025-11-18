@@ -1,11 +1,9 @@
 import***REMOVED***{***REMOVED***NextRequest,***REMOVED***NextResponse***REMOVED***}***REMOVED***from***REMOVED***"next/server";
 import***REMOVED***{***REMOVED***createClient***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/server";
-import***REMOVED***{***REMOVED***getWorkflow***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/queries";
+import***REMOVED***{***REMOVED***getProfile***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/queries";
+import***REMOVED***{***REMOVED***getDefaultQuickActions***REMOVED***}***REMOVED***from***REMOVED***"@/lib/quickActions";
 
-export***REMOVED***async***REMOVED***function***REMOVED***GET(
-***REMOVED******REMOVED***request:***REMOVED***NextRequest,
-***REMOVED******REMOVED***{***REMOVED***params***REMOVED***}:***REMOVED***{***REMOVED***params:***REMOVED***{***REMOVED***id:***REMOVED***string***REMOVED***}***REMOVED***}
-)***REMOVED***{
+export***REMOVED***async***REMOVED***function***REMOVED***GET(request:***REMOVED***NextRequest)***REMOVED***{
 ***REMOVED******REMOVED***try***REMOVED***{
 ***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***await***REMOVED***createClient();
 ***REMOVED******REMOVED******REMOVED******REMOVED***
@@ -19,27 +17,28 @@ export***REMOVED***async***REMOVED***function***REMOVED***GET(
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***);
 ***REMOVED******REMOVED******REMOVED******REMOVED***}
 
-***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***workflowId***REMOVED***=***REMOVED***params.id;
+***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Get***REMOVED***user***REMOVED***profile***REMOVED***to***REMOVED***access***REMOVED***favorites
+***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***profile***REMOVED***=***REMOVED***await***REMOVED***getProfile(user.id);
+***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***preferences***REMOVED***=***REMOVED***profile.preferences***REMOVED***as***REMOVED***any***REMOVED***||***REMOVED***{};
+***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***favoriteActions***REMOVED***=***REMOVED***preferences.favoriteActions***REMOVED***||***REMOVED***[];
 
-***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Get***REMOVED***workflow***REMOVED***details
-***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***workflow***REMOVED***=***REMOVED***await***REMOVED***getWorkflow(workflowId);
+***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Get***REMOVED***default***REMOVED***quick***REMOVED***actions
+***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***defaultActions***REMOVED***=***REMOVED***getDefaultQuickActions();
 
-***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Verify***REMOVED***workflow***REMOVED***belongs***REMOVED***to***REMOVED***user
-***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(workflow.user_id***REMOVED***!==***REMOVED***user.id)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***NextResponse.json(
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***{***REMOVED***error:***REMOVED***"Unauthorized***REMOVED***to***REMOVED***view***REMOVED***this***REMOVED***workflow"***REMOVED***},
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***{***REMOVED***status:***REMOVED***403***REMOVED***}
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***);
-***REMOVED******REMOVED******REMOVED******REMOVED***}
+***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Mark***REMOVED***favorites
+***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***actions***REMOVED***=***REMOVED***defaultActions.map((action)***REMOVED***=>***REMOVED***({
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***...action,
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***isFavorite:***REMOVED***favoriteActions.includes(action.id),
+***REMOVED******REMOVED******REMOVED******REMOVED***}));
 
 ***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***NextResponse.json({
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***workflow,
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***actions,
 ***REMOVED******REMOVED******REMOVED******REMOVED***});
 ***REMOVED******REMOVED***}***REMOVED***catch***REMOVED***(error)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***console.error("Error***REMOVED***fetching***REMOVED***workflow***REMOVED***details:",***REMOVED***error);
+***REMOVED******REMOVED******REMOVED******REMOVED***console.error("Error***REMOVED***fetching***REMOVED***quick***REMOVED***actions:",***REMOVED***error);
 ***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***NextResponse.json(
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***{***REMOVED***
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***error:***REMOVED***"Failed***REMOVED***to***REMOVED***fetch***REMOVED***workflow***REMOVED***details",
+***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***error:***REMOVED***"Failed***REMOVED***to***REMOVED***fetch***REMOVED***quick***REMOVED***actions",
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***message:***REMOVED***error***REMOVED***instanceof***REMOVED***Error***REMOVED***?***REMOVED***error.message***REMOVED***:***REMOVED***"Unknown***REMOVED***error"
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***},
 ***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***{***REMOVED***status:***REMOVED***500***REMOVED***}

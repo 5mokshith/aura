@@ -27,6 +27,7 @@
 ***REMOVED******REMOVED******REMOVED******REMOVED***"next":***REMOVED***"16.0.3",
 ***REMOVED******REMOVED******REMOVED******REMOVED***"react":***REMOVED***"19.2.0",
 ***REMOVED******REMOVED******REMOVED******REMOVED***"react-dom":***REMOVED***"19.2.0",
+***REMOVED******REMOVED******REMOVED******REMOVED***"swr":***REMOVED***"^2.3.6",
 ***REMOVED******REMOVED******REMOVED******REMOVED***"tailwind-merge":***REMOVED***"^3.4.0"
 ***REMOVED******REMOVED***},
 ***REMOVED******REMOVED***"devDependencies":***REMOVED***{

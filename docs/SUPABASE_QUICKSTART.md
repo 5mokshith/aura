@@ -42,8 +42,8 @@ SUPABASE_SERVICE_ROLE_KEY=REDACTED
 1.***REMOVED***Go***REMOVED***to***REMOVED*****Authentication*****REMOVED***→***REMOVED*****Providers**
 2.***REMOVED***Find***REMOVED***and***REMOVED***enable***REMOVED*****Google**
 3.***REMOVED***Enter***REMOVED***your***REMOVED***Google***REMOVED***OAuth***REMOVED***credentials:
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Client***REMOVED***ID:***REMOVED***`REDACTED_GOOGLE_CLIENT_ID`
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Client***REMOVED***Secret:***REMOVED***`REDACTED_GOOGLE_CLIENT_SECRET`
+***REMOVED******REMOVED******REMOVED***-***REMOVED***Client***REMOVED***ID:***REMOVED***
+***REMOVED******REMOVED******REMOVED***-***REMOVED***Client***REMOVED***Secret:***REMOVED***
 4.***REMOVED***Click***REMOVED***"Save"
 
 ##***REMOVED***Step***REMOVED***6:***REMOVED***Test***REMOVED***It!***REMOVED***(1***REMOVED***min)

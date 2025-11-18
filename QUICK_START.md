@@ -56,8 +56,8 @@ SUPABASE_SERVICE_ROLE_KEY=REDACTED
 1.***REMOVED***Supabase***REMOVED***→***REMOVED***Authentication***REMOVED***→***REMOVED***Providers
 2.***REMOVED***Enable***REMOVED***Google
 3.***REMOVED***Add***REMOVED***your***REMOVED***Google***REMOVED***OAuth***REMOVED***credentials:
-***REMOVED******REMOVED******REMOVED***Client***REMOVED***ID:***REMOVED***REDACTED_GOOGLE_CLIENT_ID
-***REMOVED******REMOVED******REMOVED***Client***REMOVED***Secret:***REMOVED***REDACTED_GOOGLE_CLIENT_SECRET
+***REMOVED******REMOVED******REMOVED***Client***REMOVED***ID:***REMOVED***
+***REMOVED******REMOVED******REMOVED***Client***REMOVED***Secret:***REMOVED***
 4.***REMOVED***Click***REMOVED***"Save"
 ```
 
