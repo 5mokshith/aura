@@ -1,61 +1,61 @@
-"use***REMOVED***client";
+﻿"useclient";
 
-import***REMOVED***{***REMOVED***useEffect,***REMOVED***useState***REMOVED***}***REMOVED***from***REMOVED***"react";
+import{useEffect,useState}from"react";
 
-interface***REMOVED***ViewportSize***REMOVED***{
-***REMOVED******REMOVED***width:***REMOVED***number;
-***REMOVED******REMOVED***height:***REMOVED***number;
-***REMOVED******REMOVED***isMobile:***REMOVED***boolean;
-***REMOVED******REMOVED***isTablet:***REMOVED***boolean;
-***REMOVED******REMOVED***isDesktop:***REMOVED***boolean;
+interfaceViewportSize{
+width:number;
+height:number;
+isMobile:boolean;
+isTablet:boolean;
+isDesktop:boolean;
 }
 
 /**
-***REMOVED*******REMOVED***Hook***REMOVED***to***REMOVED***track***REMOVED***viewport***REMOVED***size***REMOVED***and***REMOVED***device***REMOVED***type
-***REMOVED*******REMOVED***Useful***REMOVED***for***REMOVED***conditional***REMOVED***rendering***REMOVED***based***REMOVED***on***REMOVED***screen***REMOVED***size
-***REMOVED****/
-export***REMOVED***function***REMOVED***useViewport():***REMOVED***ViewportSize***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***[viewport,***REMOVED***setViewport]***REMOVED***=***REMOVED***useState<ViewportSize>({
-***REMOVED******REMOVED******REMOVED******REMOVED***width:***REMOVED***typeof***REMOVED***window***REMOVED***!==***REMOVED***"undefined"***REMOVED***?***REMOVED***window.innerWidth***REMOVED***:***REMOVED***1024,
-***REMOVED******REMOVED******REMOVED******REMOVED***height:***REMOVED***typeof***REMOVED***window***REMOVED***!==***REMOVED***"undefined"***REMOVED***?***REMOVED***window.innerHeight***REMOVED***:***REMOVED***768,
-***REMOVED******REMOVED******REMOVED******REMOVED***isMobile:***REMOVED***typeof***REMOVED***window***REMOVED***!==***REMOVED***"undefined"***REMOVED***?***REMOVED***window.innerWidth***REMOVED***<***REMOVED***768***REMOVED***:***REMOVED***false,
-***REMOVED******REMOVED******REMOVED******REMOVED***isTablet:***REMOVED***typeof***REMOVED***window***REMOVED***!==***REMOVED***"undefined"***REMOVED***?***REMOVED***window.innerWidth***REMOVED***>=***REMOVED***768***REMOVED***&&***REMOVED***window.innerWidth***REMOVED***<***REMOVED***1024***REMOVED***:***REMOVED***false,
-***REMOVED******REMOVED******REMOVED******REMOVED***isDesktop:***REMOVED***typeof***REMOVED***window***REMOVED***!==***REMOVED***"undefined"***REMOVED***?***REMOVED***window.innerWidth***REMOVED***>=***REMOVED***1024***REMOVED***:***REMOVED***true,
-***REMOVED******REMOVED***});
+*Hooktotrackviewportsizeanddevicetype
+*Usefulforconditionalrenderingbasedonscreensize
+*/
+exportfunctionuseViewport():ViewportSize{
+const[viewport,setViewport]=useState<ViewportSize>({
+width:typeofwindow!=="undefined"?window.innerWidth:1024,
+height:typeofwindow!=="undefined"?window.innerHeight:768,
+isMobile:typeofwindow!=="undefined"?window.innerWidth<768:false,
+isTablet:typeofwindow!=="undefined"?window.innerWidth>=768&&window.innerWidth<1024:false,
+isDesktop:typeofwindow!=="undefined"?window.innerWidth>=1024:true,
+});
 
-***REMOVED******REMOVED***useEffect(()***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(typeof***REMOVED***window***REMOVED***===***REMOVED***"undefined")***REMOVED***return;
+useEffect(()=>{
+if(typeofwindow==="undefined")return;
 
-***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***handleResize***REMOVED***=***REMOVED***()***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***width***REMOVED***=***REMOVED***window.innerWidth;
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***height***REMOVED***=***REMOVED***window.innerHeight;
+consthandleResize=()=>{
+constwidth=window.innerWidth;
+constheight=window.innerHeight;
 
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***setViewport({
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***width,
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***height,
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***isMobile:***REMOVED***width***REMOVED***<***REMOVED***768,
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***isTablet:***REMOVED***width***REMOVED***>=***REMOVED***768***REMOVED***&&***REMOVED***width***REMOVED***<***REMOVED***1024,
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***isDesktop:***REMOVED***width***REMOVED***>=***REMOVED***1024,
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***});
-***REMOVED******REMOVED******REMOVED******REMOVED***};
+setViewport({
+width,
+height,
+isMobile:width<768,
+isTablet:width>=768&&width<1024,
+isDesktop:width>=1024,
+});
+};
 
-***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Debounce***REMOVED***resize***REMOVED***events***REMOVED***for***REMOVED***better***REMOVED***performance
-***REMOVED******REMOVED******REMOVED******REMOVED***let***REMOVED***timeoutId:***REMOVED***NodeJS.Timeout;
-***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***debouncedResize***REMOVED***=***REMOVED***()***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***clearTimeout(timeoutId);
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***timeoutId***REMOVED***=***REMOVED***setTimeout(handleResize,***REMOVED***150);
-***REMOVED******REMOVED******REMOVED******REMOVED***};
+//Debounceresizeeventsforbetterperformance
+lettimeoutId:NodeJS.Timeout;
+constdebouncedResize=()=>{
+clearTimeout(timeoutId);
+timeoutId=setTimeout(handleResize,150);
+};
 
-***REMOVED******REMOVED******REMOVED******REMOVED***window.addEventListener("resize",***REMOVED***debouncedResize);
-***REMOVED******REMOVED******REMOVED******REMOVED***
-***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Initial***REMOVED***call
-***REMOVED******REMOVED******REMOVED******REMOVED***handleResize();
+window.addEventListener("resize",debouncedResize);
 
-***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***()***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***window.removeEventListener("resize",***REMOVED***debouncedResize);
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***clearTimeout(timeoutId);
-***REMOVED******REMOVED******REMOVED******REMOVED***};
-***REMOVED******REMOVED***},***REMOVED***[]);
+//Initialcall
+handleResize();
 
-***REMOVED******REMOVED***return***REMOVED***viewport;
+return()=>{
+window.removeEventListener("resize",debouncedResize);
+clearTimeout(timeoutId);
+};
+},[]);
+
+returnviewport;
 }

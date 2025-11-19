@@ -1,24 +1,24 @@
-//***REMOVED***Type-safe***REMOVED***environment***REMOVED***variables
-export***REMOVED***const***REMOVED***env***REMOVED***=***REMOVED***{
-***REMOVED******REMOVED***//***REMOVED***Public***REMOVED***variables***REMOVED***(accessible***REMOVED***in***REMOVED***browser)
-***REMOVED******REMOVED***apiUrl:***REMOVED***process.env.NEXT_PUBLIC_API_URL***REMOVED***||***REMOVED***"http://localhost:3000/api",
-***REMOVED******REMOVED***googleClientIdPublic:***REMOVED***process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID***REMOVED***||***REMOVED***"",
+﻿//Type-safeenvironmentvariables
+exportconstenv={
+//Publicvariables(accessibleinbrowser)
+apiUrl:process.env.NEXT_PUBLIC_API_URL||"http://localhost:3000/api",
+googleClientIdPublic:process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID||"",
 
-***REMOVED******REMOVED***//***REMOVED***Server-only***REMOVED***variables
-***REMOVED******REMOVED***googleClientId:***REMOVED***process.env.GOOGLE_CLIENT_ID***REMOVED***||***REMOVED***"",
-***REMOVED******REMOVED***googleClientSecret:***REMOVED***process.env.GOOGLE_CLIENT_SECRET***REMOVED***||***REMOVED***"",
-***REMOVED******REMOVED***nextAuthUrl:***REMOVED***process.env.NEXTAUTH_URL***REMOVED***||***REMOVED***"http://localhost:3000",
-***REMOVED******REMOVED***nextAuthSecret:***REMOVED***process.env.NEXTAUTH_SECRET***REMOVED***||***REMOVED***"",
-***REMOVED******REMOVED***bffApiUrl:***REMOVED***process.env.BFF_API_URL***REMOVED***||***REMOVED***"http://localhost:8000",
-}***REMOVED***as***REMOVED***const;
+//Server-onlyvariables
+googleClientId:process.env.GOOGLE_CLIENT_ID||"",
+googleClientSecret:process.env.GOOGLE_CLIENT_SECRET||"",
+nextAuthUrl:process.env.NEXTAUTH_URL||"http://localhost:3000",
+nextAuthSecret:process.env.NEXTAUTH_SECRET||"",
+bffApiUrl:process.env.BFF_API_URL||"http://localhost:8000",
+}asconst;
 
-//***REMOVED***Validate***REMOVED***required***REMOVED***environment***REMOVED***variables***REMOVED***on***REMOVED***server
-if***REMOVED***(typeof***REMOVED***window***REMOVED***===***REMOVED***"undefined")***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***requiredEnvVars***REMOVED***=***REMOVED***["NEXTAUTH_SECRET"]***REMOVED***as***REMOVED***const;
+//Validaterequiredenvironmentvariablesonserver
+if(typeofwindow==="undefined"){
+constrequiredEnvVars=["NEXTAUTH_SECRET"]asconst;
 
-***REMOVED******REMOVED***for***REMOVED***(const***REMOVED***envVar***REMOVED***of***REMOVED***requiredEnvVars)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(!process.env[envVar])***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***console.warn(`Warning:***REMOVED***${envVar}***REMOVED***environment***REMOVED***variable***REMOVED***is***REMOVED***not***REMOVED***set`);
-***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED***}
+for(constenvVarofrequiredEnvVars){
+if(!process.env[envVar]){
+console.warn(`Warning:${envVar}environmentvariableisnotset`);
+}
+}
 }
