@@ -1,416 +1,417 @@
-#***REMOVED***Complete***REMOVED***Supabase***REMOVED***Setup***REMOVED***Guide***REMOVED***for***REMOVED***AURA
+# Complete Supabase Setup Guide for AURA
 
-This***REMOVED***guide***REMOVED***will***REMOVED***walk***REMOVED***you***REMOVED***through***REMOVED***setting***REMOVED***up***REMOVED***Supabase***REMOVED***with***REMOVED***Google***REMOVED***OAuth***REMOVED***and***REMOVED***token***REMOVED***storage***REMOVED***for***REMOVED***accessing***REMOVED***Google***REMOVED***Workspace***REMOVED***APIs.
+This guide will walk you through setting up Supabase with Google OAuth and token storage for accessing Google Workspace APIs.
 
-##***REMOVED***🎯***REMOVED***What***REMOVED***We've***REMOVED***Built
+## 🎯 What We've Built
 
--***REMOVED***✅***REMOVED***Supabase***REMOVED***authentication***REMOVED***with***REMOVED***Google***REMOVED***OAuth
--***REMOVED***✅***REMOVED***Secure***REMOVED***Google***REMOVED***OAuth***REMOVED***token***REMOVED***storage***REMOVED***(access***REMOVED***&***REMOVED***refresh***REMOVED***tokens)
--***REMOVED***✅***REMOVED***Automatic***REMOVED***token***REMOVED***refresh***REMOVED***mechanism
--***REMOVED***✅***REMOVED***Database***REMOVED***schema***REMOVED***with***REMOVED***Row***REMOVED***Level***REMOVED***Security***REMOVED***(RLS)
--***REMOVED***✅***REMOVED***API***REMOVED***routes***REMOVED***for***REMOVED***auth***REMOVED***management
--***REMOVED***✅***REMOVED***Updated***REMOVED***components***REMOVED***to***REMOVED***use***REMOVED***Supabase
+- ✅ Supabase authentication with Google OAuth
+- ✅ Secure Google OAuth token storage (access & refresh tokens)
+- ✅ Automatic token refresh mechanism
+- ✅ Database schema with Row Level Security (RLS)
+- ✅ API routes for auth management
+- ✅ Updated components to use Supabase
 
-##***REMOVED***📋***REMOVED***Prerequisites
+## 📋 Prerequisites
 
-1.***REMOVED***A***REMOVED***Supabase***REMOVED***account***REMOVED***([sign***REMOVED***up***REMOVED***here](https://supabase.com))
-2.***REMOVED***Google***REMOVED***Cloud***REMOVED***Console***REMOVED***project***REMOVED***with***REMOVED***OAuth***REMOVED***credentials
-3.***REMOVED***Node.js***REMOVED***and***REMOVED***npm***REMOVED***installed
+1. A Supabase account ([sign up here](https://supabase.com))
+2. Google Cloud Console project with OAuth credentials
+3. Node.js and npm installed
 
-##***REMOVED***🚀***REMOVED***Step-by-Step***REMOVED***Setup
+## 🚀 Step-by-Step Setup
 
-###***REMOVED***Step***REMOVED***1:***REMOVED***Create***REMOVED***Supabase***REMOVED***Project***REMOVED***(5***REMOVED***minutes)
+### Step 1: Create Supabase Project (5 minutes)
 
-1.***REMOVED***Go***REMOVED***to***REMOVED***[app.supabase.com](https://app.supabase.com)
-2.***REMOVED***Click***REMOVED*****"New***REMOVED***Project"**
-3.***REMOVED***Fill***REMOVED***in:
-***REMOVED******REMOVED******REMOVED***-***REMOVED*****Name**:***REMOVED***`aura-app`
-***REMOVED******REMOVED******REMOVED***-***REMOVED*****Database***REMOVED***Password**:***REMOVED***Generate***REMOVED***a***REMOVED***strong***REMOVED***password***REMOVED***(save***REMOVED***it!)
-***REMOVED******REMOVED******REMOVED***-***REMOVED*****Region**:***REMOVED***Choose***REMOVED***closest***REMOVED***to***REMOVED***your***REMOVED***users
-4.***REMOVED***Click***REMOVED*****"Create***REMOVED***new***REMOVED***project"**
-5.***REMOVED***Wait***REMOVED***~2***REMOVED***minutes***REMOVED***for***REMOVED***provisioning
+1. Go to [app.supabase.com](https://app.supabase.com)
+2. Click **"New Project"**
+3. Fill in:
+   - **Name**: `aura-app`
+   - **Database Password**: Generate a strong password (save it!)
+   - **Region**: Choose closest to your users
+4. Click **"Create new project"**
+5. Wait ~2 minutes for provisioning
 
-###***REMOVED***Step***REMOVED***2:***REMOVED***Get***REMOVED***Your***REMOVED***Supabase***REMOVED***Credentials***REMOVED***(2***REMOVED***minutes)
+### Step 2: Get Your Supabase Credentials (2 minutes)
 
-1.***REMOVED***In***REMOVED***your***REMOVED***Supabase***REMOVED***dashboard,***REMOVED***go***REMOVED***to***REMOVED*****Settings*****REMOVED***→***REMOVED*****API**
-2.***REMOVED***Copy***REMOVED***these***REMOVED***values:
-***REMOVED******REMOVED******REMOVED***-***REMOVED*****Project***REMOVED***URL**:***REMOVED***`https://xxxxx.supabase.co`
-***REMOVED******REMOVED******REMOVED***-***REMOVED*****anon***REMOVED***public***REMOVED***key**:***REMOVED***Long***REMOVED***key***REMOVED***starting***REMOVED***with***REMOVED***`eyJhbGc...`
-***REMOVED******REMOVED******REMOVED***-***REMOVED*****service_role***REMOVED***key**:***REMOVED***Another***REMOVED***long***REMOVED***key***REMOVED***(keep***REMOVED***this***REMOVED***SECRET!)
+1. In your Supabase dashboard, go to **Settings** → **API**
+2. Copy these values:
+   - **Project URL**: `https://xxxxx.supabase.co`
+   - **anon public key**: Long key starting with `eyJhbGc...`
+   - **service_role key**: Another long key (keep this SECRET!)
 
-###***REMOVED***Step***REMOVED***3:***REMOVED***Update***REMOVED***Environment***REMOVED***Variables***REMOVED***(2***REMOVED***minutes)
+### Step 3: Update Environment Variables (2 minutes)
 
-Edit***REMOVED***your***REMOVED***`.env.local`***REMOVED***file:
+Edit your `.env.local` file:
 
 ```env
-#***REMOVED***Supabase***REMOVED***Configuration
+# Supabase Configuration
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=REDACTED
 SUPABASE_SERVICE_ROLE_KEY=REDACTED
 
-#***REMOVED***Google***REMOVED***OAuth***REMOVED***(already***REMOVED***configured)
+# Google OAuth (already configured)
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 ```
 
-###***REMOVED***Step***REMOVED***4:***REMOVED***Run***REMOVED***Database***REMOVED***Migrations***REMOVED***(3***REMOVED***minutes)
+### Step 4: Run Database Migrations (3 minutes)
 
-####***REMOVED***Option***REMOVED***A:***REMOVED***Using***REMOVED***Supabase***REMOVED***Dashboard***REMOVED***(Recommended)
+#### Option A: Using Supabase Dashboard (Recommended)
 
-1.***REMOVED***Go***REMOVED***to***REMOVED*****SQL***REMOVED***Editor*****REMOVED***in***REMOVED***your***REMOVED***Supabase***REMOVED***dashboard
-2.***REMOVED***Click***REMOVED*****"New***REMOVED***Query"**
-3.***REMOVED***Copy***REMOVED***the***REMOVED***entire***REMOVED***content***REMOVED***from***REMOVED***`supabase/migrations/001_initial_schema.sql`
-4.***REMOVED***Paste***REMOVED***and***REMOVED***click***REMOVED*****"Run"**
-5.***REMOVED***You***REMOVED***should***REMOVED***see***REMOVED***"Success.***REMOVED***No***REMOVED***rows***REMOVED***returned"
-6.***REMOVED***Click***REMOVED*****"New***REMOVED***Query"*****REMOVED***again
-7.***REMOVED***Copy***REMOVED***the***REMOVED***entire***REMOVED***content***REMOVED***from***REMOVED***`supabase/migrations/002_add_google_oauth_tokens.sql`
-8.***REMOVED***Paste***REMOVED***and***REMOVED***click***REMOVED*****"Run"**
-9.***REMOVED***You***REMOVED***should***REMOVED***see***REMOVED***"Success.***REMOVED***No***REMOVED***rows***REMOVED***returned"
+1. Go to **SQL Editor** in your Supabase dashboard
+2. Click **"New Query"**
+3. Copy the entire content from `supabase/migrations/001_initial_schema.sql`
+4. Paste and click **"Run"**
+5. You should see "Success. No rows returned"
+6. Click **"New Query"** again
+7. Copy the entire content from `supabase/migrations/002_add_google_oauth_tokens.sql`
+8. Paste and click **"Run"**
+9. You should see "Success. No rows returned"
 
-####***REMOVED***Option***REMOVED***B:***REMOVED***Using***REMOVED***Supabase***REMOVED***CLI
-
-```bash
-#***REMOVED***Install***REMOVED***Supabase***REMOVED***CLI
-npm***REMOVED***install***REMOVED***-g***REMOVED***supabase
-
-#***REMOVED***Login
-supabase***REMOVED***login
-
-#***REMOVED***Link***REMOVED***to***REMOVED***your***REMOVED***project
-supabase***REMOVED***link***REMOVED***--project-ref***REMOVED***your-project-ref
-
-#***REMOVED***Run***REMOVED***migrations
-supabase***REMOVED***db***REMOVED***push
-```
-
-###***REMOVED***Step***REMOVED***5:***REMOVED***Configure***REMOVED***Google***REMOVED***OAuth***REMOVED***in***REMOVED***Supabase***REMOVED***(5***REMOVED***minutes)
-
-1.***REMOVED***In***REMOVED***Supabase***REMOVED***dashboard,***REMOVED***go***REMOVED***to***REMOVED*****Authentication*****REMOVED***→***REMOVED*****Providers**
-2.***REMOVED***Find***REMOVED*****Google*****REMOVED***and***REMOVED***click***REMOVED***to***REMOVED***expand
-3.***REMOVED***Toggle***REMOVED*****"Enable***REMOVED***Google***REMOVED***provider"*****REMOVED***to***REMOVED***ON
-4.***REMOVED***Enter***REMOVED***your***REMOVED***credentials:
-***REMOVED******REMOVED******REMOVED***-***REMOVED*****Client***REMOVED***ID**:***REMOVED***`REDACTED_GOOGLE_CLIENT_ID`
-***REMOVED******REMOVED******REMOVED***-***REMOVED*****Client***REMOVED***Secret**:***REMOVED***`REDACTED_GOOGLE_CLIENT_SECRET`
-5.***REMOVED***In***REMOVED*****"Authorized***REMOVED***Client***REMOVED***IDs"**,***REMOVED***leave***REMOVED***empty***REMOVED***(optional)
-6.***REMOVED***Click***REMOVED*****"Save"**
-
-###***REMOVED***Step***REMOVED***6:***REMOVED***Configure***REMOVED***Redirect***REMOVED***URLs***REMOVED***(2***REMOVED***minutes)
-
-1.***REMOVED***Still***REMOVED***in***REMOVED*****Authentication*****REMOVED***→***REMOVED*****URL***REMOVED***Configuration**
-2.***REMOVED***Add***REMOVED***these***REMOVED***redirect***REMOVED***URLs:
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Development:***REMOVED***`http://localhost:3000/auth/callback`
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Production:***REMOVED***`https://yourdomain.com/auth/callback`***REMOVED***(when***REMOVED***you***REMOVED***deploy)
-3.***REMOVED***Set***REMOVED*****Site***REMOVED***URL**:***REMOVED***`http://localhost:3000`***REMOVED***(or***REMOVED***your***REMOVED***production***REMOVED***URL)
-4.***REMOVED***Click***REMOVED*****"Save"**
-
-###***REMOVED***Step***REMOVED***7:***REMOVED***Configure***REMOVED***Google***REMOVED***Cloud***REMOVED***Console***REMOVED***(5***REMOVED***minutes)
-
-1.***REMOVED***Go***REMOVED***to***REMOVED***[Google***REMOVED***Cloud***REMOVED***Console](https://console.cloud.google.com)
-2.***REMOVED***Select***REMOVED***your***REMOVED***project
-3.***REMOVED***Go***REMOVED***to***REMOVED*****APIs***REMOVED***&***REMOVED***Services*****REMOVED***→***REMOVED*****Credentials**
-4.***REMOVED***Click***REMOVED***on***REMOVED***your***REMOVED***OAuth***REMOVED***2.0***REMOVED***Client***REMOVED***ID
-5.***REMOVED***Add***REMOVED*****Authorized***REMOVED***redirect***REMOVED***URIs**:
-***REMOVED******REMOVED******REMOVED***-***REMOVED***`http://localhost:3000/auth/callback`
-***REMOVED******REMOVED******REMOVED***-***REMOVED***`https://your-project.supabase.co/auth/v1/callback`
-6.***REMOVED***Click***REMOVED*****"Save"**
-
-###***REMOVED***Step***REMOVED***8:***REMOVED***Enable***REMOVED***Required***REMOVED***Google***REMOVED***APIs***REMOVED***(3***REMOVED***minutes)
-
-In***REMOVED***Google***REMOVED***Cloud***REMOVED***Console,***REMOVED***go***REMOVED***to***REMOVED*****APIs***REMOVED***&***REMOVED***Services*****REMOVED***→***REMOVED*****Library*****REMOVED***and***REMOVED***enable:
-
--***REMOVED***✅***REMOVED***Gmail***REMOVED***API
--***REMOVED***✅***REMOVED***Google***REMOVED***Drive***REMOVED***API
--***REMOVED***✅***REMOVED***Google***REMOVED***Docs***REMOVED***API
--***REMOVED***✅***REMOVED***Google***REMOVED***Sheets***REMOVED***API
--***REMOVED***✅***REMOVED***Google***REMOVED***Calendar***REMOVED***API
-
-###***REMOVED***Step***REMOVED***9:***REMOVED***Test***REMOVED***Your***REMOVED***Setup***REMOVED***(2***REMOVED***minutes)
+#### Option B: Using Supabase CLI
 
 ```bash
-#***REMOVED***Start***REMOVED***your***REMOVED***development***REMOVED***server
-npm***REMOVED***run***REMOVED***dev
+# Install Supabase CLI
+npm install -g supabase
+
+# Login
+supabase login
+
+# Link to your project
+supabase link --project-ref your-project-ref
+
+# Run migrations
+supabase db push
 ```
 
-Visit***REMOVED***`http://localhost:3000`***REMOVED***and***REMOVED***try***REMOVED***signing***REMOVED***in***REMOVED***with***REMOVED***Google!
+### Step 5: Configure Google OAuth in Supabase (5 minutes)
 
-##***REMOVED***🗄️***REMOVED***Database***REMOVED***Schema
+1. In Supabase dashboard, go to **Authentication** → **Providers**
+2. Find **Google** and click to expand
+3. Toggle **"Enable Google provider"** to ON
+4. Enter your credentials:
+   - **Client ID**: `REDACTED_GOOGLE_CLIENT_ID`
+   - **Client Secret**: `REDACTED_GOOGLE_CLIENT_SECRET`
+5. In **"Authorized Client IDs"**, leave empty (optional)
+6. Click **"Save"**
 
-###***REMOVED***Tables***REMOVED***Created
+### Step 6: Configure Redirect URLs (2 minutes)
 
-####***REMOVED***1.***REMOVED***`profiles`
-Stores***REMOVED***user***REMOVED***profile***REMOVED***information.
+1. Still in **Authentication** → **URL Configuration**
+2. Add these redirect URLs:
+   - Development: `http://localhost:3000/auth/callback`
+   - Production: `https://yourdomain.com/auth/callback` (when you deploy)
+3. Set **Site URL**: `http://localhost:3000` (or your production URL)
+4. Click **"Save"**
+
+### Step 7: Configure Google Cloud Console (5 minutes)
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com)
+2. Select your project
+3. Go to **APIs & Services** → **Credentials**
+4. Click on your OAuth 2.0 Client ID
+5. Add **Authorized redirect URIs**:
+   - `http://localhost:3000/auth/callback`
+   - `https://your-project.supabase.co/auth/v1/callback`
+6. Click **"Save"**
+
+### Step 8: Enable Required Google APIs (3 minutes)
+
+In Google Cloud Console, go to **APIs & Services** → **Library** and enable:
+
+- ✅ Gmail API
+- ✅ Google Drive API
+- ✅ Google Docs API
+- ✅ Google Sheets API
+- ✅ Google Calendar API
+
+### Step 9: Test Your Setup (2 minutes)
+
+```bash
+# Start your development server
+npm run dev
+```
+
+Visit `http://localhost:3000` and try signing in with Google!
+
+## 🗄️ Database Schema
+
+### Tables Created
+
+#### 1. `profiles`
+Stores user profile information.
 
 ```sql
--***REMOVED***id:***REMOVED***UUID***REMOVED***(references***REMOVED***auth.users)
--***REMOVED***email:***REMOVED***TEXT
--***REMOVED***full_name:***REMOVED***TEXT
--***REMOVED***avatar_url:***REMOVED***TEXT
--***REMOVED***preferences:***REMOVED***JSONB
--***REMOVED***google_access_token:***REMOVED***TEXT***REMOVED***(deprecated,***REMOVED***use***REMOVED***oauth_tokens)
--***REMOVED***google_refresh_token:***REMOVED***TEXT***REMOVED***(deprecated,***REMOVED***use***REMOVED***oauth_tokens)
--***REMOVED***google_token_expires_at:***REMOVED***TIMESTAMPTZ***REMOVED***(deprecated)
--***REMOVED***google_scopes:***REMOVED***TEXT[]***REMOVED***(deprecated)
--***REMOVED***created_at:***REMOVED***TIMESTAMPTZ
--***REMOVED***updated_at:***REMOVED***TIMESTAMPTZ
+- id: UUID (references auth.users)
+- email: TEXT
+- full_name: TEXT
+- avatar_url: TEXT
+- preferences: JSONB
+- google_access_token: TEXT (deprecated, use oauth_tokens)
+- google_refresh_token: TEXT (deprecated, use oauth_tokens)
+- google_token_expires_at: TIMESTAMPTZ (deprecated)
+- google_scopes: TEXT[] (deprecated)
+- created_at: TIMESTAMPTZ
+- updated_at: TIMESTAMPTZ
 ```
 
-####***REMOVED***2.***REMOVED***`oauth_tokens`***REMOVED***(Secure***REMOVED***Token***REMOVED***Storage)
-Stores***REMOVED***Google***REMOVED***OAuth***REMOVED***tokens***REMOVED***securely.
+#### 2. `oauth_tokens` (Secure Token Storage)
+Stores Google OAuth tokens securely.
 
 ```sql
--***REMOVED***id:***REMOVED***UUID
--***REMOVED***user_id:***REMOVED***UUID***REMOVED***(references***REMOVED***profiles)
--***REMOVED***provider:***REMOVED***TEXT***REMOVED***(default:***REMOVED***'google')
--***REMOVED***access_token:***REMOVED***TEXT
--***REMOVED***refresh_token:***REMOVED***TEXT
--***REMOVED***token_type:***REMOVED***TEXT***REMOVED***(default:***REMOVED***'Bearer')
--***REMOVED***expires_at:***REMOVED***TIMESTAMPTZ
--***REMOVED***scopes:***REMOVED***TEXT[]
--***REMOVED***created_at:***REMOVED***TIMESTAMPTZ
--***REMOVED***updated_at:***REMOVED***TIMESTAMPTZ
+- id: UUID
+- user_id: UUID (references profiles)
+- provider: TEXT (default: 'google')
+- access_token: TEXT
+- refresh_token: TEXT
+- token_type: TEXT (default: 'Bearer')
+- expires_at: TIMESTAMPTZ
+- scopes: TEXT[]
+- created_at: TIMESTAMPTZ
+- updated_at: TIMESTAMPTZ
 ```
 
-####***REMOVED***3.***REMOVED***`workflows`
-Stores***REMOVED***workflow***REMOVED***execution***REMOVED***data.
+#### 3. `workflows`
+Stores workflow execution data.
 
 ```sql
--***REMOVED***id:***REMOVED***UUID
--***REMOVED***user_id:***REMOVED***UUID***REMOVED***(references***REMOVED***profiles)
--***REMOVED***command:***REMOVED***TEXT
--***REMOVED***status:***REMOVED***workflow_status***REMOVED***ENUM
--***REMOVED***steps:***REMOVED***JSONB
--***REMOVED***results:***REMOVED***JSONB
--***REMOVED***error:***REMOVED***TEXT
--***REMOVED***start_time:***REMOVED***TIMESTAMPTZ
--***REMOVED***end_time:***REMOVED***TIMESTAMPTZ
--***REMOVED***created_at:***REMOVED***TIMESTAMPTZ
--***REMOVED***updated_at:***REMOVED***TIMESTAMPTZ
+- id: UUID
+- user_id: UUID (references profiles)
+- command: TEXT
+- status: workflow_status ENUM
+- steps: JSONB
+- results: JSONB
+- error: TEXT
+- start_time: TIMESTAMPTZ
+- end_time: TIMESTAMPTZ
+- created_at: TIMESTAMPTZ
+- updated_at: TIMESTAMPTZ
 ```
 
-####***REMOVED***4.***REMOVED***`workflow_history`
-Stores***REMOVED***workflow***REMOVED***execution***REMOVED***history.
+#### 4. `workflow_history`
+Stores workflow execution history.
 
 ```sql
--***REMOVED***id:***REMOVED***UUID
--***REMOVED***user_id:***REMOVED***UUID***REMOVED***(references***REMOVED***profiles)
--***REMOVED***workflow_id:***REMOVED***UUID***REMOVED***(references***REMOVED***workflows)
--***REMOVED***command:***REMOVED***TEXT
--***REMOVED***status:***REMOVED***TEXT
--***REMOVED***executed_at:***REMOVED***TIMESTAMPTZ
--***REMOVED***created_at:***REMOVED***TIMESTAMPTZ
+- id: UUID
+- user_id: UUID (references profiles)
+- workflow_id: UUID (references workflows)
+- command: TEXT
+- status: TEXT
+- executed_at: TIMESTAMPTZ
+- created_at: TIMESTAMPTZ
 ```
 
-##***REMOVED***🔐***REMOVED***Security***REMOVED***Features
+## 🔐 Security Features
 
-###***REMOVED***Row***REMOVED***Level***REMOVED***Security***REMOVED***(RLS)
-All***REMOVED***tables***REMOVED***have***REMOVED***RLS***REMOVED***enabled.***REMOVED***Users***REMOVED***can***REMOVED***only***REMOVED***access***REMOVED***their***REMOVED***own***REMOVED***data.
+### Row Level Security (RLS)
+All tables have RLS enabled. Users can only access their own data.
 
-###***REMOVED***Token***REMOVED***Storage
--***REMOVED***OAuth***REMOVED***tokens***REMOVED***stored***REMOVED***in***REMOVED***separate***REMOVED***`oauth_tokens`***REMOVED***table
--***REMOVED***Encrypted***REMOVED***at***REMOVED***rest***REMOVED***by***REMOVED***Supabase
--***REMOVED***Only***REMOVED***accessible***REMOVED***by***REMOVED***the***REMOVED***token***REMOVED***owner
--***REMOVED***Automatic***REMOVED***cleanup***REMOVED***on***REMOVED***user***REMOVED***deletion
+### Token Storage
+- OAuth tokens stored in separate `oauth_tokens` table
+- Encrypted at rest by Supabase
+- Only accessible by the token owner
+- Automatic cleanup on user deletion
 
-###***REMOVED***API***REMOVED***Security
--***REMOVED***All***REMOVED***API***REMOVED***routes***REMOVED***verify***REMOVED***authentication
--***REMOVED***Service***REMOVED***role***REMOVED***key***REMOVED***never***REMOVED***exposed***REMOVED***to***REMOVED***client
--***REMOVED***Tokens***REMOVED***refreshed***REMOVED***automatically***REMOVED***before***REMOVED***expiry
+### API Security
+- All API routes verify authentication
+- Service role key never exposed to client
+- Tokens refreshed automatically before expiry
 
-##***REMOVED***🔄***REMOVED***How***REMOVED***Token***REMOVED***Management***REMOVED***Works
+## 🔄 How Token Management Works
 
-###***REMOVED***1.***REMOVED***Initial***REMOVED***Sign-In
+### 1. Initial Sign-In
 ```
-User***REMOVED***clicks***REMOVED***"Sign***REMOVED***in***REMOVED***with***REMOVED***Google"
-***REMOVED******REMOVED***↓
-Supabase***REMOVED***redirects***REMOVED***to***REMOVED***Google***REMOVED***OAuth
-***REMOVED******REMOVED***↓
-User***REMOVED***grants***REMOVED***permissions
-***REMOVED******REMOVED***↓
-Google***REMOVED***redirects***REMOVED***back***REMOVED***with***REMOVED***tokens
-***REMOVED******REMOVED***↓
-Tokens***REMOVED***stored***REMOVED***in***REMOVED***oauth_tokens***REMOVED***table
-***REMOVED******REMOVED***↓
-User***REMOVED***redirected***REMOVED***to***REMOVED***dashboard
-```
-
-###***REMOVED***2.***REMOVED***Token***REMOVED***Refresh***REMOVED***(Automatic)
-```
-User***REMOVED***makes***REMOVED***API***REMOVED***call
-***REMOVED******REMOVED***↓
-Check***REMOVED***if***REMOVED***token***REMOVED***expires***REMOVED***in***REMOVED***<***REMOVED***5***REMOVED***minutes
-***REMOVED******REMOVED***↓
-If***REMOVED***yes:***REMOVED***Call***REMOVED***refresh***REMOVED***endpoint
-***REMOVED******REMOVED***↓
-Exchange***REMOVED***refresh_token***REMOVED***for***REMOVED***new***REMOVED***access_token
-***REMOVED******REMOVED***↓
-Update***REMOVED***oauth_tokens***REMOVED***table
-***REMOVED******REMOVED***↓
-Return***REMOVED***new***REMOVED***access_token
+User clicks "Sign in with Google"
+  ↓
+Supabase redirects to Google OAuth
+  ↓
+User grants permissions
+  ↓
+Google redirects back with tokens
+  ↓
+Tokens stored in oauth_tokens table
+  ↓
+User redirected to dashboard
 ```
 
-###***REMOVED***3.***REMOVED***Using***REMOVED***Tokens***REMOVED***in***REMOVED***Your***REMOVED***Code
+### 2. Token Refresh (Automatic)
+```
+User makes API call
+  ↓
+Check if token expires in < 5 minutes
+  ↓
+If yes: Call refresh endpoint
+  ↓
+Exchange refresh_token for new access_token
+  ↓
+Update oauth_tokens table
+  ↓
+Return new access_token
+```
+
+### 3. Using Tokens in Your Code
 
 ```tsx
-import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
+import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
 
-function***REMOVED***MyComponent()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***getGoogleAccessToken***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***const***REMOVED***callGoogleAPI***REMOVED***=***REMOVED***async***REMOVED***()***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Automatically***REMOVED***gets***REMOVED***fresh***REMOVED***token***REMOVED***(refreshes***REMOVED***if***REMOVED***needed)
-***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***token***REMOVED***=***REMOVED***await***REMOVED***getGoogleAccessToken();
-***REMOVED******REMOVED******REMOVED******REMOVED***
-***REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(!token)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***console.error("No***REMOVED***valid***REMOVED***token***REMOVED***available");
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return;
-***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED******REMOVED******REMOVED***
-***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Use***REMOVED***token***REMOVED***to***REMOVED***call***REMOVED***Google***REMOVED***APIs
-***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***response***REMOVED***=***REMOVED***await***REMOVED***fetch("https://www.googleapis.com/gmail/v1/users/me/messages",***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***headers:***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***Authorization:***REMOVED***`Bearer***REMOVED***${token}`,
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***},
-***REMOVED******REMOVED******REMOVED******REMOVED***});
-***REMOVED******REMOVED******REMOVED******REMOVED***
-***REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***data***REMOVED***=***REMOVED***await***REMOVED***response.json();
-***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***data;
-***REMOVED******REMOVED***};
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***return***REMOVED***<button***REMOVED***onClick={callGoogleAPI}>Fetch***REMOVED***Emails</button>;
+function MyComponent() {
+  const { getGoogleAccessToken } = useSupabaseAuth();
+  
+  const callGoogleAPI = async () => {
+    // Automatically gets fresh token (refreshes if needed)
+    const token = await getGoogleAccessToken();
+    
+    if (!token) {
+      console.error("No valid token available");
+      return;
+    }
+    
+    // Use token to call Google APIs
+    const response = await fetch("https://www.googleapis.com/gmail/v1/users/me/messages", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    
+    const data = await response.json();
+    return data;
+  };
+  
+  return <button onClick={callGoogleAPI}>Fetch Emails</button>;
 }
 ```
 
-##***REMOVED***📝***REMOVED***API***REMOVED***Routes***REMOVED***Created
+## 📝 API Routes Created
 
-###***REMOVED***`GET***REMOVED***/api/auth/status`
-Check***REMOVED***current***REMOVED***authentication***REMOVED***status***REMOVED***and***REMOVED***Google***REMOVED***OAuth***REMOVED***connection.
+### `GET /api/auth/status`
+Check current authentication status and Google OAuth connection.
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"isAuthenticated":***REMOVED***true,
-***REMOVED******REMOVED***"session":***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***"userId":***REMOVED***"uuid",
-***REMOVED******REMOVED******REMOVED******REMOVED***"email":***REMOVED***"user@example.com",
-***REMOVED******REMOVED******REMOVED******REMOVED***"oauthStatus":***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"isConnected":***REMOVED***true,
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"userEmail":***REMOVED***"user@example.com",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"scopes":***REMOVED***["gmail.modify",***REMOVED***"drive.file",***REMOVED***...],
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"expiresAt":***REMOVED***"2024-01-01T12:00:00Z"
-***REMOVED******REMOVED******REMOVED******REMOVED***},
-***REMOVED******REMOVED******REMOVED******REMOVED***"preferences":***REMOVED***{***REMOVED***...***REMOVED***}
-***REMOVED******REMOVED***}
+  "isAuthenticated": true,
+  "session": {
+    "userId": "uuid",
+    "email": "user@example.com",
+    "oauthStatus": {
+      "isConnected": true,
+      "userEmail": "user@example.com",
+      "scopes": ["gmail.modify", "drive.file", ...],
+      "expiresAt": "2024-01-01T12:00:00Z"
+    },
+    "preferences": { ... }
+  }
 }
 ```
 
-###***REMOVED***`POST***REMOVED***/api/auth/refresh-google-token`
-Refresh***REMOVED***Google***REMOVED***OAuth***REMOVED***access***REMOVED***token.
+### `POST /api/auth/refresh-google-token`
+Refresh Google OAuth access token.
 
 **Request:**
 ```json
 {
-***REMOVED******REMOVED***"refreshToken":***REMOVED***"your_refresh_token"
+  "refreshToken": "your_refresh_token"
 }
 ```
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"access_token":***REMOVED***"new_access_token",
-***REMOVED******REMOVED***"expires_in":***REMOVED***3600,
-***REMOVED******REMOVED***"token_type":***REMOVED***"Bearer"
+  "access_token": "new_access_token",
+  "expires_in": 3600,
+  "token_type": "Bearer"
 }
 ```
 
-###***REMOVED***`POST***REMOVED***/api/auth/disconnect`
-Disconnect***REMOVED***Google***REMOVED***account***REMOVED***and***REMOVED***revoke***REMOVED***tokens.
+### `POST /api/auth/disconnect`
+Disconnect Google account and revoke tokens.
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"success":***REMOVED***true,
-***REMOVED******REMOVED***"message":***REMOVED***"Successfully***REMOVED***disconnected***REMOVED***Google***REMOVED***account"
+  "success": true,
+  "message": "Successfully disconnected Google account"
 }
 ```
 
-###***REMOVED***`GET***REMOVED***/auth/callback`
-OAuth***REMOVED***callback***REMOVED***handler***REMOVED***(automatically***REMOVED***called***REMOVED***by***REMOVED***Supabase).
+### `GET /auth/callback`
+OAuth callback handler (automatically called by Supabase).
 
-##***REMOVED***🧪***REMOVED***Testing***REMOVED***Your***REMOVED***Setup
+## 🧪 Testing Your Setup
 
-###***REMOVED***1.***REMOVED***Test***REMOVED***Authentication
+### 1. Test Authentication
 ```bash
-npm***REMOVED***run***REMOVED***dev
+npm run dev
 ```
--***REMOVED***Visit***REMOVED***`http://localhost:3000`
--***REMOVED***Click***REMOVED***"Sign***REMOVED***in***REMOVED***with***REMOVED***Google"
--***REMOVED***Grant***REMOVED***permissions
--***REMOVED***Should***REMOVED***redirect***REMOVED***to***REMOVED***dashboard
+- Visit `http://localhost:3000`
+- Click "Sign in with Google"
+- Grant permissions
+- Should redirect to dashboard
 
-###***REMOVED***2.***REMOVED***Test***REMOVED***Token***REMOVED***Storage
+### 2. Test Token Storage
 ```sql
---***REMOVED***In***REMOVED***Supabase***REMOVED***SQL***REMOVED***Editor
-SELECT***REMOVED*******REMOVED***FROM***REMOVED***oauth_tokens***REMOVED***WHERE***REMOVED***user_id***REMOVED***=***REMOVED***'your-user-id';
+-- In Supabase SQL Editor
+SELECT * FROM oauth_tokens WHERE user_id = 'your-user-id';
 ```
 
-###***REMOVED***3.***REMOVED***Test***REMOVED***Token***REMOVED***Refresh
+### 3. Test Token Refresh
 ```tsx
-//***REMOVED***In***REMOVED***your***REMOVED***component
-const***REMOVED***{***REMOVED***refreshGoogleToken***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
-await***REMOVED***refreshGoogleToken();
+// In your component
+const { refreshGoogleToken } = useSupabaseAuth();
+await refreshGoogleToken();
 ```
 
-##***REMOVED***🐛***REMOVED***Troubleshooting
+## 🐛 Troubleshooting
 
-###***REMOVED***"Invalid***REMOVED***API***REMOVED***key"
--***REMOVED***✅***REMOVED***Check***REMOVED***`.env.local`***REMOVED***has***REMOVED***correct***REMOVED***Supabase***REMOVED***credentials
--***REMOVED***✅***REMOVED***Restart***REMOVED***dev***REMOVED***server***REMOVED***after***REMOVED***changing***REMOVED***env***REMOVED***vars
--***REMOVED***✅***REMOVED***Verify***REMOVED***no***REMOVED***extra***REMOVED***spaces***REMOVED***or***REMOVED***quotes***REMOVED***in***REMOVED***env***REMOVED***values
+### "Invalid API key"
+- ✅ Check `.env.local` has correct Supabase credentials
+- ✅ Restart dev server after changing env vars
+- ✅ Verify no extra spaces or quotes in env values
 
-###***REMOVED***"Redirect***REMOVED***URI***REMOVED***mismatch"
--***REMOVED***✅***REMOVED***Check***REMOVED***redirect***REMOVED***URLs***REMOVED***in***REMOVED***Supabase***REMOVED***match***REMOVED***Google***REMOVED***Cloud***REMOVED***Console
--***REMOVED***✅***REMOVED***Ensure***REMOVED***`http://localhost:3000/auth/callback`***REMOVED***is***REMOVED***added***REMOVED***to***REMOVED***both
--***REMOVED***✅***REMOVED***Add***REMOVED***Supabase***REMOVED***callback***REMOVED***URL:***REMOVED***`https://your-project.supabase.co/auth/v1/callback`
+### "Redirect URI mismatch"
+- ✅ Check redirect URLs in Supabase match Google Cloud Console
+- ✅ Ensure `http://localhost:3000/auth/callback` is added to both
+- ✅ Add Supabase callback URL: `https://your-project.supabase.co/auth/v1/callback`
 
-###***REMOVED***"Failed***REMOVED***to***REMOVED***fetch"
--***REMOVED***✅***REMOVED***Check***REMOVED***Supabase***REMOVED***project***REMOVED***is***REMOVED***active
--***REMOVED***✅***REMOVED***Verify***REMOVED***network***REMOVED***connectivity
--***REMOVED***✅***REMOVED***Check***REMOVED***browser***REMOVED***console***REMOVED***for***REMOVED***detailed***REMOVED***errors
+### "Failed to fetch"
+- ✅ Check Supabase project is active
+- ✅ Verify network connectivity
+- ✅ Check browser console for detailed errors
 
-###***REMOVED***"Token***REMOVED***refresh***REMOVED***failed"
--***REMOVED***✅***REMOVED***Verify***REMOVED***refresh***REMOVED***token***REMOVED***exists***REMOVED***in***REMOVED***database
--***REMOVED***✅***REMOVED***Check***REMOVED***Google***REMOVED***OAuth***REMOVED***credentials***REMOVED***are***REMOVED***correct
--***REMOVED***✅***REMOVED***Ensure***REMOVED***user***REMOVED***hasn't***REMOVED***revoked***REMOVED***access***REMOVED***in***REMOVED***Google***REMOVED***account***REMOVED***settings
+### "Token refresh failed"
+- ✅ Verify refresh token exists in database
+- ✅ Check Google OAuth credentials are correct
+- ✅ Ensure user hasn't revoked access in Google account settings
 
-###***REMOVED***"RLS***REMOVED***policy***REMOVED***violation"
--***REMOVED***✅***REMOVED***Verify***REMOVED***migrations***REMOVED***ran***REMOVED***successfully
--***REMOVED***✅***REMOVED***Check***REMOVED***user***REMOVED***is***REMOVED***authenticated
--***REMOVED***✅***REMOVED***Ensure***REMOVED***RLS***REMOVED***policies***REMOVED***are***REMOVED***created
+### "RLS policy violation"
+- ✅ Verify migrations ran successfully
+- ✅ Check user is authenticated
+- ✅ Ensure RLS policies are created
 
-##***REMOVED***📚***REMOVED***Next***REMOVED***Steps
+## 📚 Next Steps
 
-1.***REMOVED***✅***REMOVED*****Update***REMOVED***existing***REMOVED***components*****REMOVED***to***REMOVED***use***REMOVED***`useSupabaseAuth()`***REMOVED***instead***REMOVED***of***REMOVED***old***REMOVED***`useAuth()`
-2.***REMOVED***✅***REMOVED*****Test***REMOVED***Google***REMOVED***API***REMOVED***calls*****REMOVED***with***REMOVED***stored***REMOVED***tokens
-3.***REMOVED***✅***REMOVED*****Implement***REMOVED***workflow***REMOVED***storage*****REMOVED***in***REMOVED***Supabase
-4.***REMOVED***✅***REMOVED*****Add***REMOVED***history***REMOVED***tracking*****REMOVED***using***REMOVED***workflow_history***REMOVED***table
-5.***REMOVED***✅***REMOVED*****Deploy***REMOVED***to***REMOVED***production*****REMOVED***and***REMOVED***update***REMOVED***environment***REMOVED***variables
+1. ✅ **Update existing components** to use `useSupabaseAuth()` instead of old `useAuth()`
+2. ✅ **Test Google API calls** with stored tokens
+3. ✅ **Implement workflow storage** in Supabase
+4. ✅ **Add history tracking** using workflow_history table
+5. ✅ **Deploy to production** and update environment variables
 
-##***REMOVED***🔗***REMOVED***Useful***REMOVED***Links
+## 🔗 Useful Links
 
--***REMOVED***[Supabase***REMOVED***Documentation](https://supabase.com/docs)
--***REMOVED***[Supabase***REMOVED***Auth***REMOVED***Helpers](https://supabase.com/docs/guides/auth/auth-helpers/nextjs)
--***REMOVED***[Google***REMOVED***OAuth***REMOVED***Documentation](https://developers.google.com/identity/protocols/oauth2)
--***REMOVED***[Gmail***REMOVED***API***REMOVED***Reference](https://developers.google.com/gmail/api)
--***REMOVED***[Google***REMOVED***Drive***REMOVED***API***REMOVED***Reference](https://developers.google.com/drive/api)
+- [Supabase Documentation](https://supabase.com/docs)
+- [Supabase Auth Helpers](https://supabase.com/docs/guides/auth/auth-helpers/nextjs)
+- [Google OAuth Documentation](https://developers.google.com/identity/protocols/oauth2)
+- [Gmail API Reference](https://developers.google.com/gmail/api)
+- [Google Drive API Reference](https://developers.google.com/drive/api)
 
-##***REMOVED***💡***REMOVED***Tips
+## 💡 Tips
 
--***REMOVED*****Development**:***REMOVED***Use***REMOVED***`http://localhost:3000`***REMOVED***for***REMOVED***testing
--***REMOVED*****Production**:***REMOVED***Update***REMOVED***all***REMOVED***URLs***REMOVED***to***REMOVED***your***REMOVED***production***REMOVED***domain
--***REMOVED*****Security**:***REMOVED***Never***REMOVED***commit***REMOVED***`.env.local`***REMOVED***to***REMOVED***git
--***REMOVED*****Monitoring**:***REMOVED***Check***REMOVED***Supabase***REMOVED***dashboard***REMOVED***for***REMOVED***auth***REMOVED***logs
--***REMOVED*****Debugging**:***REMOVED***Enable***REMOVED***verbose***REMOVED***logging***REMOVED***in***REMOVED***Supabase***REMOVED***settings
+- **Development**: Use `http://localhost:3000` for testing
+- **Production**: Update all URLs to your production domain
+- **Security**: Never commit `.env.local` to git
+- **Monitoring**: Check Supabase dashboard for auth logs
+- **Debugging**: Enable verbose logging in Supabase settings
 
 ---
 
-**Need***REMOVED***help?*****REMOVED***Check***REMOVED***the***REMOVED***[Supabase***REMOVED***Discord](https://discord.supabase.com)***REMOVED***or***REMOVED***[GitHub***REMOVED***Discussions](https://github.com/supabase/supabase/discussions)
+**Need help?** Check the [Supabase Discord](https://discord.supabase.com) or [GitHub Discussions](https://github.com/supabase/supabase/discussions)
+

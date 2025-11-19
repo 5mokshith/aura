@@ -1,19 +1,24 @@
-﻿"useclient";
+﻿"use client";
 
-import{useEffect,useState,Suspense}from"react";
-import{useRouter,useSearchParams}from"next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-functionCallbackContent(){
-constrouter=useRouter();
-constsearchParams=useSearchParams();
-const[error,setError]=useState<string|null>(null);
-const[isProcessing,setIsProcessing]=useState(true);
+function CallbackContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [error, setError] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(true);
 
-useEffect(()=>{
-consthandleCallback=async()=>{
-constcode=searchParams.get("code");
-consterrorParam=searchParams.get("error");
+  useEffect(() => {
+    const handleCallback = async () => {
+      const code = searchParams.get("code");
+      const errorParam = searchParams.get("error");
 
+      if (errorParam) {
+        setError(`Authentication failed: ${errorParam}`);
+        setIsProcessing(false);
+        return;
+      }
 if(errorParam){
 setError(`Authenticationfailed:${errorParam}`);
 setIsProcessing(false);

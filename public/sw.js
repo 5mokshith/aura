@@ -1,146 +1,147 @@
-//***REMOVED***Service***REMOVED***Worker***REMOVED***for***REMOVED***AURA***REMOVED***PWA
-//***REMOVED***Provides***REMOVED***offline***REMOVED***support***REMOVED***and***REMOVED***caching***REMOVED***strategies
+// Service Worker for AURA PWA
+// Provides offline support and caching strategies
 
-const***REMOVED***CACHE_NAME***REMOVED***=***REMOVED***"aura-v1";
-const***REMOVED***RUNTIME_CACHE***REMOVED***=***REMOVED***"aura-runtime-v1";
+const CACHE_NAME = "aura-v1";
+const RUNTIME_CACHE = "aura-runtime-v1";
 
-//***REMOVED***Assets***REMOVED***to***REMOVED***cache***REMOVED***on***REMOVED***install
-const***REMOVED***PRECACHE_ASSETS***REMOVED***=***REMOVED***[
-***REMOVED******REMOVED***"/",
-***REMOVED******REMOVED***"/manifest.json",
-***REMOVED******REMOVED***"/favicon.ico",
+// Assets to cache on install
+const PRECACHE_ASSETS = [
+  "/",
+  "/manifest.json",
+  "/favicon.ico",
 ];
 
-//***REMOVED***Install***REMOVED***event***REMOVED***-***REMOVED***cache***REMOVED***essential***REMOVED***assets
-self.addEventListener("install",***REMOVED***(event)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED***console.log("[Service***REMOVED***Worker]***REMOVED***Installing...");
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***event.waitUntil(
-***REMOVED******REMOVED******REMOVED******REMOVED***caches.open(CACHE_NAME).then((cache)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***console.log("[Service***REMOVED***Worker]***REMOVED***Precaching***REMOVED***assets");
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***cache.addAll(PRECACHE_ASSETS);
-***REMOVED******REMOVED******REMOVED******REMOVED***})
-***REMOVED******REMOVED***);
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***//***REMOVED***Activate***REMOVED***immediately
-***REMOVED******REMOVED***self.skipWaiting();
+// Install event - cache essential assets
+self.addEventListener("install", (event) => {
+  console.log("[Service Worker] Installing...");
+  
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      console.log("[Service Worker] Precaching assets");
+      return cache.addAll(PRECACHE_ASSETS);
+    })
+  );
+  
+  // Activate immediately
+  self.skipWaiting();
 });
 
-//***REMOVED***Activate***REMOVED***event***REMOVED***-***REMOVED***clean***REMOVED***up***REMOVED***old***REMOVED***caches
-self.addEventListener("activate",***REMOVED***(event)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED***console.log("[Service***REMOVED***Worker]***REMOVED***Activating...");
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***event.waitUntil(
-***REMOVED******REMOVED******REMOVED******REMOVED***caches.keys().then((cacheNames)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***Promise.all(
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***cacheNames
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***.filter((name)***REMOVED***=>***REMOVED***name***REMOVED***!==***REMOVED***CACHE_NAME***REMOVED***&&***REMOVED***name***REMOVED***!==***REMOVED***RUNTIME_CACHE)
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***.map((name)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***console.log("[Service***REMOVED***Worker]***REMOVED***Deleting***REMOVED***old***REMOVED***cache:",***REMOVED***name);
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***caches.delete(name);
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***})
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***);
-***REMOVED******REMOVED******REMOVED******REMOVED***})
-***REMOVED******REMOVED***);
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***//***REMOVED***Take***REMOVED***control***REMOVED***immediately
-***REMOVED******REMOVED***return***REMOVED***self.clients.claim();
+// Activate event - clean up old caches
+self.addEventListener("activate", (event) => {
+  console.log("[Service Worker] Activating...");
+  
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      return Promise.all(
+        cacheNames
+          .filter((name) => name !== CACHE_NAME && name !== RUNTIME_CACHE)
+          .map((name) => {
+            console.log("[Service Worker] Deleting old cache:", name);
+            return caches.delete(name);
+          })
+      );
+    })
+  );
+  
+  // Take control immediately
+  return self.clients.claim();
 });
 
-//***REMOVED***Fetch***REMOVED***event***REMOVED***-***REMOVED***network***REMOVED***first,***REMOVED***fallback***REMOVED***to***REMOVED***cache
-self.addEventListener("fetch",***REMOVED***(event)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***request***REMOVED***}***REMOVED***=***REMOVED***event;
-***REMOVED******REMOVED***const***REMOVED***url***REMOVED***=***REMOVED***new***REMOVED***URL(request.url);
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***//***REMOVED***Skip***REMOVED***non-GET***REMOVED***requests
-***REMOVED******REMOVED***if***REMOVED***(request.method***REMOVED***!==***REMOVED***"GET")***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***return;
-***REMOVED******REMOVED***}
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***//***REMOVED***Skip***REMOVED***chrome***REMOVED***extensions***REMOVED***and***REMOVED***other***REMOVED***protocols
-***REMOVED******REMOVED***if***REMOVED***(!url.protocol.startsWith("http"))***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***return;
-***REMOVED******REMOVED***}
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***//***REMOVED***API***REMOVED***requests***REMOVED***-***REMOVED***network***REMOVED***only***REMOVED***(no***REMOVED***cache)
-***REMOVED******REMOVED***if***REMOVED***(url.pathname.startsWith("/api/"))***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***event.respondWith(fetch(request));
-***REMOVED******REMOVED******REMOVED******REMOVED***return;
-***REMOVED******REMOVED***}
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***//***REMOVED***SSE***REMOVED***streams***REMOVED***-***REMOVED***network***REMOVED***only
-***REMOVED******REMOVED***if***REMOVED***(url.pathname.includes("/stream"))***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***event.respondWith(fetch(request));
-***REMOVED******REMOVED******REMOVED******REMOVED***return;
-***REMOVED******REMOVED***}
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***//***REMOVED***Static***REMOVED***assets***REMOVED***-***REMOVED***cache***REMOVED***first,***REMOVED***fallback***REMOVED***to***REMOVED***network
-***REMOVED******REMOVED***if***REMOVED***(
-***REMOVED******REMOVED******REMOVED******REMOVED***url.pathname.startsWith("/_next/static/")***REMOVED***||
-***REMOVED******REMOVED******REMOVED******REMOVED***url.pathname.startsWith("/icons/")***REMOVED***||
-***REMOVED******REMOVED******REMOVED******REMOVED***url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|gif|webp|woff|woff2)$/)
-***REMOVED******REMOVED***)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***event.respondWith(
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***caches.match(request).then((cachedResponse)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(cachedResponse)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***cachedResponse;
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***fetch(request).then((response)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Cache***REMOVED***successful***REMOVED***responses
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(response.status***REMOVED***===***REMOVED***200)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***responseClone***REMOVED***=***REMOVED***response.clone();
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***caches.open(RUNTIME_CACHE).then((cache)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***cache.put(request,***REMOVED***responseClone);
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***});
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***response;
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***});
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***})
-***REMOVED******REMOVED******REMOVED******REMOVED***);
-***REMOVED******REMOVED******REMOVED******REMOVED***return;
-***REMOVED******REMOVED***}
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***//***REMOVED***HTML***REMOVED***pages***REMOVED***-***REMOVED***network***REMOVED***first,***REMOVED***fallback***REMOVED***to***REMOVED***cache
-***REMOVED******REMOVED***event.respondWith(
-***REMOVED******REMOVED******REMOVED******REMOVED***fetch(request)
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***.then((response)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Cache***REMOVED***successful***REMOVED***responses
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(response.status***REMOVED***===***REMOVED***200)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***responseClone***REMOVED***=***REMOVED***response.clone();
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***caches.open(RUNTIME_CACHE).then((cache)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***cache.put(request,***REMOVED***responseClone);
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***});
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***response;
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***})
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***.catch(()***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Fallback***REMOVED***to***REMOVED***cache***REMOVED***if***REMOVED***network***REMOVED***fails
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***caches.match(request).then((cachedResponse)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***if***REMOVED***(cachedResponse)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***cachedResponse;
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Return***REMOVED***offline***REMOVED***page***REMOVED***if***REMOVED***available
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***caches.match("/");
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***});
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***})
-***REMOVED******REMOVED***);
+// Fetch event - network first, fallback to cache
+self.addEventListener("fetch", (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+  
+  // Skip non-GET requests
+  if (request.method !== "GET") {
+    return;
+  }
+  
+  // Skip chrome extensions and other protocols
+  if (!url.protocol.startsWith("http")) {
+    return;
+  }
+  
+  // API requests - network only (no cache)
+  if (url.pathname.startsWith("/api/")) {
+    event.respondWith(fetch(request));
+    return;
+  }
+  
+  // SSE streams - network only
+  if (url.pathname.includes("/stream")) {
+    event.respondWith(fetch(request));
+    return;
+  }
+  
+  // Static assets - cache first, fallback to network
+  if (
+    url.pathname.startsWith("/_next/static/") ||
+    url.pathname.startsWith("/icons/") ||
+    url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|gif|webp|woff|woff2)$/)
+  ) {
+    event.respondWith(
+      caches.match(request).then((cachedResponse) => {
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+        
+        return fetch(request).then((response) => {
+          // Cache successful responses
+          if (response.status === 200) {
+            const responseClone = response.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+  
+  // HTML pages - network first, fallback to cache
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        // Cache successful responses
+        if (response.status === 200) {
+          const responseClone = response.clone();
+          caches.open(RUNTIME_CACHE).then((cache) => {
+            cache.put(request, responseClone);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        // Fallback to cache if network fails
+        return caches.match(request).then((cachedResponse) => {
+          if (cachedResponse) {
+            return cachedResponse;
+          }
+          
+          // Return offline page if available
+          return caches.match("/");
+        });
+      })
+  );
 });
 
-//***REMOVED***Message***REMOVED***event***REMOVED***-***REMOVED***handle***REMOVED***messages***REMOVED***from***REMOVED***clients
-self.addEventListener("message",***REMOVED***(event)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED***if***REMOVED***(event.data***REMOVED***&&***REMOVED***event.data.type***REMOVED***===***REMOVED***"SKIP_WAITING")***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***self.skipWaiting();
-***REMOVED******REMOVED***}
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***if***REMOVED***(event.data***REMOVED***&&***REMOVED***event.data.type***REMOVED***===***REMOVED***"CLEAR_CACHE")***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***event.waitUntil(
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***caches.keys().then((cacheNames)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***Promise.all(
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***cacheNames.map((name)***REMOVED***=>***REMOVED***caches.delete(name))
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***);
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***})
-***REMOVED******REMOVED******REMOVED******REMOVED***);
-***REMOVED******REMOVED***}
+// Message event - handle messages from clients
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+  
+  if (event.data && event.data.type === "CLEAR_CACHE") {
+    event.waitUntil(
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((name) => caches.delete(name))
+        );
+      })
+    );
+  }
 });
+

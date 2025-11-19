@@ -1,303 +1,304 @@
-#***REMOVED***Migration***REMOVED***Guide:***REMOVED***From***REMOVED***Custom***REMOVED***Auth***REMOVED***to***REMOVED***Supabase
+# Migration Guide: From Custom Auth to Supabase
 
-This***REMOVED***guide***REMOVED***helps***REMOVED***you***REMOVED***migrate***REMOVED***from***REMOVED***the***REMOVED***existing***REMOVED***Google***REMOVED***OAuth***REMOVED***implementation***REMOVED***to***REMOVED***Supabase.
+This guide helps you migrate from the existing Google OAuth implementation to Supabase.
 
-##***REMOVED***Overview
+## Overview
 
-**What's***REMOVED***changing:**
--***REMOVED***Authentication***REMOVED***now***REMOVED***handled***REMOVED***by***REMOVED***Supabase***REMOVED***Auth
--***REMOVED***User***REMOVED***sessions***REMOVED***managed***REMOVED***by***REMOVED***Supabase
--***REMOVED***Database***REMOVED***operations***REMOVED***use***REMOVED***Supabase***REMOVED***client
--***REMOVED***Middleware***REMOVED***handles***REMOVED***auth***REMOVED***state***REMOVED***automatically
+**What's changing:**
+- Authentication now handled by Supabase Auth
+- User sessions managed by Supabase
+- Database operations use Supabase client
+- Middleware handles auth state automatically
 
-**What***REMOVED***stays***REMOVED***the***REMOVED***same:**
--***REMOVED***Google***REMOVED***OAuth***REMOVED***flow***REMOVED***(users***REMOVED***won't***REMOVED***notice***REMOVED***a***REMOVED***difference)
--***REMOVED***Same***REMOVED***OAuth***REMOVED***scopes***REMOVED***for***REMOVED***Google***REMOVED***APIs
--***REMOVED***Similar***REMOVED***API***REMOVED***structure
--***REMOVED***Component***REMOVED***interfaces***REMOVED***remain***REMOVED***familiar
+**What stays the same:**
+- Google OAuth flow (users won't notice a difference)
+- Same OAuth scopes for Google APIs
+- Similar API structure
+- Component interfaces remain familiar
 
-##***REMOVED***Migration***REMOVED***Steps
+## Migration Steps
 
-###***REMOVED***Phase***REMOVED***1:***REMOVED***Setup***REMOVED***(15***REMOVED***minutes)
+### Phase 1: Setup (15 minutes)
 
-1.***REMOVED*****Install***REMOVED***dependencies*****REMOVED***✅***REMOVED***(Already***REMOVED***done)
-***REMOVED******REMOVED******REMOVED***```bash
-***REMOVED******REMOVED******REMOVED***npm***REMOVED***install***REMOVED***@supabase/supabase-js***REMOVED***@supabase/ssr
-***REMOVED******REMOVED******REMOVED***```
+1. **Install dependencies** ✅ (Already done)
+   ```bash
+   npm install @supabase/supabase-js @supabase/ssr
+   ```
 
-2.***REMOVED*****Configure***REMOVED***environment***REMOVED***variables*****REMOVED***✅***REMOVED***(Already***REMOVED***done)
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Update***REMOVED***`.env.local`***REMOVED***with***REMOVED***Supabase***REMOVED***credentials
+2. **Configure environment variables** ✅ (Already done)
+   - Update `.env.local` with Supabase credentials
 
-3.***REMOVED*****Set***REMOVED***up***REMOVED***database***REMOVED***schema*****REMOVED***(Do***REMOVED***this***REMOVED***now)
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Run***REMOVED***the***REMOVED***SQL***REMOVED***migration***REMOVED***in***REMOVED***Supabase***REMOVED***dashboard
-***REMOVED******REMOVED******REMOVED***-***REMOVED***See***REMOVED***[SUPABASE_QUICKSTART.md](./SUPABASE_QUICKSTART.md)
+3. **Set up database schema** (Do this now)
+   - Run the SQL migration in Supabase dashboard
+   - See [SUPABASE_QUICKSTART.md](./SUPABASE_QUICKSTART.md)
 
-4.***REMOVED*****Configure***REMOVED***Google***REMOVED***OAuth***REMOVED***in***REMOVED***Supabase*****REMOVED***(Do***REMOVED***this***REMOVED***now)
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Enable***REMOVED***Google***REMOVED***provider
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Add***REMOVED***your***REMOVED***OAuth***REMOVED***credentials
+4. **Configure Google OAuth in Supabase** (Do this now)
+   - Enable Google provider
+   - Add your OAuth credentials
 
-###***REMOVED***Phase***REMOVED***2:***REMOVED***Update***REMOVED***Components***REMOVED***(30***REMOVED***minutes)
+### Phase 2: Update Components (30 minutes)
 
-####***REMOVED***Update***REMOVED***Auth***REMOVED***Provider
+#### Update Auth Provider
 
-**Old***REMOVED***way:**
+**Old way:**
 ```tsx
-import***REMOVED***{***REMOVED***AuthProvider***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 <AuthProvider>
-***REMOVED******REMOVED***<App***REMOVED***/>
+  <App />
 </AuthProvider>
 ```
 
-**New***REMOVED***way:**
+**New way:**
 ```tsx
-import***REMOVED***{***REMOVED***SupabaseAuthProvider***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
+import { SupabaseAuthProvider } from "@/contexts/SupabaseAuthContext";
 
 <SupabaseAuthProvider>
-***REMOVED******REMOVED***<App***REMOVED***/>
+  <App />
 </SupabaseAuthProvider>
 ```
 
-####***REMOVED***Update***REMOVED***Auth***REMOVED***Hook***REMOVED***Usage
+#### Update Auth Hook Usage
 
-**Old***REMOVED***way:**
+**Old way:**
 ```tsx
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 
-const***REMOVED***{***REMOVED***session,***REMOVED***isLoading,***REMOVED***login,***REMOVED***logout***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+const { session, isLoading, login, logout } = useAuth();
 
-//***REMOVED***Check***REMOVED***if***REMOVED***authenticated
-if***REMOVED***(session?.isAuthenticated)***REMOVED***{
-***REMOVED******REMOVED***//***REMOVED***User***REMOVED***is***REMOVED***logged***REMOVED***in
+// Check if authenticated
+if (session?.isAuthenticated) {
+  // User is logged in
 }
 ```
 
-**New***REMOVED***way:**
+**New way:**
 ```tsx
-import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
+import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
 
-const***REMOVED***{***REMOVED***user,***REMOVED***session,***REMOVED***isLoading,***REMOVED***signInWithGoogle,***REMOVED***signOut***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
+const { user, session, isLoading, signInWithGoogle, signOut } = useSupabaseAuth();
 
-//***REMOVED***Check***REMOVED***if***REMOVED***authenticated
-if***REMOVED***(user)***REMOVED***{
-***REMOVED******REMOVED***//***REMOVED***User***REMOVED***is***REMOVED***logged***REMOVED***in
+// Check if authenticated
+if (user) {
+  // User is logged in
 }
 ```
 
-####***REMOVED***Component***REMOVED***Migration***REMOVED***Examples
+#### Component Migration Examples
 
-**Login***REMOVED***Button:**
+**Login Button:**
 
 ```tsx
-//***REMOVED***Before
-const***REMOVED***{***REMOVED***login***REMOVED***}***REMOVED***=***REMOVED***useAuth();
-<button***REMOVED***onClick={login}>Connect***REMOVED***Google***REMOVED***Account</button>
+// Before
+const { login } = useAuth();
+<button onClick={login}>Connect Google Account</button>
 
-//***REMOVED***After
-const***REMOVED***{***REMOVED***signInWithGoogle***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
-<button***REMOVED***onClick={signInWithGoogle}>Connect***REMOVED***Google***REMOVED***Account</button>
+// After
+const { signInWithGoogle } = useSupabaseAuth();
+<button onClick={signInWithGoogle}>Connect Google Account</button>
 ```
 
-**Logout***REMOVED***Button:**
+**Logout Button:**
 
 ```tsx
-//***REMOVED***Before
-const***REMOVED***{***REMOVED***logout***REMOVED***}***REMOVED***=***REMOVED***useAuth();
-<button***REMOVED***onClick={logout}>Disconnect</button>
+// Before
+const { logout } = useAuth();
+<button onClick={logout}>Disconnect</button>
 
-//***REMOVED***After
-const***REMOVED***{***REMOVED***signOut***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
-<button***REMOVED***onClick={signOut}>Sign***REMOVED***Out</button>
+// After
+const { signOut } = useSupabaseAuth();
+<button onClick={signOut}>Sign Out</button>
 ```
 
-**User***REMOVED***Info***REMOVED***Display:**
+**User Info Display:**
 
 ```tsx
-//***REMOVED***Before
-const***REMOVED***{***REMOVED***session***REMOVED***}***REMOVED***=***REMOVED***useAuth();
-<p>Welcome,***REMOVED***{session?.email}!</p>
+// Before
+const { session } = useAuth();
+<p>Welcome, {session?.email}!</p>
 
-//***REMOVED***After
-const***REMOVED***{***REMOVED***user***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
-<p>Welcome,***REMOVED***{user?.email}!</p>
+// After
+const { user } = useSupabaseAuth();
+<p>Welcome, {user?.email}!</p>
 ```
 
-###***REMOVED***Phase***REMOVED***3:***REMOVED***Update***REMOVED***API***REMOVED***Routes***REMOVED***(20***REMOVED***minutes)
+### Phase 3: Update API Routes (20 minutes)
 
-####***REMOVED***Authentication***REMOVED***Check
+#### Authentication Check
 
-**Old***REMOVED***way:**
+**Old way:**
 ```tsx
-//***REMOVED***Custom***REMOVED***auth***REMOVED***check
-const***REMOVED***session***REMOVED***=***REMOVED***await***REMOVED***getSession(request);
-if***REMOVED***(!session)***REMOVED***{
-***REMOVED******REMOVED***return***REMOVED***NextResponse.json({***REMOVED***error:***REMOVED***"Unauthorized"***REMOVED***},***REMOVED***{***REMOVED***status:***REMOVED***401***REMOVED***});
+// Custom auth check
+const session = await getSession(request);
+if (!session) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
 ```
 
-**New***REMOVED***way:**
+**New way:**
 ```tsx
-import***REMOVED***{***REMOVED***createClient***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
-const***REMOVED***supabase***REMOVED***=***REMOVED***await***REMOVED***createClient();
-const***REMOVED***{***REMOVED***data:***REMOVED***{***REMOVED***user***REMOVED***},***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.auth.getUser();
+const supabase = await createClient();
+const { data: { user }, error } = await supabase.auth.getUser();
 
-if***REMOVED***(error***REMOVED***||***REMOVED***!user)***REMOVED***{
-***REMOVED******REMOVED***return***REMOVED***NextResponse.json({***REMOVED***error:***REMOVED***"Unauthorized"***REMOVED***},***REMOVED***{***REMOVED***status:***REMOVED***401***REMOVED***});
+if (error || !user) {
+  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 }
 ```
 
-####***REMOVED***Database***REMOVED***Operations
+#### Database Operations
 
-**Old***REMOVED***way:**
+**Old way:**
 ```tsx
-//***REMOVED***Custom***REMOVED***database***REMOVED***queries
-const***REMOVED***profile***REMOVED***=***REMOVED***await***REMOVED***db.query("SELECT***REMOVED*******REMOVED***FROM***REMOVED***profiles***REMOVED***WHERE***REMOVED***id***REMOVED***=***REMOVED***?",***REMOVED***[userId]);
+// Custom database queries
+const profile = await db.query("SELECT * FROM profiles WHERE id = ?", [userId]);
 ```
 
-**New***REMOVED***way:**
+**New way:**
 ```tsx
-import***REMOVED***{***REMOVED***getProfile***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/queries";
+import { getProfile } from "@/lib/supabase/queries";
 
-const***REMOVED***profile***REMOVED***=***REMOVED***await***REMOVED***getProfile(userId);
+const profile = await getProfile(userId);
 ```
 
-###***REMOVED***Phase***REMOVED***4:***REMOVED***Update***REMOVED***Protected***REMOVED***Routes***REMOVED***(10***REMOVED***minutes)
+### Phase 4: Update Protected Routes (10 minutes)
 
-The***REMOVED***middleware***REMOVED***now***REMOVED***handles***REMOVED***route***REMOVED***protection***REMOVED***automatically!
+The middleware now handles route protection automatically!
 
-**Old***REMOVED***way:**
+**Old way:**
 ```tsx
-//***REMOVED***Manual***REMOVED***redirect***REMOVED***in***REMOVED***each***REMOVED***page
-useEffect(()***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED***if***REMOVED***(!session?.isAuthenticated)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***router.push("/login");
-***REMOVED******REMOVED***}
-},***REMOVED***[session]);
+// Manual redirect in each page
+useEffect(() => {
+  if (!session?.isAuthenticated) {
+    router.push("/login");
+  }
+}, [session]);
 ```
 
-**New***REMOVED***way:**
+**New way:**
 ```tsx
-//***REMOVED***Middleware***REMOVED***handles***REMOVED***it***REMOVED***automatically!
-//***REMOVED***Just***REMOVED***use***REMOVED***the***REMOVED***auth***REMOVED***hook***REMOVED***to***REMOVED***show***REMOVED***loading***REMOVED***state
-const***REMOVED***{***REMOVED***user,***REMOVED***isLoading***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
+// Middleware handles it automatically!
+// Just use the auth hook to show loading state
+const { user, isLoading } = useSupabaseAuth();
 
-if***REMOVED***(isLoading)***REMOVED***return***REMOVED***<LoadingSpinner***REMOVED***/>;
-//***REMOVED***If***REMOVED***not***REMOVED***authenticated,***REMOVED***middleware***REMOVED***already***REMOVED***redirected
+if (isLoading) return <LoadingSpinner />;
+// If not authenticated, middleware already redirected
 ```
 
-###***REMOVED***Phase***REMOVED***5:***REMOVED***Testing***REMOVED***(15***REMOVED***minutes)
+### Phase 5: Testing (15 minutes)
 
-1.***REMOVED*****Test***REMOVED***authentication***REMOVED***flow:**
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Sign***REMOVED***in***REMOVED***with***REMOVED***Google
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Verify***REMOVED***redirect***REMOVED***to***REMOVED***dashboard
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Check***REMOVED***user***REMOVED***profile***REMOVED***loads
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Test***REMOVED***sign***REMOVED***out
+1. **Test authentication flow:**
+   - Sign in with Google
+   - Verify redirect to dashboard
+   - Check user profile loads
+   - Test sign out
 
-2.***REMOVED*****Test***REMOVED***protected***REMOVED***routes:**
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Try***REMOVED***accessing***REMOVED***`/dashboard`***REMOVED***without***REMOVED***auth
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Should***REMOVED***redirect***REMOVED***to***REMOVED***`/login`
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Sign***REMOVED***in***REMOVED***and***REMOVED***verify***REMOVED***access***REMOVED***granted
+2. **Test protected routes:**
+   - Try accessing `/dashboard` without auth
+   - Should redirect to `/login`
+   - Sign in and verify access granted
 
-3.***REMOVED*****Test***REMOVED***API***REMOVED***routes:**
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Create***REMOVED***a***REMOVED***workflow
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Fetch***REMOVED***workflows
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Update***REMOVED***profile
+3. **Test API routes:**
+   - Create a workflow
+   - Fetch workflows
+   - Update profile
 
-4.***REMOVED*****Test***REMOVED***error***REMOVED***handling:**
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Invalid***REMOVED***credentials
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Network***REMOVED***errors
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Session***REMOVED***expiration
+4. **Test error handling:**
+   - Invalid credentials
+   - Network errors
+   - Session expiration
 
-##***REMOVED***Component***REMOVED***Mapping***REMOVED***Reference
+## Component Mapping Reference
 
-|***REMOVED***Old***REMOVED***|***REMOVED***New***REMOVED***|***REMOVED***Notes***REMOVED***|
+| Old | New | Notes |
 |-----|-----|-------|
-|***REMOVED***`useAuth()`***REMOVED***|***REMOVED***`useSupabaseAuth()`***REMOVED***|***REMOVED***Different***REMOVED***return***REMOVED***values***REMOVED***|
-|***REMOVED***`session.isAuthenticated`***REMOVED***|***REMOVED***`user***REMOVED***!==***REMOVED***null`***REMOVED***|***REMOVED***Check***REMOVED***user***REMOVED***object***REMOVED***instead***REMOVED***|
-|***REMOVED***`session.email`***REMOVED***|***REMOVED***`user.email`***REMOVED***|***REMOVED***Direct***REMOVED***user***REMOVED***properties***REMOVED***|
-|***REMOVED***`login()`***REMOVED***|***REMOVED***`signInWithGoogle()`***REMOVED***|***REMOVED***More***REMOVED***explicit***REMOVED***naming***REMOVED***|
-|***REMOVED***`logout()`***REMOVED***|***REMOVED***`signOut()`***REMOVED***|***REMOVED***Standard***REMOVED***Supabase***REMOVED***naming***REMOVED***|
-|***REMOVED***`refreshAuth()`***REMOVED***|***REMOVED***`refreshSession()`***REMOVED***|***REMOVED***Handled***REMOVED***automatically***REMOVED***|
+| `useAuth()` | `useSupabaseAuth()` | Different return values |
+| `session.isAuthenticated` | `user !== null` | Check user object instead |
+| `session.email` | `user.email` | Direct user properties |
+| `login()` | `signInWithGoogle()` | More explicit naming |
+| `logout()` | `signOut()` | Standard Supabase naming |
+| `refreshAuth()` | `refreshSession()` | Handled automatically |
 
-##***REMOVED***Database***REMOVED***Query***REMOVED***Migration
+## Database Query Migration
 
-###***REMOVED***Old***REMOVED***Pattern
+### Old Pattern
 ```tsx
-const***REMOVED***response***REMOVED***=***REMOVED***await***REMOVED***fetch("/api/workflows");
-const***REMOVED***data***REMOVED***=***REMOVED***await***REMOVED***response.json();
+const response = await fetch("/api/workflows");
+const data = await response.json();
 ```
 
-###***REMOVED***New***REMOVED***Pattern***REMOVED***(Client-side)
+### New Pattern (Client-side)
 ```tsx
-import***REMOVED***{***REMOVED***createClient***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 
-const***REMOVED***supabase***REMOVED***=***REMOVED***createClient();
-const***REMOVED***{***REMOVED***data,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase
-***REMOVED******REMOVED***.from("workflows")
-***REMOVED******REMOVED***.select("*")
-***REMOVED******REMOVED***.eq("user_id",***REMOVED***user.id);
+const supabase = createClient();
+const { data, error } = await supabase
+  .from("workflows")
+  .select("*")
+  .eq("user_id", user.id);
 ```
 
-###***REMOVED***New***REMOVED***Pattern***REMOVED***(Server-side)
+### New Pattern (Server-side)
 ```tsx
-import***REMOVED***{***REMOVED***getUserWorkflows***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/queries";
+import { getUserWorkflows } from "@/lib/supabase/queries";
 
-const***REMOVED***workflows***REMOVED***=***REMOVED***await***REMOVED***getUserWorkflows(userId);
+const workflows = await getUserWorkflows(userId);
 ```
 
-##***REMOVED***Rollback***REMOVED***Plan
+## Rollback Plan
 
-If***REMOVED***you***REMOVED***need***REMOVED***to***REMOVED***rollback:
+If you need to rollback:
 
-1.***REMOVED***Keep***REMOVED***old***REMOVED***auth***REMOVED***files***REMOVED***(don't***REMOVED***delete***REMOVED***yet)
-2.***REMOVED***Switch***REMOVED***provider***REMOVED***back***REMOVED***in***REMOVED***root***REMOVED***layout
-3.***REMOVED***Revert***REMOVED***API***REMOVED***route***REMOVED***changes
-4.***REMOVED***Update***REMOVED***components***REMOVED***to***REMOVED***use***REMOVED***old***REMOVED***hooks
+1. Keep old auth files (don't delete yet)
+2. Switch provider back in root layout
+3. Revert API route changes
+4. Update components to use old hooks
 
-##***REMOVED***Common***REMOVED***Issues
+## Common Issues
 
-###***REMOVED***"Invalid***REMOVED***API***REMOVED***key"
--***REMOVED***Check***REMOVED***`.env.local`***REMOVED***has***REMOVED***correct***REMOVED***Supabase***REMOVED***keys
--***REMOVED***Restart***REMOVED***dev***REMOVED***server***REMOVED***after***REMOVED***changing***REMOVED***env***REMOVED***vars
+### "Invalid API key"
+- Check `.env.local` has correct Supabase keys
+- Restart dev server after changing env vars
 
-###***REMOVED***"User***REMOVED***not***REMOVED***found"
--***REMOVED***Ensure***REMOVED***database***REMOVED***migration***REMOVED***ran***REMOVED***successfully
--***REMOVED***Check***REMOVED***RLS***REMOVED***policies***REMOVED***are***REMOVED***set***REMOVED***up
--***REMOVED***Verify***REMOVED***user***REMOVED***profile***REMOVED***was***REMOVED***created***REMOVED***on***REMOVED***signup
+### "User not found"
+- Ensure database migration ran successfully
+- Check RLS policies are set up
+- Verify user profile was created on signup
 
-###***REMOVED***"Redirect***REMOVED***loop"
--***REMOVED***Check***REMOVED***middleware***REMOVED***configuration
--***REMOVED***Verify***REMOVED***protected***REMOVED***paths***REMOVED***are***REMOVED***correct
--***REMOVED***Clear***REMOVED***browser***REMOVED***cookies***REMOVED***and***REMOVED***try***REMOVED***again
+### "Redirect loop"
+- Check middleware configuration
+- Verify protected paths are correct
+- Clear browser cookies and try again
 
-###***REMOVED***Google***REMOVED***OAuth***REMOVED***not***REMOVED***working
--***REMOVED***Verify***REMOVED***redirect***REMOVED***URL***REMOVED***in***REMOVED***Supabase***REMOVED***matches***REMOVED***exactly
--***REMOVED***Check***REMOVED***Google***REMOVED***OAuth***REMOVED***credentials***REMOVED***are***REMOVED***correct
--***REMOVED***Ensure***REMOVED***Google***REMOVED***provider***REMOVED***is***REMOVED***enabled
+### Google OAuth not working
+- Verify redirect URL in Supabase matches exactly
+- Check Google OAuth credentials are correct
+- Ensure Google provider is enabled
 
-##***REMOVED***Benefits***REMOVED***of***REMOVED***Migration
+## Benefits of Migration
 
-✅***REMOVED*****Automatic***REMOVED***session***REMOVED***management*****REMOVED***-***REMOVED***No***REMOVED***manual***REMOVED***token***REMOVED***refresh
-✅***REMOVED*****Built-in***REMOVED***security*****REMOVED***-***REMOVED***Row***REMOVED***Level***REMOVED***Security***REMOVED***out***REMOVED***of***REMOVED***the***REMOVED***box
-✅***REMOVED*****Real-time***REMOVED***capabilities*****REMOVED***-***REMOVED***Subscribe***REMOVED***to***REMOVED***database***REMOVED***changes
-✅***REMOVED*****Better***REMOVED***DX*****REMOVED***-***REMOVED***Type-safe***REMOVED***queries***REMOVED***with***REMOVED***TypeScript
-✅***REMOVED*****Scalability*****REMOVED***-***REMOVED***Supabase***REMOVED***handles***REMOVED***infrastructure
-✅***REMOVED*****Monitoring*****REMOVED***-***REMOVED***Built-in***REMOVED***auth***REMOVED***logs***REMOVED***and***REMOVED***analytics
+✅ **Automatic session management** - No manual token refresh
+✅ **Built-in security** - Row Level Security out of the box
+✅ **Real-time capabilities** - Subscribe to database changes
+✅ **Better DX** - Type-safe queries with TypeScript
+✅ **Scalability** - Supabase handles infrastructure
+✅ **Monitoring** - Built-in auth logs and analytics
 
-##***REMOVED***Next***REMOVED***Steps
+## Next Steps
 
-After***REMOVED***migration:
+After migration:
 
-1.***REMOVED***Remove***REMOVED***old***REMOVED***auth***REMOVED***files***REMOVED***(after***REMOVED***thorough***REMOVED***testing)
-2.***REMOVED***Set***REMOVED***up***REMOVED***real-time***REMOVED***subscriptions***REMOVED***for***REMOVED***workflows
-3.***REMOVED***Configure***REMOVED***email***REMOVED***templates***REMOVED***in***REMOVED***Supabase
-4.***REMOVED***Enable***REMOVED***MFA***REMOVED***for***REMOVED***enhanced***REMOVED***security
-5.***REMOVED***Set***REMOVED***up***REMOVED***database***REMOVED***backups
-6.***REMOVED***Monitor***REMOVED***auth***REMOVED***logs***REMOVED***in***REMOVED***Supabase***REMOVED***dashboard
+1. Remove old auth files (after thorough testing)
+2. Set up real-time subscriptions for workflows
+3. Configure email templates in Supabase
+4. Enable MFA for enhanced security
+5. Set up database backups
+6. Monitor auth logs in Supabase dashboard
 
-##***REMOVED***Need***REMOVED***Help?
+## Need Help?
 
--***REMOVED***Review***REMOVED***[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)***REMOVED***for***REMOVED***detailed***REMOVED***setup
--***REMOVED***Check***REMOVED***[SUPABASE_QUICKSTART.md](./SUPABASE_QUICKSTART.md)***REMOVED***for***REMOVED***quick***REMOVED***reference
--***REMOVED***Visit***REMOVED***[Supabase***REMOVED***Discord](https://discord.supabase.com)***REMOVED***for***REMOVED***community***REMOVED***support
+- Review [SUPABASE_SETUP.md](./SUPABASE_SETUP.md) for detailed setup
+- Check [SUPABASE_QUICKSTART.md](./SUPABASE_QUICKSTART.md) for quick reference
+- Visit [Supabase Discord](https://discord.supabase.com) for community support
+

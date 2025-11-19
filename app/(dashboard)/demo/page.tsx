@@ -1,53 +1,53 @@
-﻿"useclient";
+﻿"use client";
 
-importReactfrom"react";
-import{ExecutionTracker}from"@/components/execution";
-import{useWorkflow}from"@/contexts/WorkflowContext";
-import{Button}from"@/components/ui/button";
+import React from "react";
+import { ExecutionTracker } from "@/components/execution";
+import { useWorkflow } from "@/contexts/WorkflowContext";
+import { Button } from "@/components/ui/button";
 
-exportdefaultfunctionDemoPage(){
-const{workflow,isExecuting,executeWorkflow,cancelWorkflow}=useWorkflow();
+export default function DemoPage() {
+  const { workflow, isExecuting, executeWorkflow, cancelWorkflow } = useWorkflow();
 
-consthandleStartDemo=async()=>{
-awaitexecuteWorkflow("CreateasummarydocumentofmyrecentemailsandsaveittoGoogleDrive");
-};
+  const handleStartDemo = async () => {
+    await executeWorkflow("Create a summary document of my recent emails and save it to Google Drive");
+  };
 
-return(
-<divclassName="containermx-automax-w-4xlpy-8space-y-6">
-<div>
-<h1className="text-3xlfont-bold">ExecutionTrackerDemo</h1>
-<pclassName="mt-2text-muted-foreground">
-Testtheexecutiontrackercomponentwithasimulatedworkflow
-</p>
-</div>
-
-<divclassName="flexgap-4">
-<Button
-onClick={handleStartDemo}
-disabled={isExecuting}
->
-StartDemoWorkflow
-</Button>
-</div>
-
-{workflow&&(
-<ExecutionTracker
-workflow={workflow}
-onCancel={cancelWorkflow}
-onRetryStep={(stepId)=>{
-console.log("Retrystep:",stepId);
-//Inproduction,thiswouldtriggerastepretry
-}}
-/>
-)}
-
-{!workflow&&!isExecuting&&(
-<divclassName="rounded-lgborderborder-dashedp-12text-center">
-<pclassName="text-muted-foreground">
-Click"StartDemoWorkflow"toseetheexecutiontrackerinaction
-</p>
-</div>
-)}
-</div>
-);
+  return (
+    <div className="container mx-auto max-w-4xl py-8 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Execution Tracker Demo</h1>
+        <p className="mt-2 text-muted-foreground">
+          Test the execution tracker component with a simulated workflow
+        </p>
+      </div>
+      
+      <div className="flex gap-4">
+        <Button
+          onClick={handleStartDemo}
+          disabled={isExecuting}
+        >
+          Start Demo Workflow
+        </Button>
+      </div>
+      
+      {workflow && (
+        <ExecutionTracker
+          workflow={workflow}
+          onCancel={cancelWorkflow}
+          onRetryStep={(stepId) => {
+            console.log("Retry step:", stepId);
+            // In production, this would trigger a step retry
+          }}
+        />
+      )}
+      
+      {!workflow && !isExecuting && (
+        <div className="rounded-lg border border-dashed p-12 text-center">
+          <p className="text-muted-foreground">
+            Click "Start Demo Workflow" to see the execution tracker in action
+          </p>
+        </div>
+      )}
+    </div>
+  );
 }

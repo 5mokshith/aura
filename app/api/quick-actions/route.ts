@@ -1,9 +1,9 @@
-﻿import{NextRequest,NextResponse}from"next/server";
-import{createClient}from"@/lib/supabase/server";
-import{getProfile}from"@/lib/supabase/queries";
-import{DEFAULT_QUICK_ACTIONS}from"@/lib/quickActions";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { getProfile } from "@/lib/supabase/queries";
+import { DEFAULT_QUICK_ACTIONS } from "@/lib/quickActions";
 
-exportasyncfunctionGET(request:NextRequest){
+export async function GET(request: NextRequest) {
 try{
 constsupabase=awaitcreateClient();
 

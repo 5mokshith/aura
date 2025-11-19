@@ -1,306 +1,307 @@
-#***REMOVED***LLM***REMOVED***Configuration***REMOVED***Guide
+# LLM Configuration Guide
 
-This***REMOVED***guide***REMOVED***explains***REMOVED***how***REMOVED***to***REMOVED***configure***REMOVED***and***REMOVED***switch***REMOVED***between***REMOVED***different***REMOVED***LLM***REMOVED***providers***REMOVED***in***REMOVED***AURA.
+This guide explains how to configure and switch between different LLM providers in AURA.
 
-##***REMOVED***Supported***REMOVED***Providers
+## Supported Providers
 
-AURA***REMOVED***supports***REMOVED***multiple***REMOVED***LLM***REMOVED***providers:
+AURA supports multiple LLM providers:
 
-1.***REMOVED*****Google***REMOVED***Gemini*****REMOVED***(Recommended)***REMOVED***-***REMOVED***Fast,***REMOVED***cost-effective,***REMOVED***and***REMOVED***powerful
-2.***REMOVED*****OpenAI***REMOVED***GPT*****REMOVED***-***REMOVED***Industry***REMOVED***standard***REMOVED***with***REMOVED***excellent***REMOVED***performance
-3.***REMOVED*****Anthropic***REMOVED***Claude*****REMOVED***-***REMOVED***Coming***REMOVED***soon
+1. **Google Gemini** (Recommended) - Fast, cost-effective, and powerful
+2. **OpenAI GPT** - Industry standard with excellent performance
+3. **Anthropic Claude** - Coming soon
 
-##***REMOVED***Current***REMOVED***Configuration:***REMOVED***Google***REMOVED***Gemini***REMOVED***2.5***REMOVED***Flash
+## Current Configuration: Google Gemini 2.5 Flash
 
-The***REMOVED***application***REMOVED***is***REMOVED***currently***REMOVED***configured***REMOVED***to***REMOVED***use***REMOVED*****Google***REMOVED***Gemini***REMOVED***2.5***REMOVED***Flash**,***REMOVED***which***REMOVED***offers:
+The application is currently configured to use **Google Gemini 2.5 Flash**, which offers:
 
--***REMOVED*****Speed**:***REMOVED***Extremely***REMOVED***fast***REMOVED***response***REMOVED***times
--***REMOVED*****Cost**:***REMOVED***Very***REMOVED***cost-effective***REMOVED***compared***REMOVED***to***REMOVED***GPT-4
--***REMOVED*****Quality**:***REMOVED***High-quality***REMOVED***responses***REMOVED***for***REMOVED***most***REMOVED***tasks
--***REMOVED*****Context**:***REMOVED***Large***REMOVED***context***REMOVED***window***REMOVED***(up***REMOVED***to***REMOVED***1M***REMOVED***tokens)
--***REMOVED*****Multimodal**:***REMOVED***Supports***REMOVED***text,***REMOVED***images,***REMOVED***and***REMOVED***more
+- **Speed**: Extremely fast response times
+- **Cost**: Very cost-effective compared to GPT-4
+- **Quality**: High-quality responses for most tasks
+- **Context**: Large context window (up to 1M tokens)
+- **Multimodal**: Supports text, images, and more
 
-##***REMOVED***Environment***REMOVED***Variables
+## Environment Variables
 
-###***REMOVED***Google***REMOVED***Gemini***REMOVED***Configuration
+### Google Gemini Configuration
 
 ```bash
-#***REMOVED***Set***REMOVED***the***REMOVED***provider
+# Set the provider
 LLM_PROVIDER=gemini
 
-#***REMOVED***Gemini***REMOVED***API***REMOVED***Key***REMOVED***(get***REMOVED***from:***REMOVED***https://aistudio.google.com/app/apikey)
+# Gemini API Key (get from: https://aistudio.google.com/app/apikey)
 GOOGLE_GEMINI_API_KEY=your_gemini_api_key_here
 
-#***REMOVED***Model***REMOVED***selection
+# Model selection
 GOOGLE_GEMINI_MODEL=gemini-2.0-flash-exp
 
-#***REMOVED***Max***REMOVED***output***REMOVED***tokens
+# Max output tokens
 GEMINI_MAX_TOKENS=8192
 ```
 
-###***REMOVED***Available***REMOVED***Gemini***REMOVED***Models
+### Available Gemini Models
 
--***REMOVED***`gemini-2.0-flash-exp`***REMOVED***-***REMOVED***Latest***REMOVED***experimental***REMOVED***flash***REMOVED***model***REMOVED***(fastest,***REMOVED***recommended)
--***REMOVED***`gemini-1.5-flash`***REMOVED***-***REMOVED***Stable***REMOVED***flash***REMOVED***model
--***REMOVED***`gemini-1.5-pro`***REMOVED***-***REMOVED***More***REMOVED***capable***REMOVED***but***REMOVED***slower
--***REMOVED***`gemini-1.0-pro`***REMOVED***-***REMOVED***Legacy***REMOVED***model
+- `gemini-2.0-flash-exp` - Latest experimental flash model (fastest, recommended)
+- `gemini-1.5-flash` - Stable flash model
+- `gemini-1.5-pro` - More capable but slower
+- `gemini-1.0-pro` - Legacy model
 
-##***REMOVED******REMOVED***Configuration***REMOVED***(Alternative)
+##  Configuration (Alternative)
 
 ```bash
-#***REMOVED***Set***REMOVED***the***REMOVED***provider
+# Set the provider
 LLM_PROVIDER=openai
 
-***REMOVED******REMOVED***API***REMOVED***Key
+  API Key
 OPENAI_API_KEY=your_openai_api_key_here
 
-#***REMOVED***Model***REMOVED***selection
+# Model selection
 OPENAI_MODEL=gpt-4-turbo-preview
 
-#***REMOVED***Max***REMOVED***output***REMOVED***tokens
+# Max output tokens
 OPENAI_MAX_TOKENS=4096
 ```
 
-###***REMOVED***Common***REMOVED***Settings***REMOVED***(All***REMOVED***Providers)
+### Common Settings (All Providers)
 
 ```bash
-#***REMOVED***Temperature***REMOVED***(0.0***REMOVED***-***REMOVED***2.0,***REMOVED***higher***REMOVED***=***REMOVED***more***REMOVED***creative)
+# Temperature (0.0 - 2.0, higher = more creative)
 LLM_TEMPERATURE=0.7
 
-#***REMOVED***Max***REMOVED***retry***REMOVED***attempts***REMOVED***on***REMOVED***failure
+# Max retry attempts on failure
 LLM_MAX_RETRIES=3
 
-#***REMOVED***Request***REMOVED***timeout***REMOVED***in***REMOVED***milliseconds
+# Request timeout in milliseconds
 LLM_TIMEOUT=30000
 ```
 
-##***REMOVED***Getting***REMOVED***API***REMOVED***Keys
+## Getting API Keys
 
-###***REMOVED***Google***REMOVED***Gemini***REMOVED***API***REMOVED***Key
+### Google Gemini API Key
 
-1.***REMOVED***Go***REMOVED***to***REMOVED***[Google***REMOVED***AI***REMOVED***Studio](https://aistudio.google.com/app/apikey)
-2.***REMOVED***Sign***REMOVED***in***REMOVED***with***REMOVED***your***REMOVED***Google***REMOVED***account
-3.***REMOVED***Click***REMOVED***"Get***REMOVED***API***REMOVED***Key"***REMOVED***or***REMOVED***"Create***REMOVED***API***REMOVED***Key"
-4.***REMOVED***Copy***REMOVED***the***REMOVED***API***REMOVED***key
-5.***REMOVED***Add***REMOVED***it***REMOVED***to***REMOVED***your***REMOVED***`.env.local`***REMOVED***file:
-***REMOVED******REMOVED******REMOVED***```bash
-***REMOVED******REMOVED******REMOVED***GOOGLE_GEMINI_API_KEY=AIza...your_key_here
-***REMOVED******REMOVED******REMOVED***```
+1. Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Sign in with your Google account
+3. Click "Get API Key" or "Create API Key"
+4. Copy the API key
+5. Add it to your `.env.local` file:
+   ```bash
+   GOOGLE_GEMINI_API_KEY=AIza...your_key_here
+   ```
 
-##***REMOVED******REMOVED***API***REMOVED***Key
+##  API Key
 
-1.***REMOVED***Go***REMOVED***to***REMOVED***[OpenAI***REMOVED***Platform](https://platform.openai.com/api-keys)
-2.***REMOVED***Sign***REMOVED***in***REMOVED***or***REMOVED***create***REMOVED***an***REMOVED***account
-3.***REMOVED***Click***REMOVED***"Create***REMOVED***new***REMOVED***secret***REMOVED***key"
-4.***REMOVED***Copy***REMOVED***the***REMOVED***API***REMOVED***key
-5.***REMOVED***Add***REMOVED***it***REMOVED***to***REMOVED***your***REMOVED***`.env.local`***REMOVED***file:
-***REMOVED******REMOVED******REMOVED***```bash
-***REMOVED******REMOVED******REMOVED***OPENAI_API_KEY=sk-...your_key_here
-***REMOVED******REMOVED******REMOVED***```
+1. Go to [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Sign in or create an account
+3. Click "Create new secret key"
+4. Copy the API key
+5. Add it to your `.env.local` file:
+   ```bash
+   OPENAI_API_KEY=sk-...your_key_here
+   ```
 
-##***REMOVED***Switching***REMOVED***Providers
+## Switching Providers
 
-To***REMOVED***switch***REMOVED***between***REMOVED***providers,***REMOVED***simply***REMOVED***update***REMOVED***the***REMOVED***`LLM_PROVIDER`***REMOVED***environment***REMOVED***variable:
+To switch between providers, simply update the `LLM_PROVIDER` environment variable:
 
 ```bash
-#***REMOVED***Use***REMOVED***Gemini***REMOVED***(current)
+# Use Gemini (current)
 LLM_PROVIDER=gemini
 
-#***REMOVED***Use***REMOVED***OpenAI
+# Use OpenAI
 LLM_PROVIDER=openai
 ```
 
-Then***REMOVED***restart***REMOVED***your***REMOVED***development***REMOVED***server:
+Then restart your development server:
 
 ```bash
-npm***REMOVED***run***REMOVED***dev
+npm run dev
 ```
 
-##***REMOVED***Implementation***REMOVED***Details
+## Implementation Details
 
-The***REMOVED***LLM***REMOVED***client***REMOVED***(`lib/llm/client.ts`)***REMOVED***provides***REMOVED***a***REMOVED***unified***REMOVED***interface***REMOVED***that***REMOVED***works***REMOVED***with***REMOVED***all***REMOVED***providers:
+The LLM client (`lib/llm/client.ts`) provides a unified interface that works with all providers:
 
-###***REMOVED***Chat***REMOVED***Completion
+### Chat Completion
 
 ```typescript
-import***REMOVED***{***REMOVED***chatCompletion***REMOVED***}***REMOVED***from***REMOVED***"@/lib/llm/client";
+import { chatCompletion } from "@/lib/llm/client";
 
-const***REMOVED***response***REMOVED***=***REMOVED***await***REMOVED***chatCompletion([
-***REMOVED******REMOVED***{***REMOVED***role:***REMOVED***"system",***REMOVED***content:***REMOVED***"You***REMOVED***are***REMOVED***a***REMOVED***helpful***REMOVED***assistant."***REMOVED***},
-***REMOVED******REMOVED***{***REMOVED***role:***REMOVED***"user",***REMOVED***content:***REMOVED***"Hello!"***REMOVED***},
+const response = await chatCompletion([
+  { role: "system", content: "You are a helpful assistant." },
+  { role: "user", content: "Hello!" },
 ]);
 
 console.log(response.content);
 ```
 
-###***REMOVED***Streaming
+### Streaming
 
 ```typescript
-import***REMOVED***{***REMOVED***streamChatCompletion***REMOVED***}***REMOVED***from***REMOVED***"@/lib/llm/client";
+import { streamChatCompletion } from "@/lib/llm/client";
 
-for***REMOVED***await***REMOVED***(const***REMOVED***chunk***REMOVED***of***REMOVED***streamChatCompletion(messages))***REMOVED***{
-***REMOVED******REMOVED***process.stdout.write(chunk);
+for await (const chunk of streamChatCompletion(messages)) {
+  process.stdout.write(chunk);
 }
 ```
 
-###***REMOVED***Command***REMOVED***Parsing
+### Command Parsing
 
 ```typescript
-import***REMOVED***{***REMOVED***parseCommand***REMOVED***}***REMOVED***from***REMOVED***"@/lib/llm/client";
+import { parseCommand } from "@/lib/llm/client";
 
-const***REMOVED***result***REMOVED***=***REMOVED***await***REMOVED***parseCommand("Send***REMOVED***an***REMOVED***email***REMOVED***to***REMOVED***john@example.com");
-console.log(result.intent);***REMOVED***//***REMOVED***"send_email"
-console.log(result.parameters);***REMOVED***//***REMOVED***{***REMOVED***to:***REMOVED***"john@example.com"***REMOVED***}
+const result = await parseCommand("Send an email to john@example.com");
+console.log(result.intent); // "send_email"
+console.log(result.parameters); // { to: "john@example.com" }
 ```
 
-###***REMOVED***Workflow***REMOVED***Planning
+### Workflow Planning
 
 ```typescript
-import***REMOVED***{***REMOVED***generateWorkflowPlan***REMOVED***}***REMOVED***from***REMOVED***"@/lib/llm/client";
+import { generateWorkflowPlan } from "@/lib/llm/client";
 
-const***REMOVED***plan***REMOVED***=***REMOVED***await***REMOVED***generateWorkflowPlan("Summarize***REMOVED***my***REMOVED***emails***REMOVED***and***REMOVED***create***REMOVED***a***REMOVED***report");
-console.log(plan.steps);***REMOVED***//***REMOVED***Array***REMOVED***of***REMOVED***workflow***REMOVED***steps
+const plan = await generateWorkflowPlan("Summarize my emails and create a report");
+console.log(plan.steps); // Array of workflow steps
 ```
 
-##***REMOVED***Provider***REMOVED***Comparison
+## Provider Comparison
 
-|***REMOVED***Feature***REMOVED***|***REMOVED***Gemini***REMOVED***2.5***REMOVED***Flash***REMOVED***|***REMOVED***GPT-4***REMOVED***Turbo***REMOVED***|***REMOVED***Claude***REMOVED***3***REMOVED***Opus***REMOVED***|
+| Feature | Gemini 2.5 Flash | GPT-4 Turbo | Claude 3 Opus |
 |---------|------------------|-------------|---------------|
-|***REMOVED***Speed***REMOVED***|***REMOVED***⚡⚡⚡***REMOVED***Very***REMOVED***Fast***REMOVED***|***REMOVED***⚡⚡***REMOVED***Fast***REMOVED***|***REMOVED***⚡⚡***REMOVED***Fast***REMOVED***|
-|***REMOVED***Cost***REMOVED***|***REMOVED***💰***REMOVED***Very***REMOVED***Low***REMOVED***|***REMOVED***💰💰💰***REMOVED***High***REMOVED***|***REMOVED***💰💰***REMOVED***Medium***REMOVED***|
-|***REMOVED***Quality***REMOVED***|***REMOVED***⭐⭐⭐⭐***REMOVED***Excellent***REMOVED***|***REMOVED***⭐⭐⭐⭐⭐***REMOVED***Best***REMOVED***|***REMOVED***⭐⭐⭐⭐⭐***REMOVED***Best***REMOVED***|
-|***REMOVED***Context***REMOVED***|***REMOVED***1M***REMOVED***tokens***REMOVED***|***REMOVED***128K***REMOVED***tokens***REMOVED***|***REMOVED***200K***REMOVED***tokens***REMOVED***|
-|***REMOVED***Multimodal***REMOVED***|***REMOVED***✅***REMOVED***Yes***REMOVED***|***REMOVED***✅***REMOVED***Yes***REMOVED***|***REMOVED***✅***REMOVED***Yes***REMOVED***|
+| Speed | ⚡⚡⚡ Very Fast | ⚡⚡ Fast | ⚡⚡ Fast |
+| Cost | 💰 Very Low | 💰💰💰 High | 💰💰 Medium |
+| Quality | ⭐⭐⭐⭐ Excellent | ⭐⭐⭐⭐⭐ Best | ⭐⭐⭐⭐⭐ Best |
+| Context | 1M tokens | 128K tokens | 200K tokens |
+| Multimodal | ✅ Yes | ✅ Yes | ✅ Yes |
 
-##***REMOVED***Cost***REMOVED***Considerations
+## Cost Considerations
 
-###***REMOVED***Gemini***REMOVED***2.5***REMOVED***Flash***REMOVED***Pricing***REMOVED***(as***REMOVED***of***REMOVED***2024)
+### Gemini 2.5 Flash Pricing (as of 2024)
 
--***REMOVED*****Input**:***REMOVED***$0.075***REMOVED***per***REMOVED***1M***REMOVED***tokens
--***REMOVED*****Output**:***REMOVED***$0.30***REMOVED***per***REMOVED***1M***REMOVED***tokens
--***REMOVED*****Free***REMOVED***tier**:***REMOVED***15***REMOVED***requests***REMOVED***per***REMOVED***minute
+- **Input**: $0.075 per 1M tokens
+- **Output**: $0.30 per 1M tokens
+- **Free tier**: 15 requests per minute
 
-##***REMOVED******REMOVED***GPT-4***REMOVED***Turbo***REMOVED***Pricing
+##  GPT-4 Turbo Pricing
 
--***REMOVED*****Input**:***REMOVED***$10***REMOVED***per***REMOVED***1M***REMOVED***tokens
--***REMOVED*****Output**:***REMOVED***$30***REMOVED***per***REMOVED***1M***REMOVED***tokens
+- **Input**: $10 per 1M tokens
+- **Output**: $30 per 1M tokens
 
-**Gemini***REMOVED***is***REMOVED***~133x***REMOVED***cheaper***REMOVED***than***REMOVED***GPT-4***REMOVED***Turbo!**
+**Gemini is ~133x cheaper than GPT-4 Turbo!**
 
-##***REMOVED***Performance***REMOVED***Optimization
+## Performance Optimization
 
-###***REMOVED***Caching
+### Caching
 
-The***REMOVED***application***REMOVED***uses***REMOVED***SWR***REMOVED***for***REMOVED***API***REMOVED***response***REMOVED***caching,***REMOVED***which***REMOVED***reduces***REMOVED***LLM***REMOVED***calls:
-
-```typescript
-//***REMOVED***Cached***REMOVED***for***REMOVED***5***REMOVED***minutes
-const***REMOVED***{***REMOVED***data***REMOVED***}***REMOVED***=***REMOVED***useSWR("/api/workflow/plan",***REMOVED***fetcher);
-```
-
-###***REMOVED***Streaming
-
-For***REMOVED***long***REMOVED***responses,***REMOVED***use***REMOVED***streaming***REMOVED***to***REMOVED***improve***REMOVED***perceived***REMOVED***performance:
+The application uses SWR for API response caching, which reduces LLM calls:
 
 ```typescript
-const***REMOVED***stream***REMOVED***=***REMOVED***streamChatCompletion(messages);
-//***REMOVED***Display***REMOVED***chunks***REMOVED***as***REMOVED***they***REMOVED***arrive
+// Cached for 5 minutes
+const { data } = useSWR("/api/workflow/plan", fetcher);
 ```
 
-###***REMOVED***Temperature***REMOVED***Tuning
+### Streaming
 
-Adjust***REMOVED***temperature***REMOVED***based***REMOVED***on***REMOVED***use***REMOVED***case:
+For long responses, use streaming to improve perceived performance:
 
--***REMOVED*****0.0-0.3**:***REMOVED***Deterministic,***REMOVED***factual***REMOVED***responses***REMOVED***(data***REMOVED***analysis)
--***REMOVED*****0.4-0.7**:***REMOVED***Balanced***REMOVED***creativity***REMOVED***and***REMOVED***accuracy***REMOVED***(general***REMOVED***use)
--***REMOVED*****0.8-1.0**:***REMOVED***Creative,***REMOVED***varied***REMOVED***responses***REMOVED***(content***REMOVED***generation)
+```typescript
+const stream = streamChatCompletion(messages);
+// Display chunks as they arrive
+```
 
-##***REMOVED***Troubleshooting
+### Temperature Tuning
 
-###***REMOVED***"API***REMOVED***key***REMOVED***not***REMOVED***found"***REMOVED***Error
+Adjust temperature based on use case:
 
-Make***REMOVED***sure***REMOVED***your***REMOVED***`.env.local`***REMOVED***file***REMOVED***has***REMOVED***the***REMOVED***correct***REMOVED***API***REMOVED***key:
+- **0.0-0.3**: Deterministic, factual responses (data analysis)
+- **0.4-0.7**: Balanced creativity and accuracy (general use)
+- **0.8-1.0**: Creative, varied responses (content generation)
+
+## Troubleshooting
+
+### "API key not found" Error
+
+Make sure your `.env.local` file has the correct API key:
 
 ```bash
-#***REMOVED***For***REMOVED***Gemini
+# For Gemini
 GOOGLE_GEMINI_API_KEY=AIza...
 
-#***REMOVED***For***REMOVED***OpenAI
+# For OpenAI
 OPENAI_API_KEY=sk-...
 ```
 
-Restart***REMOVED***the***REMOVED***dev***REMOVED***server***REMOVED***after***REMOVED***updating***REMOVED***environment***REMOVED***variables.
+Restart the dev server after updating environment variables.
 
-###***REMOVED***Rate***REMOVED***Limit***REMOVED***Errors
+### Rate Limit Errors
 
-**Gemini***REMOVED***Free***REMOVED***Tier**:***REMOVED***15***REMOVED***requests***REMOVED***per***REMOVED***minute
+**Gemini Free Tier**: 15 requests per minute
 
-**Solution**:***REMOVED***
--***REMOVED***Upgrade***REMOVED***to***REMOVED***paid***REMOVED***tier
--***REMOVED***Implement***REMOVED***request***REMOVED***queuing
--***REMOVED***Use***REMOVED***caching***REMOVED***to***REMOVED***reduce***REMOVED***calls
+**Solution**: 
+- Upgrade to paid tier
+- Implement request queuing
+- Use caching to reduce calls
 
-###***REMOVED***Timeout***REMOVED***Errors
+### Timeout Errors
 
-Increase***REMOVED***the***REMOVED***timeout***REMOVED***in***REMOVED***`.env.local`:
+Increase the timeout in `.env.local`:
 
 ```bash
-LLM_TIMEOUT=60000***REMOVED******REMOVED***#***REMOVED***60***REMOVED***seconds
+LLM_TIMEOUT=60000  # 60 seconds
 ```
 
-###***REMOVED***Model***REMOVED***Not***REMOVED***Found
+### Model Not Found
 
-Ensure***REMOVED***you're***REMOVED***using***REMOVED***a***REMOVED***valid***REMOVED***model***REMOVED***name:
+Ensure you're using a valid model name:
 
 ```bash
-#***REMOVED***Valid***REMOVED***Gemini***REMOVED***models
+# Valid Gemini models
 GOOGLE_GEMINI_MODEL=gemini-2.0-flash-exp
 GOOGLE_GEMINI_MODEL=gemini-1.5-flash
 GOOGLE_GEMINI_MODEL=gemini-1.5-pro
 
-#***REMOVED***Valid***REMOVED***OpenAI***REMOVED***models
+# Valid OpenAI models
 OPENAI_MODEL=gpt-4-turbo-preview
 OPENAI_MODEL=gpt-4
 OPENAI_MODEL=gpt-3.5-turbo
 ```
 
-##***REMOVED***Best***REMOVED***Practices
+## Best Practices
 
-1.***REMOVED*****Use***REMOVED***Gemini***REMOVED***for***REMOVED***most***REMOVED***tasks*****REMOVED***-***REMOVED***It's***REMOVED***fast***REMOVED***and***REMOVED***cost-effective
-2.***REMOVED*****Cache***REMOVED***responses*****REMOVED***-***REMOVED***Reduce***REMOVED***API***REMOVED***calls***REMOVED***with***REMOVED***SWR
-3.***REMOVED*****Stream***REMOVED***long***REMOVED***responses*****REMOVED***-***REMOVED***Better***REMOVED***UX***REMOVED***for***REMOVED***users
-4.***REMOVED*****Set***REMOVED***appropriate***REMOVED***timeouts*****REMOVED***-***REMOVED***Prevent***REMOVED***hanging***REMOVED***requests
-5.***REMOVED*****Monitor***REMOVED***usage*****REMOVED***-***REMOVED***Track***REMOVED***API***REMOVED***costs***REMOVED***in***REMOVED***provider***REMOVED***dashboard
-6.***REMOVED*****Handle***REMOVED***errors***REMOVED***gracefully*****REMOVED***-***REMOVED***Implement***REMOVED***retry***REMOVED***logic
-7.***REMOVED*****Use***REMOVED***system***REMOVED***prompts*****REMOVED***-***REMOVED***Guide***REMOVED***model***REMOVED***behavior***REMOVED***consistently
+1. **Use Gemini for most tasks** - It's fast and cost-effective
+2. **Cache responses** - Reduce API calls with SWR
+3. **Stream long responses** - Better UX for users
+4. **Set appropriate timeouts** - Prevent hanging requests
+5. **Monitor usage** - Track API costs in provider dashboard
+6. **Handle errors gracefully** - Implement retry logic
+7. **Use system prompts** - Guide model behavior consistently
 
-##***REMOVED***Migration***REMOVED***Guide
+## Migration Guide
 
-###***REMOVED***From***REMOVED***OpenAI***REMOVED***to***REMOVED***Gemini
+### From OpenAI to Gemini
 
-1.***REMOVED***Get***REMOVED***a***REMOVED***Gemini***REMOVED***API***REMOVED***key***REMOVED***from***REMOVED***[Google***REMOVED***AI***REMOVED***Studio](https://aistudio.google.com/app/apikey)
-2.***REMOVED***Update***REMOVED***`.env.local`:
-***REMOVED******REMOVED******REMOVED***```bash
-***REMOVED******REMOVED******REMOVED***LLM_PROVIDER=gemini
-***REMOVED******REMOVED******REMOVED***GOOGLE_GEMINI_API_KEY=your_key_here
-***REMOVED******REMOVED******REMOVED***GOOGLE_GEMINI_MODEL=gemini-2.0-flash-exp
-***REMOVED******REMOVED******REMOVED***```
-3.***REMOVED***Restart***REMOVED***the***REMOVED***server:***REMOVED***`npm***REMOVED***run***REMOVED***dev`
-4.***REMOVED***Test***REMOVED***your***REMOVED***workflows
+1. Get a Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Update `.env.local`:
+   ```bash
+   LLM_PROVIDER=gemini
+   GOOGLE_GEMINI_API_KEY=your_key_here
+   GOOGLE_GEMINI_MODEL=gemini-2.0-flash-exp
+   ```
+3. Restart the server: `npm run dev`
+4. Test your workflows
 
-No***REMOVED***code***REMOVED***changes***REMOVED***required!***REMOVED***The***REMOVED***unified***REMOVED***client***REMOVED***handles***REMOVED***the***REMOVED***switch***REMOVED***automatically.
+No code changes required! The unified client handles the switch automatically.
 
-##***REMOVED***Resources
+## Resources
 
--***REMOVED***[Google***REMOVED***Gemini***REMOVED***Documentation](https://ai.google.dev/docs)
--***REMOVED***[OpenAI***REMOVED***API***REMOVED***Documentation](https://platform.openai.com/docs)
--***REMOVED***[Gemini***REMOVED***API***REMOVED***Pricing](https://ai.google.dev/pricing)
--***REMOVED***[OpenAI***REMOVED***Pricing](https://openai.com/pricing)
+- [Google Gemini Documentation](https://ai.google.dev/docs)
+- [OpenAI API Documentation](https://platform.openai.com/docs)
+- [Gemini API Pricing](https://ai.google.dev/pricing)
+- [OpenAI Pricing](https://openai.com/pricing)
 
-##***REMOVED***Support
+## Support
 
-For***REMOVED***issues***REMOVED***or***REMOVED***questions:
-1.***REMOVED***Check***REMOVED***the***REMOVED***troubleshooting***REMOVED***section***REMOVED***above
-2.***REMOVED***Review***REMOVED***the***REMOVED***provider's***REMOVED***documentation
-3.***REMOVED***Check***REMOVED***API***REMOVED***status***REMOVED***pages
-4.***REMOVED***Contact***REMOVED***support***REMOVED***if***REMOVED***needed
+For issues or questions:
+1. Check the troubleshooting section above
+2. Review the provider's documentation
+3. Check API status pages
+4. Contact support if needed
+

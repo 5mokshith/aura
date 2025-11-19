@@ -1,9 +1,9 @@
-﻿import{NextRequest,NextResponse}from"next/server";
-import{createClient}from"@/lib/supabase/server";
-import{getWorkflow,getGoogleOAuthTokens}from"@/lib/supabase/queries";
-import{createAndPlanWorkflow,recordWorkflowHistory}from"@/lib/services/workflowService";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { getWorkflow, getGoogleOAuthTokens } from "@/lib/supabase/queries";
+import { createAndPlanWorkflow, recordWorkflowHistory } from "@/lib/services/workflowService";
 
-exportasyncfunctionPOST(request:NextRequest){
+export async function POST(request: NextRequest) {
 try{
 constsupabase=awaitcreateClient();
 

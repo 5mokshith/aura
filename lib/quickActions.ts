@@ -1,336 +1,246 @@
-﻿importtype{QuickAction,QuickActionCategory}from"@/types";
+﻿import type { QuickAction, QuickActionCategory } from "@/types";
 
-//Storagekeys
-constSTORAGE_KEYS={
-FAVORITES:"aura_quick_actions_favorites",
-USAGE_COUNTS:"aura_quick_actions_usage",
-}asconst;
+// Storage keys
+const STORAGE_KEYS = {
+  FAVORITES: "aura_quick_actions_favorites",
+  USAGE_COUNTS: "aura_quick_actions_usage",
+} as const;
 
-//Defaultquickactiontemplates(8+actions)
-exportconstDEFAULT_QUICK_ACTIONS:QuickAction[]=[
-//Emailactions
-{
-id:"email-1",
-title:"SummarizeEmails",
-description:"Getasummaryofunreademailsfromthelast24hours",
-template:"Summarizeallunreademailsfromthelast24hours",
-icon:"Mail",
-category:"email",
-isFavorite:false,
-usageCount:0,
-},
-{
-id:"email-2",
-title:"DraftResponse",
-description:"Draftaprofessionalemailresponse",
-template:"Draftaprofessionalresponsetomymostrecentunreademail",
-icon:"Mail",
-category:"email",
-isFavorite:false,
-usageCount:0,
-},
-{
-id:"email-3",
-title:"FindImportantEmails",
-description:"Findemailsmarkedasimportantorurgent",
-template:"Findallimportantorurgentemailsfromthelastweek",
-icon:"Mail",
-category:"email",
-isFavorite:false,
-usageCount:0,
-},
+// Default quick action templates (8+ actions)
+export const DEFAULT_QUICK_ACTIONS: QuickAction[] = [
+  // Email actions
+  {
+    id: "email-1",
+    title: "Summarize Emails",
+    description: "Get a summary of unread emails from the last 24 hours",
+    template: "Summarize all unread emails from the last 24 hours",
+    icon: "Mail",
+    category: "email",
+    isFavorite: false,
+    usageCount: 0,
+  },
+  {
+    id: "email-2",
+    title: "Draft Response",
+    description: "Draft a professional email response",
+    template: "Draft a professional response to my most recent unread email",
+    icon: "Mail",
+    category: "email",
+    isFavorite: false,
+    usageCount: 0,
+  },
+  {
+    id: "email-3",
+    title: "Find Important Emails",
+    description: "Find emails marked as important or urgent",
+    template: "Find all important or urgent emails from the last week",
+    icon: "Mail",
+    category: "email",
+    isFavorite: false,
+    usageCount: 0,
+  },
 
-//Docsactions
-{
-id:"docs-1",
-title:"CreateMeetingNotes",
-description:"Generatemeetingnotesdocumentfromcalendarevent",
-template:"Createameetingnotesdocumentformynextcalendarevent",
-icon:"FileText",
-category:"docs",
-isFavorite:false,
-usageCount:0,
-},
-{
-id:"docs-2",
-title:"CreateReport",
-description:"Generateaweeklyreportdocument",
-template:"Createaweeklyreportdocumentsummarizingmyactivities",
-icon:"FileText",
-category:"docs",
-isFavorite:false,
-usageCount:0,
-},
-{
-id:"docs-3",
-title:"OrganizeFiles",
-description:"OrganizerecentDrivefilesintofolders",
-template:"OrganizemyrecentDrivefilesintoappropriatefoldersbytopic",
-icon:"FileText",
-category:"docs",
-isFavorite:false,
-usageCount:0,
-},
-{
-id:"docs-4",
-title:"CreateDocumentfromEmail",
-description:"Convertemailthreadintoadocument",
-template:"CreateaGoogleDocfrommylatestemailthreadwithactionitems",
-icon:"FileText",
-category:"docs",
-isFavorite:false,
-usageCount:0,
-},
+  // Docs actions
+  {
+    id: "docs-1",
+    title: "Create Meeting Notes",
+    description: "Generate meeting notes document from calendar event",
+    template: "Create a meeting notes document for my next calendar event",
+    icon: "FileText",
+    category: "docs",
+    isFavorite: false,
+    usageCount: 0,
+  },
+  {
+    id: "docs-2",
+    title: "Create Report",
+    description: "Generate a weekly report document",
+    template: "Create a weekly report document summarizing my activities",
+    icon: "FileText",
+    category: "docs",
+    isFavorite: false,
+    usageCount: 0,
+  },
+  {
+    id: "docs-3",
+    title: "Organize Files",
+    description: "Organize recent Drive files into folders",
+    template: "Organize my recent Drive files into appropriate folders by topic",
+    icon: "FileText",
+    category: "docs",
+    isFavorite: false,
+    usageCount: 0,
+  },
+  {
+    id: "docs-4",
+    title: "Create Document from Email",
+    description: "Convert email thread into a document",
+    template: "Create a Google Doc from my latest email thread with action items",
+    icon: "FileText",
+    category: "docs",
+    isFavorite: false,
+    usageCount: 0,
+  },
 
-//Calendaractions
-{
-id:"calendar-1",
-title:"ScheduleFollow-up",
-description:"Scheduleafollow-upmeetingbasedonemailthread",
-template:"Scheduleafollow-upmeetingbasedonmylatestemailthread",
-icon:"Calendar",
-category:"calendar",
-isFavorite:false,
-usageCount:0,
-},
-{
-id:"calendar-2",
-title:"FindAvailableSlots",
-description:"Findavailablemeetingtimesthisweek",
-template:"Findallavailable{duration}-hourmeetingslotsinmycalendar{timeframe}",
-icon:"Calendar",
-category:"calendar",
-isFavorite:false,
-usageCount:0,
-parameters:[
-{
-name:"duration",
-label:"MeetingDuration(hours)",
-type:"number",
-placeholder:"1",
-required:true,
-defaultValue:"1",
-},
-{
-name:"timeframe",
-label:"Timeframe",
-type:"text",
-placeholder:"thisweek",
-required:true,
-defaultValue:"thisweek",
-},
-],
-},
-{
-id:"calendar-3",
-title:"SummarizeToday'sSchedule",
-description:"Getasummaryoftoday'smeetingsandevents",
-template:"Summarizeallmymeetingsandeventsscheduledfortoday",
-icon:"Calendar",
-category:"calendar",
-isFavorite:false,
-usageCount:0,
-},
+  // Calendar actions
+  {
+    id: "calendar-1",
+    title: "Schedule Follow-up",
+    description: "Schedule a follow-up meeting based on email thread",
+    template: "Schedule a follow-up meeting based on my latest email thread",
+    icon: "Calendar",
+    category: "calendar",
+    isFavorite: false,
+    usageCount: 0,
+  },
+  {
+    id: "calendar-2",
+    title: "Find Available Slots",
+    description: "Find available meeting times this week",
+    template: "Find all available {duration}-hour meeting slots in my calendar {timeframe}",
+    icon: "Calendar",
+    category: "calendar",
+    isFavorite: false,
+    usageCount: 0,
+    parameters: [
+      {
+        name: "duration",
+        label: "Meeting Duration (hours)",
+        type: "number",
+        placeholder: "1",
+        required: true,
+        defaultValue: "1",
+      },
+      {
+        name: "timeframe",
+        label: "Timeframe",
+        type: "text",
+        placeholder: "this week",
+        required: true,
+        defaultValue: "this week",
+      },
+    ],
+  },
+  {
+    id: "calendar-3",
+    title: "Summarize Today's Schedule",
+    description: "Get a summary of today's meetings and events",
+    template: "Summarize all my meetings and events scheduled for today",
+    icon: "Calendar",
+    category: "calendar",
+    isFavorite: false,
+    usageCount: 0,
+  },
 
-//Analysisactions
-{
-id:"analysis-1",
-title:"AnalyzeSpreadsheet",
-description:"Generateinsightsfromspreadsheetdata",
-template:"Analyzethedatainmylatestspreadsheetandprovideinsights",
-icon:"BarChart3",
-category:"analysis",
-isFavorite:false,
-usageCount:0,
-},
-{
-id:"analysis-2",
-title:"CreateChartfromData",
-description:"Generatevisualizationsfromspreadsheetdata",
-template:"Createchartsandvisualizationsfrommylatestspreadsheetdata",
-icon:"BarChart3",
-category:"analysis",
-isFavorite:false,
-usageCount:0,
-},
-{
-id:"analysis-3",
-title:"EmailAnalytics",
-description:"Analyzeemailpatternsandstatistics",
-template:"Analyzemyemailpatternsfromthelastmonthandprovidestatistics",
-icon:"BarChart3",
-category:"analysis",
-isFavorite:false,
-usageCount:0,
-},
+  // Analysis actions
+  {
+    id: "analysis-1",
+    title: "Analyze Spreadsheet",
+    description: "Generate insights from spreadsheet data",
+    template: "Analyze the data in my latest spreadsheet and provide insights",
+    icon: "BarChart3",
+    category: "analysis",
+    isFavorite: false,
+    usageCount: 0,
+  },
+  {
+    id: "analysis-2",
+    title: "Create Chart from Data",
+    description: "Generate visualizations from spreadsheet data",
+    template: "Create charts and visualizations from my latest spreadsheet data",
+    icon: "BarChart3",
+    category: "analysis",
+    isFavorite: false,
+    usageCount: 0,
+  },
+  {
+    id: "analysis-3",
+    title: "Email Analytics",
+    description: "Analyze email patterns and statistics",
+    template: "Analyze my email patterns from the last month and provide statistics",
+    icon: "BarChart3",
+    category: "analysis",
+    isFavorite: false,
+    usageCount: 0,
+  },
 ];
 
-//Storageutilities
-exportconstQuickActionsStorage={
-/**
-*GetfavoriteactionIDsfromlocalStorage
-*/
-getFavorites():string[]{
-if(typeofwindow==="undefined")return[];
+// Storage utilities
+export const QuickActionsStorage = {
+  /**
+   * Get favorite action IDs from localStorage
+   */
+  getFavorites(): string[] {
+    if (typeof window === "undefined") return [];
 
-try{
-conststored=localStorage.getItem(STORAGE_KEYS.FAVORITES);
-returnstored?JSON.parse(stored):[];
-}catch(error){
-console.error("ErrorreadingfavoritesfromlocalStorage:",error);
-return[];
-}
-},
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.FAVORITES);
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error("Error reading favorites from localStorage:", error);
+      return [];
+    }
+  },
 
-/**
-*SavefavoriteactionIDstolocalStorage
-*Maximum20favoritesperuser
-*/
-saveFavorites(favoriteIds:string[]):void{
-if(typeofwindow==="undefined")return;
+  /**
+   * Save favorite action IDs to localStorage
+   * Maximum 20 favorites per user
+   */
+  saveFavorites(favoriteIds: string[]): void {
+    if (typeof window === "undefined") return;
 
-try{
-//Limitto20favorites
-constlimited=favoriteIds.slice(0,20);
-localStorage.setItem(STORAGE_KEYS.FAVORITES,JSON.stringify(limited));
-}catch(error){
-console.error("ErrorsavingfavoritestolocalStorage:",error);
-}
-},
+    try {
+      // Limit to 20 favorites
+      const limited = favoriteIds.slice(0, 20);
+      localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(limited));
+    } catch (error) {
+      console.error("Error saving favorites to localStorage:", error);
+    }
+  },
 
-/**
-*Togglefavoritestatusforanaction
-*/
-toggleFavorite(actionId:string):string[]{
-constfavorites=this.getFavorites();
-constindex=favorites.indexOf(actionId);
+  /**
+   * Toggle favorite status for an action
+   */
+  toggleFavorite(actionId: string): string[] {
+    const favorites = this.getFavorites();
+    const index = favorites.indexOf(actionId);
 
-if(index>-1){
-//Removefromfavorites
-favorites.splice(index,1);
-}else{
-//Addtofavorites(checklimit)
-if(favorites.length<20){
-favorites.push(actionId);
-}else{
-console.warn("Maximumof20favoritesreached");
-returnfavorites;
-}
-}
+    if (index > -1) {
+      // Remove from favorites
+      favorites.splice(index, 1);
+    } else {
+      // Add to favorites (check limit)
+      if (favorites.length < 20) {
+        favorites.push(actionId);
+      } else {
+        console.warn("Maximum of 20 favorites reached");
+        return favorites;
+      }
+    }
 
-this.saveFavorites(favorites);
-returnfavorites;
-},
+    this.saveFavorites(favorites);
+    return favorites;
+  },
 
-/**
-*GetusagecountsfromlocalStorage
-*/
-getUsageCounts():Record<string,number>{
-if(typeofwindow==="undefined")return{};
+  /**
+   * Get usage counts from localStorage
+   */
+  getUsageCounts(): Record<string, number> {
+    if (typeof window === "undefined") return {};
 
-try{
-conststored=localStorage.getItem(STORAGE_KEYS.USAGE_COUNTS);
-returnstored?JSON.parse(stored):{};
-}catch(error){
-console.error("ErrorreadingusagecountsfromlocalStorage:",error);
-return{};
-}
-},
+    try {
+      const stored = localStorage.getItem(STORAGE_KEYS.USAGE_COUNTS);
+      return stored ? JSON.parse(stored) : {};
+    } catch (error) {
+      console.error("Error reading usage counts from localStorage:", error);
+      return {};
+    }
+  },
 
-/**
-*SaveusagecountstolocalStorage
-*/
-saveUsageCounts(counts:Record<string,number>):void{
-if(typeofwindow==="undefined")return;
+  /**
+   * Save usage counts to localStorage
+   */
+  saveUsageCounts(counts: Record<string, number>): void {
+    if (typeof window === "undefined") return;
 
-try{
-localStorage.setItem(STORAGE_KEYS.USAGE_COUNTS,JSON.stringify(counts));
-}catch(error){
-console.error("ErrorsavingusagecountstolocalStorage:",error);
-}
-},
-
-/**
-*Incrementusagecountforanaction
-*/
-incrementUsage(actionId:string):number{
-constcounts=this.getUsageCounts();
-counts[actionId]=(counts[actionId]||0)+1;
-this.saveUsageCounts(counts);
-returncounts[actionId];
-},
-
-/**
-*Getallquickactionswithfavoritesandusagecountsapplied
-*/
-getQuickActions():QuickAction[]{
-constfavorites=this.getFavorites();
-constusageCounts=this.getUsageCounts();
-
-returnDEFAULT_QUICK_ACTIONS.map((action)=>({
-...action,
-isFavorite:favorites.includes(action.id),
-usageCount:usageCounts[action.id]||0,
-}));
-},
-
-/**
-*Getfavoriteactions
-*/
-getFavoriteActions():QuickAction[]{
-constactions=this.getQuickActions();
-returnactions.filter((action)=>action.isFavorite);
-},
-
-/**
-*Getrecentactions(sortedbyusagecount,top5)
-*/
-getRecentActions(limit:number=5):QuickAction[]{
-constactions=this.getQuickActions();
-returnactions
-.filter((action)=>action.usageCount>0)
-.sort((a,b)=>b.usageCount-a.usageCount)
-.slice(0,limit);
-},
-
-/**
-*Getactionsbycategory
-*/
-getActionsByCategory(category:QuickActionCategory):QuickAction[]{
-constactions=this.getQuickActions();
-returnactions.filter((action)=>action.category===category);
-},
-
-/**
-*Searchactionsbyquery
-*/
-searchActions(query:string):QuickAction[]{
-if(!query.trim()){
-returnthis.getQuickActions();
-}
-
-constactions=this.getQuickActions();
-constlowerQuery=query.toLowerCase();
-
-returnactions.filter(
-(action)=>
-action.title.toLowerCase().includes(lowerQuery)||
-action.description.toLowerCase().includes(lowerQuery)||
-action.template.toLowerCase().includes(lowerQuery)
-);
-},
-
-/**
-*Clearallstorage(fortestingorreset)
-*/
-clearStorage():void{
-if(typeofwindow==="undefined")return;
-
-try{
-localStorage.removeItem(STORAGE_KEYS.FAVORITES);
-localStorage.removeItem(STORAGE_KEYS.USAGE_COUNTS);
-}catch(error){
-console.error("Errorclearingquickactionsstorage:",error);
-}
-},
-};
+    try {

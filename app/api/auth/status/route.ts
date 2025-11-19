@@ -1,74 +1,74 @@
-﻿import{NextResponse}from"next/server";
-import{createClient}from"@/lib/supabase/server";
-import{getGoogleOAuthTokens,getProfile}from"@/lib/supabase/queries";
+﻿import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { getGoogleOAuthTokens, getProfile } from "@/lib/supabase/queries";
 
-exportasyncfunctionGET(){
-try{
-constsupabase=awaitcreateClient();
+export async function GET() {
+  try {
+    const supabase = await createClient();
 
-//Getcurrentuser
-const{data:{user},error:authError}=awaitsupabase.auth.getUser();
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-if(authError||!user){
-returnNextResponse.json({
-isAuthenticated:false,
-session:null,
-});
-}
+    if (authError || !user) {
+      return NextResponse.json({
+        isAuthenticated: false,
+        session: null,
+      });
+    }
 
-//Getuserprofile
-letprofile=null;
-try{
-profile=awaitgetProfile(user.id);
-}catch(err){
-console.error("Errorfetchingprofile:",err);
-}
+    // Get user profile
+    let profile = null;
+    try {
+      profile = await getProfile(user.id);
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+    }
 
-//GetGoogleOAuthstatus
-letgoogleOAuthStatus={
-isConnected:false,
-userEmail:user.email,
-scopes:[]asstring[],
-expiresAt:nullasstring|null,
-};
+    // Get Google OAuth status
+    let googleOAuthStatus = {
+      isConnected: false,
+      userEmail: user.email,
+      scopes: [] as string[],
+      expiresAt: null as string | null,
+    };
 
-try{
-consttokens=awaitgetGoogleOAuthTokens(user.id);
-if(tokens){
-constexpiresAt=tokens.expires_at?newDate(tokens.expires_at):null;
-constisExpired=expiresAt?expiresAt<newDate():true;
+    try {
+      const tokens = await getGoogleOAuthTokens(user.id);
+      if (tokens) {
+        const expiresAt = tokens.expires_at ? new Date(tokens.expires_at) : null;
+        const isExpired = expiresAt ? expiresAt < new Date() : true;
 
-googleOAuthStatus={
-isConnected:!isExpired,
-userEmail:user.email||"",
-scopes:tokens.scopes||[],
-expiresAt:tokens.expires_at,
-};
-}
-}catch(err){
-console.error("ErrorfetchingGoogleOAuthtokens:",err);
-}
+        googleOAuthStatus = {
+          isConnected: !isExpired,
+          userEmail: user.email || "",
+          scopes: tokens.scopes || [],
+          expiresAt: tokens.expires_at,
+        };
+      }
+    } catch (err) {
+      console.error("Error fetching Google OAuth tokens:", err);
+    }
 
-returnNextResponse.json({
-isAuthenticated:true,
-session:{
-userId:user.id,
-email:user.email,
-isAuthenticated:true,
-oauthStatus:googleOAuthStatus,
-preferences:profile?.preferences||{
-theme:"system",
-notificationsEnabled:true,
-defaultView:"dashboard",
-favoriteActions:[],
-},
-},
-});
-}catch(error){
-console.error("Errorcheckingauthstatus:",error);
-returnNextResponse.json(
-{error:"Internalservererror"},
-{status:500}
-);
-}
+    return NextResponse.json({
+      isAuthenticated: true,
+      session: {
+        userId: user.id,
+        email: user.email,
+        isAuthenticated: true,
+        oauthStatus: googleOAuthStatus,
+        preferences: profile?.preferences || {
+          theme: "system",
+          notificationsEnabled: true,
+          defaultView: "dashboard",
+          favoriteActions: [],
+        },
+      },
+    });
+  } catch (error) {
+    console.error("Error checking auth status:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
 }

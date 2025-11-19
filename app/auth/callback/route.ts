@@ -1,27 +1,27 @@
-﻿import{NextRequest,NextResponse}from"next/server";
-import{createClient}from"@/lib/supabase/server";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
-exportasyncfunctionGET(request:NextRequest){
-constrequestUrl=newURL(request.url);
-constcode=requestUrl.searchParams.get("code");
-constorigin=requestUrl.origin;
+export async function GET(request: NextRequest) {
+  const requestUrl = new URL(request.url);
+  const code = requestUrl.searchParams.get("code");
+  const origin = requestUrl.origin;
 
-if(code){
-constsupabase=awaitcreateClient();
+  if (code) {
+    const supabase = await createClient();
 
-//Exchangecodeforsession
-const{data,error}=awaitsupabase.auth.exchangeCodeForSession(code);
+    // Exchange code for session
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
 
 if(error){
 console.error("Errorexchangingcodeforsession:",error);
-returnNextResponse.redirect(`${origin}/login?error=auth_failed`);
+return NextResponse.redirect(`${origin}/login?error=auth_failed`);
 }
 
 //StoreGoogleOAuthtokensifavailable
 if(data.session&&data.session.provider_token){
 try{
-constexpiresAt=newDate(Date.now()+3600*1000);//Default1hour
-constscopes=[
+const expiresAt=new Date(Date.now()+3600*1000);//Default1hour
+const scopes=[
 "https://www.googleapis.com/auth/gmail.modify",
 "https://www.googleapis.com/auth/drive.file",
 "https://www.googleapis.com/auth/documents",
@@ -30,7 +30,7 @@ constscopes=[
 ];
 
 //Useserver-sideclienttobypassRLS
-const{error:tokenError}=awaitsupabase
+const{error:tokenError}=await supabase
 .from("oauth_tokens")
 .upsert({
 user_id:data.session.user.id,
@@ -54,5 +54,5 @@ console.error("ErrorstoringOAuthtokens:",tokenError);
 }
 
 //Redirecttodashboardaftersuccessfulauthentication
-returnNextResponse.redirect(`${origin}/dashboard`);
+return NextResponse.redirect(`${origin}/dashboard`);
 }

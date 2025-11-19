@@ -1,83 +1,82 @@
-﻿import{NextRequest,NextResponse}from"next/server";
-import{createClient}from"@/lib/supabase/server";
-import{getWorkflow,updateWorkflow}from"@/lib/supabase/queries";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { getWorkflow, updateWorkflow } from "@/lib/supabase/queries";
 
-exportasyncfunctionPOST(request:NextRequest){
-try{
-constsupabase=awaitcreateClient();
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = await createClient();
 
-//Verifyuserisauthenticated
-const{data:{user},error:authError}=awaitsupabase.auth.getUser();
+    // Verify user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
-if(authError||!user){
-returnNextResponse.json(
-{error:"Unauthorized"},
-{status:401}
-);
-}
+    // Parse request body
+    const body = await request.json();
+    const { workflowId, resultId, rating, comment } = body;
 
-//Parserequestbody
-constbody=awaitrequest.json();
-const{workflowId,resultId,rating,comment}=body;
+    if (!workflowId || !resultId || !rating) {
+      return NextResponse.json(
+        { error: "WorkflowID, resultID, and rating are required" },
+        { status: 400 }
+      );
+    }
 
-if(!workflowId||!resultId||!rating){
-returnNextResponse.json(
-{error:"WorkflowID,resultID,andratingarerequired"},
-{status:400}
-);
-}
+    if (!["positive", "negative"].includes(rating)) {
+      return NextResponse.json(
+        { error: "Rating must be 'positive' or 'negative'" },
+        { status: 400 }
+      );
+    }
 
-if(!["positive","negative"].includes(rating)){
-returnNextResponse.json(
-{error:"Ratingmustbe'positive'or'negative'"},
-{status:400}
-);
-}
+    // Get workflow
+    const workflow = await getWorkflow(workflowId);
 
-//Getworkflow
-constworkflow=awaitgetWorkflow(workflowId);
+    // Verify workflow belongs to user
+    if (workflow.user_id !== user.id) {
+      return NextResponse.json(
+        { error: "Unauthorized to provide feedback for this workflow" },
+        { status: 403 }
+      );
+    }
 
-//Verifyworkflowbelongstouser
-if(workflow.user_id!==user.id){
-returnNextResponse.json(
-{error:"Unauthorizedtoprovidefeedbackforthisworkflow"},
-{status:403}
-);
-}
+    // Update results with feedback
+    const results = workflow.resultsasany || [];
+    const updatedResults = results.map((result: any) => {
+      if (result.id === resultId) {
+        return {
+          ...result,
+          feedback: {
+            rating,
+            comment: comment || null,
+            timestamp: new Date().toISOString(),
+          },
+        };
+      }
+      return result;
+    });
 
-//Updateresultswithfeedback
-constresults=workflow.resultsasany[]||[];
-constupdatedResults=results.map((result:any)=>{
-if(result.id===resultId){
-return{
-...result,
-feedback:{
-rating,
-comment:comment||null,
-timestamp:newDate().toISOString(),
-},
-};
-}
-returnresult;
-});
+    // Update workflow
+    await updateWorkflow(workflowId, {
+      results: updatedResults,
+    });
 
-//Updateworkflow
-awaitupdateWorkflow(workflowId,{
-results:updatedResults,
-});
-
-returnNextResponse.json({
-success:true,
-message:"Feedbackrecordedsuccessfully",
-});
-}catch(error){
-console.error("Errorrecordingfeedback:",error);
-returnNextResponse.json(
-{
-error:"Failedtorecordfeedback",
-message:errorinstanceofError?error.message:"Unknownerror"
-},
-{status:500}
-);
-}
+    return NextResponse.json({
+      success: true,
+      message: "Feedback recorded successfully",
+    });
+  } catch (error) {
+    console.error("Error recording feedback:", error);
+    return NextResponse.json(
+      {
+        error: "Failed to record feedback",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
+  }
 }

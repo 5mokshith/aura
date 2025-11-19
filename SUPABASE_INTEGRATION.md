@@ -1,200 +1,201 @@
-#***REMOVED***Supabase***REMOVED***Integration***REMOVED***for***REMOVED***AURA
+# Supabase Integration for AURA
 
-This***REMOVED***document***REMOVED***provides***REMOVED***an***REMOVED***overview***REMOVED***of***REMOVED***the***REMOVED***Supabase***REMOVED***integration***REMOVED***in***REMOVED***AURA.
+This document provides an overview of the Supabase integration in AURA.
 
-##***REMOVED***What's***REMOVED***Been***REMOVED***Set***REMOVED***Up
+## What's Been Set Up
 
-###***REMOVED***✅***REMOVED***Core***REMOVED***Infrastructure
+### ✅ Core Infrastructure
 
-1.***REMOVED*****Supabase***REMOVED***Client***REMOVED***Utilities**
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Browser***REMOVED***client***REMOVED***(`lib/supabase/client.ts`)
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Server***REMOVED***client***REMOVED***(`lib/supabase/server.ts`)
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Middleware***REMOVED***utilities***REMOVED***(`lib/supabase/middleware.ts`)
+1. **Supabase Client Utilities**
+   - Browser client (`lib/supabase/client.ts`)
+   - Server client (`lib/supabase/server.ts`)
+   - Middleware utilities (`lib/supabase/middleware.ts`)
 
-2.***REMOVED*****Authentication**
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Supabase***REMOVED***Auth***REMOVED***context***REMOVED***(`contexts/SupabaseAuthContext.tsx`)
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Google***REMOVED***OAuth***REMOVED***integration
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Automatic***REMOVED***session***REMOVED***management
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Protected***REMOVED***route***REMOVED***middleware***REMOVED***(`middleware.ts`)
+2. **Authentication**
+   - Supabase Auth context (`contexts/SupabaseAuthContext.tsx`)
+   - Google OAuth integration
+   - Automatic session management
+   - Protected route middleware (`middleware.ts`)
 
-3.***REMOVED*****Database**
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Type-safe***REMOVED***database***REMOVED***schema***REMOVED***(`lib/supabase/database.types.ts`)
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Pre-built***REMOVED***query***REMOVED***helpers***REMOVED***(`lib/supabase/queries.ts`)
-***REMOVED******REMOVED******REMOVED***-***REMOVED***SQL***REMOVED***migrations***REMOVED***(`supabase/migrations/001_initial_schema.sql`)
+3. **Database**
+   - Type-safe database schema (`lib/supabase/database.types.ts`)
+   - Pre-built query helpers (`lib/supabase/queries.ts`)
+   - SQL migrations (`supabase/migrations/001_initial_schema.sql`)
 
-4.***REMOVED*****API***REMOVED***Routes**
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Profile***REMOVED***management***REMOVED***(`app/api/profile/route.ts`)
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Workflow***REMOVED***operations***REMOVED***(`app/api/workflows/route.ts`)
+4. **API Routes**
+   - Profile management (`app/api/profile/route.ts`)
+   - Workflow operations (`app/api/workflows/route.ts`)
 
-###***REMOVED***✅***REMOVED***Documentation
+### ✅ Documentation
 
--***REMOVED*****Quick***REMOVED***Start**:***REMOVED***[docs/SUPABASE_QUICKSTART.md](docs/SUPABASE_QUICKSTART.md)
--***REMOVED*****Full***REMOVED***Setup***REMOVED***Guide**:***REMOVED***[docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)
--***REMOVED*****Migration***REMOVED***Guide**:***REMOVED***[docs/MIGRATION_TO_SUPABASE.md](docs/MIGRATION_TO_SUPABASE.md)
--***REMOVED*****Setup***REMOVED***Checklist**:***REMOVED***[docs/SUPABASE_CHECKLIST.md](docs/SUPABASE_CHECKLIST.md)
--***REMOVED*****Usage***REMOVED***Guide**:***REMOVED***[lib/supabase/README.md](lib/supabase/README.md)
+- **Quick Start**: [docs/SUPABASE_QUICKSTART.md](docs/SUPABASE_QUICKSTART.md)
+- **Full Setup Guide**: [docs/SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)
+- **Migration Guide**: [docs/MIGRATION_TO_SUPABASE.md](docs/MIGRATION_TO_SUPABASE.md)
+- **Setup Checklist**: [docs/SUPABASE_CHECKLIST.md](docs/SUPABASE_CHECKLIST.md)
+- **Usage Guide**: [lib/supabase/README.md](lib/supabase/README.md)
 
-##***REMOVED***Quick***REMOVED***Start
+## Quick Start
 
-###***REMOVED***1.***REMOVED***Install***REMOVED***Dependencies***REMOVED***✅
+### 1. Install Dependencies ✅
 
-Already***REMOVED***installed:
+Already installed:
 ```bash
-npm***REMOVED***install***REMOVED***@supabase/supabase-js***REMOVED***@supabase/ssr
+npm install @supabase/supabase-js @supabase/ssr
 ```
 
-###***REMOVED***2.***REMOVED***Configure***REMOVED***Environment***REMOVED***Variables
+### 2. Configure Environment Variables
 
-Update***REMOVED***`.env.local`:
+Update `.env.local`:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=REDACTED
 SUPABASE_SERVICE_ROLE_KEY=REDACTED
 ```
 
-###***REMOVED***3.***REMOVED***Set***REMOVED***Up***REMOVED***Supabase***REMOVED***Project
+### 3. Set Up Supabase Project
 
-1.***REMOVED***Create***REMOVED***project***REMOVED***at***REMOVED***[supabase.com](https://supabase.com)
-2.***REMOVED***Run***REMOVED***SQL***REMOVED***migration***REMOVED***from***REMOVED***`supabase/migrations/001_initial_schema.sql`
-3.***REMOVED***Enable***REMOVED***Google***REMOVED***OAuth***REMOVED***provider
-4.***REMOVED***Add***REMOVED***your***REMOVED***Google***REMOVED***OAuth***REMOVED***credentials
+1. Create project at [supabase.com](https://supabase.com)
+2. Run SQL migration from `supabase/migrations/001_initial_schema.sql`
+3. Enable Google OAuth provider
+4. Add your Google OAuth credentials
 
-###***REMOVED***4.***REMOVED***Start***REMOVED***Using***REMOVED***Supabase
+### 4. Start Using Supabase
 
 ```tsx
-import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
+import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
 
-function***REMOVED***MyComponent()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***user,***REMOVED***signInWithGoogle,***REMOVED***signOut***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***if***REMOVED***(!user)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***<button***REMOVED***onClick={signInWithGoogle}>Sign***REMOVED***In</button>;
-***REMOVED******REMOVED***}
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***return***REMOVED***(
-***REMOVED******REMOVED******REMOVED******REMOVED***<div>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<p>Welcome,***REMOVED***{user.email}!</p>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<button***REMOVED***onClick={signOut}>Sign***REMOVED***Out</button>
-***REMOVED******REMOVED******REMOVED******REMOVED***</div>
-***REMOVED******REMOVED***);
+function MyComponent() {
+  const { user, signInWithGoogle, signOut } = useSupabaseAuth();
+  
+  if (!user) {
+    return <button onClick={signInWithGoogle}>Sign In</button>;
+  }
+  
+  return (
+    <div>
+      <p>Welcome, {user.email}!</p>
+      <button onClick={signOut}>Sign Out</button>
+    </div>
+  );
 }
 ```
 
-##***REMOVED***Database***REMOVED***Schema
+## Database Schema
 
-###***REMOVED***Tables
+### Tables
 
 **profiles**
--***REMOVED***User***REMOVED***profile***REMOVED***information
--***REMOVED***Automatically***REMOVED***created***REMOVED***on***REMOVED***signup
--***REMOVED***Stores***REMOVED***preferences***REMOVED***and***REMOVED***settings
+- User profile information
+- Automatically created on signup
+- Stores preferences and settings
 
 **workflows**
--***REMOVED***Workflow***REMOVED***execution***REMOVED***data
--***REMOVED***Tracks***REMOVED***status***REMOVED***and***REMOVED***results
--***REMOVED***Linked***REMOVED***to***REMOVED***user***REMOVED***profiles
+- Workflow execution data
+- Tracks status and results
+- Linked to user profiles
 
 **workflow_history**
--***REMOVED***Historical***REMOVED***workflow***REMOVED***executions
--***REMOVED***Audit***REMOVED***trail***REMOVED***for***REMOVED***user***REMOVED***actions
--***REMOVED***Searchable***REMOVED***and***REMOVED***filterable
+- Historical workflow executions
+- Audit trail for user actions
+- Searchable and filterable
 
-##***REMOVED***Key***REMOVED***Features
+## Key Features
 
-###***REMOVED***🔐***REMOVED***Authentication
--***REMOVED***Google***REMOVED***OAuth***REMOVED***integration
--***REMOVED***Automatic***REMOVED***session***REMOVED***management
--***REMOVED***Protected***REMOVED***routes***REMOVED***via***REMOVED***middleware
--***REMOVED***Token***REMOVED***refresh***REMOVED***handled***REMOVED***automatically
+### 🔐 Authentication
+- Google OAuth integration
+- Automatic session management
+- Protected routes via middleware
+- Token refresh handled automatically
 
-###***REMOVED***💾***REMOVED***Database
--***REMOVED***Type-safe***REMOVED***queries***REMOVED***with***REMOVED***TypeScript
--***REMOVED***Row***REMOVED***Level***REMOVED***Security***REMOVED***(RLS)***REMOVED***enabled
--***REMOVED***Automatic***REMOVED***timestamps
--***REMOVED***Pre-built***REMOVED***query***REMOVED***helpers
+### 💾 Database
+- Type-safe queries with TypeScript
+- Row Level Security (RLS) enabled
+- Automatic timestamps
+- Pre-built query helpers
 
-###***REMOVED***🛡️***REMOVED***Security
--***REMOVED***RLS***REMOVED***policies***REMOVED***on***REMOVED***all***REMOVED***tables
--***REMOVED***Users***REMOVED***can***REMOVED***only***REMOVED***access***REMOVED***their***REMOVED***own***REMOVED***data
--***REMOVED***Service***REMOVED***role***REMOVED***key***REMOVED***kept***REMOVED***server-side
--***REMOVED***Automatic***REMOVED***auth***REMOVED***checks***REMOVED***in***REMOVED***middleware
+### 🛡️ Security
+- RLS policies on all tables
+- Users can only access their own data
+- Service role key kept server-side
+- Automatic auth checks in middleware
 
-###***REMOVED***📊***REMOVED***Real-time***REMOVED***(Optional)
--***REMOVED***Subscribe***REMOVED***to***REMOVED***database***REMOVED***changes
--***REMOVED***Live***REMOVED***workflow***REMOVED***updates
--***REMOVED***Real-time***REMOVED***notifications
+### 📊 Real-time (Optional)
+- Subscribe to database changes
+- Live workflow updates
+- Real-time notifications
 
-##***REMOVED***File***REMOVED***Structure
+## File Structure
 
 ```
-├──***REMOVED***lib/supabase/
-│***REMOVED******REMOVED******REMOVED***├──***REMOVED***client.ts***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Browser***REMOVED***client
-│***REMOVED******REMOVED******REMOVED***├──***REMOVED***server.ts***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Server***REMOVED***client
-│***REMOVED******REMOVED******REMOVED***├──***REMOVED***middleware.ts***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Middleware***REMOVED***utilities
-│***REMOVED******REMOVED******REMOVED***├──***REMOVED***database.types.ts***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***TypeScript***REMOVED***types
-│***REMOVED******REMOVED******REMOVED***├──***REMOVED***queries.ts***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Query***REMOVED***helpers
-│***REMOVED******REMOVED******REMOVED***└──***REMOVED***README.md***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Usage***REMOVED***guide
-├──***REMOVED***contexts/
-│***REMOVED******REMOVED******REMOVED***└──***REMOVED***SupabaseAuthContext.tsx***REMOVED***#***REMOVED***Auth***REMOVED***context
-├──***REMOVED***middleware.ts***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Route***REMOVED***protection
-├──***REMOVED***supabase/
-│***REMOVED******REMOVED******REMOVED***└──***REMOVED***migrations/
-│***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***└──***REMOVED***001_initial_schema.sql***REMOVED***#***REMOVED***Database***REMOVED***schema
-├──***REMOVED***app/api/
-│***REMOVED******REMOVED******REMOVED***├──***REMOVED***profile/route.ts***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Profile***REMOVED***API
-│***REMOVED******REMOVED******REMOVED***└──***REMOVED***workflows/route.ts***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***#***REMOVED***Workflows***REMOVED***API
-└──***REMOVED***docs/
-***REMOVED******REMOVED******REMOVED******REMOVED***├──***REMOVED***SUPABASE_QUICKSTART.md
-***REMOVED******REMOVED******REMOVED******REMOVED***├──***REMOVED***SUPABASE_SETUP.md
-***REMOVED******REMOVED******REMOVED******REMOVED***├──***REMOVED***MIGRATION_TO_SUPABASE.md
-***REMOVED******REMOVED******REMOVED******REMOVED***└──***REMOVED***SUPABASE_CHECKLIST.md
+├── lib/supabase/
+│   ├── client.ts              # Browser client
+│   ├── server.ts              # Server client
+│   ├── middleware.ts          # Middleware utilities
+│   ├── database.types.ts      # TypeScript types
+│   ├── queries.ts             # Query helpers
+│   └── README.md              # Usage guide
+├── contexts/
+│   └── SupabaseAuthContext.tsx # Auth context
+├── middleware.ts              # Route protection
+├── supabase/
+│   └── migrations/
+│       └── 001_initial_schema.sql # Database schema
+├── app/api/
+│   ├── profile/route.ts       # Profile API
+│   └── workflows/route.ts     # Workflows API
+└── docs/
+    ├── SUPABASE_QUICKSTART.md
+    ├── SUPABASE_SETUP.md
+    ├── MIGRATION_TO_SUPABASE.md
+    └── SUPABASE_CHECKLIST.md
 ```
 
-##***REMOVED***Next***REMOVED***Steps
+## Next Steps
 
-1.***REMOVED*****Set***REMOVED***up***REMOVED***Supabase***REMOVED***project*****REMOVED***-***REMOVED***Follow***REMOVED***[SUPABASE_QUICKSTART.md](docs/SUPABASE_QUICKSTART.md)
-2.***REMOVED*****Configure***REMOVED***environment*****REMOVED***-***REMOVED***Add***REMOVED***your***REMOVED***Supabase***REMOVED***credentials
-3.***REMOVED*****Run***REMOVED***database***REMOVED***migration*****REMOVED***-***REMOVED***Set***REMOVED***up***REMOVED***tables***REMOVED***and***REMOVED***RLS***REMOVED***policies
-4.***REMOVED*****Test***REMOVED***authentication*****REMOVED***-***REMOVED***Try***REMOVED***signing***REMOVED***in***REMOVED***with***REMOVED***Google
-5.***REMOVED*****Migrate***REMOVED***components*****REMOVED***-***REMOVED***Follow***REMOVED***[MIGRATION_TO_SUPABASE.md](docs/MIGRATION_TO_SUPABASE.md)
+1. **Set up Supabase project** - Follow [SUPABASE_QUICKSTART.md](docs/SUPABASE_QUICKSTART.md)
+2. **Configure environment** - Add your Supabase credentials
+3. **Run database migration** - Set up tables and RLS policies
+4. **Test authentication** - Try signing in with Google
+5. **Migrate components** - Follow [MIGRATION_TO_SUPABASE.md](docs/MIGRATION_TO_SUPABASE.md)
 
-##***REMOVED***Benefits
+## Benefits
 
-✅***REMOVED*****Automatic***REMOVED***session***REMOVED***management*****REMOVED***-***REMOVED***No***REMOVED***manual***REMOVED***token***REMOVED***refresh***REMOVED***needed
-✅***REMOVED*****Built-in***REMOVED***security*****REMOVED***-***REMOVED***Row***REMOVED***Level***REMOVED***Security***REMOVED***protects***REMOVED***user***REMOVED***data
-✅***REMOVED*****Type***REMOVED***safety*****REMOVED***-***REMOVED***Full***REMOVED***TypeScript***REMOVED***support
-✅***REMOVED*****Scalability*****REMOVED***-***REMOVED***Supabase***REMOVED***handles***REMOVED***infrastructure
-✅***REMOVED*****Real-time*****REMOVED***-***REMOVED***Optional***REMOVED***real-time***REMOVED***subscriptions
-✅***REMOVED*****Monitoring*****REMOVED***-***REMOVED***Built-in***REMOVED***auth***REMOVED***logs***REMOVED***and***REMOVED***analytics
-✅***REMOVED*****Developer***REMOVED***experience*****REMOVED***-***REMOVED***Simple,***REMOVED***intuitive***REMOVED***API
+✅ **Automatic session management** - No manual token refresh needed
+✅ **Built-in security** - Row Level Security protects user data
+✅ **Type safety** - Full TypeScript support
+✅ **Scalability** - Supabase handles infrastructure
+✅ **Real-time** - Optional real-time subscriptions
+✅ **Monitoring** - Built-in auth logs and analytics
+✅ **Developer experience** - Simple, intuitive API
 
-##***REMOVED***Support
+## Support
 
--***REMOVED*****Documentation**:***REMOVED***See***REMOVED***`docs/`***REMOVED***folder
--***REMOVED*****Supabase***REMOVED***Docs**:***REMOVED***[supabase.com/docs](https://supabase.com/docs)
--***REMOVED*****Discord**:***REMOVED***[discord.supabase.com](https://discord.supabase.com)
--***REMOVED*****GitHub**:***REMOVED***[github.com/supabase/supabase](https://github.com/supabase/supabase)
+- **Documentation**: See `docs/` folder
+- **Supabase Docs**: [supabase.com/docs](https://supabase.com/docs)
+- **Discord**: [discord.supabase.com](https://discord.supabase.com)
+- **GitHub**: [github.com/supabase/supabase](https://github.com/supabase/supabase)
 
-##***REMOVED***Migration***REMOVED***from***REMOVED***Old***REMOVED***Auth
+## Migration from Old Auth
 
-If***REMOVED***you're***REMOVED***migrating***REMOVED***from***REMOVED***the***REMOVED***existing***REMOVED***Google***REMOVED***OAuth***REMOVED***setup:
+If you're migrating from the existing Google OAuth setup:
 
-1.***REMOVED***Review***REMOVED***[MIGRATION_TO_SUPABASE.md](docs/MIGRATION_TO_SUPABASE.md)
-2.***REMOVED***Follow***REMOVED***the***REMOVED***phase-by-phase***REMOVED***migration***REMOVED***guide
-3.***REMOVED***Test***REMOVED***thoroughly***REMOVED***before***REMOVED***removing***REMOVED***old***REMOVED***code
-4.***REMOVED***Keep***REMOVED***rollback***REMOVED***plan***REMOVED***ready
+1. Review [MIGRATION_TO_SUPABASE.md](docs/MIGRATION_TO_SUPABASE.md)
+2. Follow the phase-by-phase migration guide
+3. Test thoroughly before removing old code
+4. Keep rollback plan ready
 
-##***REMOVED***Troubleshooting
+## Troubleshooting
 
-Common***REMOVED***issues***REMOVED***and***REMOVED***solutions:
+Common issues and solutions:
 
--***REMOVED*****"Invalid***REMOVED***API***REMOVED***key"*****REMOVED***-***REMOVED***Check***REMOVED***`.env.local`***REMOVED***and***REMOVED***restart***REMOVED***server
--***REMOVED*****"Unauthorized"*****REMOVED***-***REMOVED***Verify***REMOVED***RLS***REMOVED***policies***REMOVED***and***REMOVED***auth***REMOVED***state
--***REMOVED*****"Failed***REMOVED***to***REMOVED***fetch"*****REMOVED***-***REMOVED***Check***REMOVED***network***REMOVED***and***REMOVED***Supabase***REMOVED***project***REMOVED***status
--***REMOVED*****Google***REMOVED***OAuth***REMOVED***issues*****REMOVED***-***REMOVED***Verify***REMOVED***redirect***REMOVED***URLs***REMOVED***and***REMOVED***credentials
+- **"Invalid API key"** - Check `.env.local` and restart server
+- **"Unauthorized"** - Verify RLS policies and auth state
+- **"Failed to fetch"** - Check network and Supabase project status
+- **Google OAuth issues** - Verify redirect URLs and credentials
 
-See***REMOVED***[SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md)***REMOVED***for***REMOVED***detailed***REMOVED***troubleshooting.
+See [SUPABASE_SETUP.md](docs/SUPABASE_SETUP.md) for detailed troubleshooting.
 
 ---
 
-**Ready***REMOVED***to***REMOVED***get***REMOVED***started?*****REMOVED***Follow***REMOVED***the***REMOVED***[Quick***REMOVED***Start***REMOVED***Guide](docs/SUPABASE_QUICKSTART.md)!
+**Ready to get started?** Follow the [Quick Start Guide](docs/SUPABASE_QUICKSTART.md)!
+

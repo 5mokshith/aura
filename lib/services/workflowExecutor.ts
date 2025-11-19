@@ -1,339 +1,242 @@
 ﻿/**
-*WorkflowExecutorService
-*Orchestratesworkflowexecutionbymanagingstepsequencing,agentrouting,andstatetransitions
-*/
+ * WorkflowExecutorService
+ * Orchestrates workflow execution by managing step sequencing, agent routing, and state transitions
+ */
 
-import{createServiceClient}from"@/lib/supabase/server";
-import{getAgent}from"@/lib/agents/registry";
-import{updateWorkflowStatus}from"./workflowService";
-importtype{WorkflowStep}from"@/types";
-importtype{ExecutionContext}from"@/lib/agents/base";
+import { createServiceClient } from "@/lib/supabase/server";
+import { getAgent } from "@/lib/agents/registry";
+import { updateWorkflowStatus } from "./workflowService";
+import type { WorkflowStep } from "@/types";
+import type { ExecutionContext } from "@/lib/agents/base";
 
 /**
-*Executeacompleteworkflow
-*@paramworkflowId-TheworkflowIDtoexecute
-*@paramuserId-TheuserIDwhoownstheworkflow
-*@paramaccessToken-GoogleOAuthaccesstokenforAPIauthentication
-*/
-exportasyncfunctionexecuteWorkflow(
-workflowId:string,
-userId:string,
-accessToken:string
-):Promise<void>{
-constserviceClient=createServiceClient();
+ * Execute a complete workflow
+ * @param workflowId - The workflow ID to execute
+ * @param userId - The user ID who owns the workflow
+ * @param accessToken - Google OAuth access token for API authentication
+ */
+export async function executeWorkflow(
+  workflowId: string,
+  userId: string,
+  accessToken: string
+): Promise<void> {
+  const serviceClient = createServiceClient();
 
-console.log(`[WorkflowExecutor]Startingworkflowexecution`,{
-operation:"executeWorkflow",
-workflowId,
-userId,
-timestamp:newDate().toISOString(),
-});
+  console.log(`[WorkflowExecutor] Starting workflow execution`, {
+    operation: "executeWorkflow",
+    workflowId,
+    userId,
+    timestamp: new Date().toISOString(),
+  });
 
-try{
-//Step1:Fetchworkflowfromdatabase
-console.log(`[WorkflowExecutor]Fetchingworkflow`,{
-operation:"executeWorkflow",
-workflowId,
-step:"fetch",
-timestamp:newDate().toISOString(),
-});
+  try {
+    // Step 1: Fetch workflow from database
+    console.log(`[WorkflowExecutor] Fetching workflow`, {
+      operation: "executeWorkflow",
+      workflowId,
+      step: "fetch",
+      timestamp: new Date().toISOString(),
+    });
 
-const{data:workflow,error:fetchError}=awaitserviceClient
-.from("workflows")
-.select("*")
-.eq("id",workflowId)
-.single();
+    const { data: workflow, error: fetchError } = await serviceClient
+      .from("workflows")
+      .select("*")
+      .eq("id", workflowId)
+      .single();
 
-if(fetchError||!workflow){
-consterrorMessage=fetchError?.message||"Workflownotfound";
-console.error(`[WorkflowExecutor]Failedtofetchworkflow`,{
-operation:"executeWorkflow",
-workflowId,
-error:errorMessage,
-timestamp:newDate().toISOString(),
-});
-thrownewError(errorMessage);
-}
+    if (fetchError || !workflow) {
+      const errorMessage = fetchError?.message || "Workflow not found";
+      console.error(`[WorkflowExecutor] Failed to fetch workflow`, {
+        operation: "executeWorkflow",
+        workflowId,
+        error: errorMessage,
+        timestamp: new Date().toISOString(),
+      });
+      throw new Error(errorMessage);
+    }
 
-console.log(`[WorkflowExecutor]Workflowfetchedsuccessfully`,{
-operation:"executeWorkflow",
-workflowId,
-status:workflow.status,
-stepCount:(workflow.stepsasWorkflowStep[])?.length||0,
-timestamp:newDate().toISOString(),
-});
+    console.log(`[WorkflowExecutor] Workflow fetched successfully`, {
+      operation: "executeWorkflow",
+      workflowId,
+      status: workflow.status,
+      stepCount: (workflow.steps as WorkflowStep[]).length || 0,
+      timestamp: new Date().toISOString(),
+    });
 
-//Step2:Validateworkflowstatus
-if(workflow.status!=="planning"){
-console.warn(`[WorkflowExecutor]Workflownotinplanningstate`,{
-operation:"executeWorkflow",
-workflowId,
-currentStatus:workflow.status,
-expectedStatus:"planning",
-timestamp:newDate().toISOString(),
-});
-}
+    // Step 2: Validate workflow status
+    if (workflow.status !== "planning") {
+      console.warn(`[WorkflowExecutor] Workflow not in planning state`, {
+        operation: "executeWorkflow",
+        workflowId,
+        currentStatus: workflow.status,
+        expectedStatus: "planning",
+        timestamp: new Date().toISOString(),
+      });
+    }
 
-//Step3:CheckOAuthtokenexpiration
-console.log(`[WorkflowExecutor]ValidatingOAuthtoken`,{
-operation:"executeWorkflow",
-workflowId,
-step:"token_validation",
-timestamp:newDate().toISOString(),
-});
+    // Step 3: Check OAuth token expiration
+    console.log(`[WorkflowExecutor] Validating OAuth token`, {
+      operation: "executeWorkflow",
+      workflowId,
+      step: "token_validation",
+      timestamp: new Date().toISOString(),
+    });
 
-//Fetchtokenexpirationfromdatabase
-const{data:tokenData,error:tokenError}=awaitserviceClient
-.from("oauth_tokens")
-.select("expires_at")
-.eq("user_id",userId)
-.eq("provider","google")
-.single();
+    // Fetch token expiration from database
+    const { data: tokenData, error: tokenError } = await serviceClient
+      .from("oauth_tokens")
+      .select("expires_at")
+      .eq("user_id", userId)
+      .eq("provider", "google")
+      .single();
 
-if(tokenError||!tokenData){
-consterrorMessage="OAuthtokennotfound.PleasereconnectyourGoogleaccount.";
-console.error(`[WorkflowExecutor]OAuthtokennotfound`,{
-operation:"executeWorkflow",
-workflowId,
-userId,
-error:tokenError?.message,
-timestamp:newDate().toISOString(),
-});
+    if (tokenError || !tokenData) {
+      const errorMessage =
+        "OAuth token not found. Please reconnect your Google account.";
+      console.error(`[WorkflowExecutor] OAuth token not found`, {
+        operation: "executeWorkflow",
+        workflowId,
+        userId,
+        error: tokenError?.message,
+        timestamp: new Date().toISOString(),
+      });
 
-awaitupdateWorkflowStatus(workflowId,"failed",serviceClient,{
-error:errorMessage,
-});
-return;
-}
+      await updateWorkflowStatus(workflowId, "failed", serviceClient, {
+        error: errorMessage,
+      });
+      return;
+    }
 
-//Checkiftokenisexpired
-constexpiresAt=newDate(tokenData.expires_at);
-constnow=newDate();
-constisExpired=expiresAt.getTime()-now.getTime()<5*60*1000;//5minutebuffer
+    // Check if token is expired
+    const expiresAt = new Date(tokenData.expires_at);
+    const now = new Date();
+    const isExpired =
+      expiresAt.getTime() - now.getTime() < 5 * 60 * 1000; // 5 minute buffer
 
-if(isExpired){
-consterrorMessage="OAuthtokenhasexpired.PleasereconnectyourGoogleaccounttocontinue.";
-console.error(`[WorkflowExecutor]OAuthtokenexpired`,{
-operation:"executeWorkflow",
-workflowId,
-userId,
-expiresAt:expiresAt.toISOString(),
-now:now.toISOString(),
-timestamp:newDate().toISOString(),
-});
+    if (isExpired) {
+      const errorMessage =
+        "OAuth token has expired. Please reconnect your Google account to continue.";
+      console.error(`[WorkflowExecutor] OAuth token expired`, {
+        operation: "executeWorkflow",
+        workflowId,
+        userId,
+        expiresAt: expiresAt.toISOString(),
+        now: now.toISOString(),
+        timestamp: new Date().toISOString(),
+      });
 
-awaitupdateWorkflowStatus(workflowId,"failed",serviceClient,{
-error:errorMessage,
-});
-return;
-}
+      await updateWorkflowStatus(workflowId, "failed", serviceClient, {
+        error: errorMessage,
+      });
+      return;
+    }
 
-console.log(`[WorkflowExecutor]OAuthtokenvalidatedsuccessfully`,{
-operation:"executeWorkflow",
-workflowId,
-expiresAt:expiresAt.toISOString(),
-timeRemaining:Math.floor((expiresAt.getTime()-now.getTime())/1000/60)+"minutes",
-timestamp:newDate().toISOString(),
-});
+    console.log(`[WorkflowExecutor] OAuth token validated successfully`, {
+      operation: "executeWorkflow",
+      workflowId,
+      expiresAt: expiresAt.toISOString(),
+      timeRemaining: Math.floor(
+        (expiresAt.getTime() - now.getTime()) / 1000 / 60
+      ) + "minutes",
+      timestamp: new Date().toISOString(),
+    });
 
-//Step4:Transitionworkflowstatustoexecuting
-console.log(`[WorkflowExecutor]Transitioningworkflowtoexecuting`,{
-operation:"executeWorkflow",
-workflowId,
-step:"status_transition",
-fromStatus:workflow.status,
-toStatus:"executing",
-timestamp:newDate().toISOString(),
-});
+    // Step 4: Transition workflow status to executing
+    console.log(`[WorkflowExecutor] Transitioning workflow to executing`, {
+      operation: "executeWorkflow",
+      workflowId,
+      step: "status_transition",
+      fromStatus: workflow.status,
+      toStatus: "executing",
+      timestamp: new Date().toISOString(),
+    });
 
-awaitupdateWorkflowStatus(workflowId,"executing",serviceClient);
+    await updateWorkflowStatus(workflowId, "executing", serviceClient);
 
-//Step5:Executestepssequentially
-conststeps=workflow.stepsasWorkflowStep[];
-constresults:any[]=[];
+    // Step 5: Execute steps sequentially
+    const steps = workflow.steps as WorkflowStep[];
+    const results: any[] = [];
 
-console.log(`[WorkflowExecutor]Beginningstepexecution`,{
-operation:"executeWorkflow",
-workflowId,
-totalSteps:steps.length,
-timestamp:newDate().toISOString(),
-});
+    console.log(`[WorkflowExecutor] Beginning step execution`, {
+      operation: "executeWorkflow",
+      workflowId,
+      totalSteps: steps.length,
+      timestamp: new Date().toISOString(),
+    });
 
-for(conststepofsteps){
-console.log(`[WorkflowExecutor]Executingstep`,{
-operation:"executeWorkflow",
-workflowId,
-stepId:step.id,
-stepOrder:step.order,
-agentName:step.agentName,
-action:step.action,
-description:step.description,
-timestamp:newDate().toISOString(),
-});
+    for (const step of steps) {
+      console.log(`[WorkflowExecutor] Executing step`, {
+        operation: "executeWorkflow",
+        workflowId,
+        stepId: step.id,
+        stepOrder: step.order,
+        agentName: step.agentName,
+        action: step.action,
+        description: step.description,
+        timestamp: new Date().toISOString(),
+      });
 
-//Updatestepstatustoexecuting
-step.status="executing"asany;
-awaitupdateWorkflowStatus(workflowId,"executing",serviceClient,{
-steps,
-});
+      // Update step status to executing
+      step.status = "executing" as any;
+      await updateWorkflowStatus(workflowId, "executing", serviceClient, {
+        steps,
+      });
 
-console.log(`[WorkflowExecutor]Stepstatusupdatedtoexecuting`,{
-operation:"executeWorkflow",
-workflowId,
-stepId:step.id,
-timestamp:newDate().toISOString(),
-});
+      console.log(`[WorkflowExecutor] Step status updated to executing`, {
+        operation: "executeWorkflow",
+        workflowId,
+        stepId: step.id,
+        timestamp: new Date().toISOString(),
+      });
 
-//Getagentforthisstep
-constagent=getAgent(step.agentName);
-if(!agent){
-consterrorMessage=`Agentnotfound:${step.agentName}`;
-console.error(`[WorkflowExecutor]Agentnotfound`,{
-operation:"executeWorkflow",
-workflowId,
-stepId:step.id,
-agentName:step.agentName,
-availableAgents:[],//CouldcalllistAgents()here
-timestamp:newDate().toISOString(),
-});
+      // Get agent for this step
+      const agent = getAgent(step.agentName);
+      if (!agent) {
+        const errorMessage = `Agent not found: ${step.agentName}`;
+        console.error(`[WorkflowExecutor] Agent not found`, {
+          operation: "executeWorkflow",
+          workflowId,
+          stepId: step.id,
+          agentName: step.agentName,
+          availableAgents: [], // Could call listAgents() here
+          timestamp: new Date().toISOString(),
+        });
 
-step.status="failed"asany;
-awaitupdateWorkflowStatus(workflowId,"failed",serviceClient,{
-steps,
-error:errorMessage,
-});
-return;
-}
+        step.status = "failed" as any;
+        await updateWorkflowStatus(workflowId, "failed", serviceClient, {
+          steps,
+          error: errorMessage,
+        });
+        return;
+      }
 
-console.log(`[WorkflowExecutor]Agentfound,preparingexecutioncontext`,{
-operation:"executeWorkflow",
-workflowId,
-stepId:step.id,
-agentName:agent.name,
-timestamp:newDate().toISOString(),
-});
+      console.log(
+        `[WorkflowExecutor] Agent found, preparing execution context`,
+        {
+          operation: "executeWorkflow",
+          workflowId,
+          stepId: step.id,
+          agentName: agent.name,
+          timestamp: new Date().toISOString(),
+        }
+      );
 
-//Prepareexecutioncontext
-constcontext:ExecutionContext={
-userId,
-workflowId,
-stepId:step.id,
-accessToken,
-action:step.action,
-parameters:(stepasany).parameters||{},
-};
+      // Prepare execution context
+      const context: ExecutionContext = {
+        userId,
+        workflowId,
+        stepId: step.id,
+        accessToken,
+        action: step.action,
+        parameters: (step as any).parameters || {},
+      };
 
-//Executestep
-console.log(`[WorkflowExecutor]Callingagentexecutemethod`,{
-operation:"executeWorkflow",
-workflowId,
-stepId:step.id,
-agentName:agent.name,
-action:step.action,
-hasParameters:Object.keys(context.parameters).length>0,
-timestamp:newDate().toISOString(),
-});
-
-constresult=awaitagent.execute(context);
-
-console.log(`[WorkflowExecutor]Agentexecutioncompleted`,{
-operation:"executeWorkflow",
-workflowId,
-stepId:step.id,
-agentName:agent.name,
-success:result.success,
-hasOutput:!!result.output,
-hasError:!!result.error,
-timestamp:newDate().toISOString(),
-});
-
-if(!result.success){
-//Stepfailed
-consterrorMessage=`Step${step.id}failed:${result.error}`;
-console.error(`[WorkflowExecutor]Stepexecutionfailed`,{
-operation:"executeWorkflow",
-workflowId,
-stepId:step.id,
-agentName:agent.name,
-action:step.action,
-error:result.error,
-timestamp:newDate().toISOString(),
-});
-
-step.status="failed"asany;
-awaitupdateWorkflowStatus(workflowId,"failed",serviceClient,{
-steps,
-error:errorMessage,
-});
-return;
-}
-
-//Stepsucceeded
-console.log(`[WorkflowExecutor]Stepcompletedsuccessfully`,{
-operation:"executeWorkflow",
-workflowId,
-stepId:step.id,
-agentName:agent.name,
-timestamp:newDate().toISOString(),
-});
-
-step.status="completed"asany;
-results.push({
-stepId:step.id,
-output:result.output,
-timestamp:newDate().toISOString(),
-});
-
-//Updateworkflowwithstepcompletionandresults
-awaitupdateWorkflowStatus(workflowId,"executing",serviceClient,{
-steps,
-results,
-});
-
-console.log(`[WorkflowExecutor]Stepstatusandresultssaved`,{
-operation:"executeWorkflow",
-workflowId,
-stepId:step.id,
-completedSteps:results.length,
-totalSteps:steps.length,
-timestamp:newDate().toISOString(),
-});
-}
-
-//Step6:Allstepscompletedsuccessfully
-console.log(`[WorkflowExecutor]Allstepscompleted,finalizingworkflow`,{
-operation:"executeWorkflow",
-workflowId,
-totalSteps:steps.length,
-completedSteps:results.length,
-timestamp:newDate().toISOString(),
-});
-
-awaitupdateWorkflowStatus(workflowId,"completed",serviceClient,{
-steps,
-results,
-});
-
-console.log(`[WorkflowExecutor]Workflowcompletedsuccessfully`,{
-operation:"executeWorkflow",
-workflowId,
-stepCount:steps.length,
-resultCount:results.length,
-timestamp:newDate().toISOString(),
-});
-}catch(error){
-//Catch-allerrorhandler
-consterrorMessage=errorinstanceofError?error.message:"Unknownerror";
-console.error(`[WorkflowExecutor]Workflowexecutionfailedwithunexpectederror`,{
-operation:"executeWorkflow",
-workflowId,
-error:errorMessage,
-errorStack:errorinstanceofError?error.stack:undefined,
-timestamp:newDate().toISOString(),
-});
-
-awaitupdateWorkflowStatus(workflowId,"failed",serviceClient,{
-error:errorMessage,
-});
-}
-}
+      // Execute step
+      console.log(
+        `[WorkflowExecutor] Calling agent execute method`,
+        {
+          operation: "executeWorkflow",
+          workflowId,
+          stepId: step.id,
+          agentName: agent.name,
+          action: step.action,

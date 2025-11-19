@@ -1,7 +1,7 @@
-﻿import{NextRequest,NextResponse}from"next/server";
-import{env}from"@/lib/env";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { env } from "@/lib/env";
 
-exportasyncfunctionPOST(request:NextRequest){
+export async function POST(request: NextRequest) {
 try{
 constbody=awaitrequest.json();
 const{code}=body;

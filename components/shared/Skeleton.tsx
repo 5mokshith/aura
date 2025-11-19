@@ -1,88 +1,82 @@
-﻿"useclient";
+﻿"use client";
 
-import{cn}from"@/lib/utils";
+import { cn } from "@/lib/utils";
 
-interfaceSkeletonProps{
-className?:string;
+interface SkeletonProps {
+  className?: string;
 }
 
-exportfunctionSkeleton({className}:SkeletonProps){
-return(
-<div
-className={cn(
-"animate-pulserounded-mdbg-muted",
-className
-)}
-aria-hidden="true"
-/>
-);
+export function Skeleton({ className }: SkeletonProps) {
+  return (
+    <div
+      className={cn("animate-pulse rounded-md bg-muted", className)}
+      aria-hidden="true"
+    />
+  );
 }
 
-exportfunctionSkeletonText({lines=3,className}:{lines?:number;className?:string}){
-return(
-<divclassName={cn("space-y-2",className)}>
-{Array.from({length:lines}).map((_,i)=>(
-<Skeleton
-key={i}
-className={cn(
-"h-4",
-i===lines-1?"w-3/4":"w-full"
-)}
-/>
-))}
-</div>
-);
+export function SkeletonText({ lines = 3, className }: { lines?: number; className?: string }) {
+  return (
+    <div className={cn("space-y-2", className)}>
+      {Array.from({ length: lines }).map((_, i) => (
+        <Skeleton
+          key={i}
+          className={cn("h-4", i === lines - 1 ? "w-3/4" : "w-full")}
+        />
+      ))}
+    </div>
+  );
 }
 
-exportfunctionSkeletonCard({className}:{className?:string}){
-return(
-<divclassName={cn("rounded-lgborderbg-cardp-6space-y-4",className)}>
-<divclassName="flexitems-startgap-4">
-<SkeletonclassName="size-12rounded-full"/>
-<divclassName="flex-1space-y-2">
-<SkeletonclassName="h-5w-1/3"/>
-<SkeletonclassName="h-4w-2/3"/>
-</div>
-</div>
-<SkeletonTextlines={3}/>
-</div>
-);
+export function SkeletonCard({ className }: { className?: string }) {
+  return (
+    <div className={cn("rounded-lg border bg-card p-6 space-y-4", className)}>
+      <div className="flex items-start gap-4">
+        <Skeleton className="size-12 rounded-full" />
+        <div className="flex-1 space-y-2">
+          <Skeleton className="h-5 w-1/3" />
+          <Skeleton className="h-4 w-2/3" />
+        </div>
+      </div>
+      <SkeletonText lines={3} />
+    </div>
+  );
 }
 
-exportfunctionSkeletonList({count=3,className}:{count?:number;className?:string}){
-return(
-<divclassName={cn("space-y-3",className)}>
-{Array.from({length:count}).map((_,i)=>(
-<divkey={i}className="flexitems-centergap-4p-4rounded-lgborder">
-<SkeletonclassName="size-10rounded-full"/>
-<divclassName="flex-1space-y-2">
-<SkeletonclassName="h-4w-1/4"/>
-<SkeletonclassName="h-3w-1/2"/>
-</div>
-<SkeletonclassName="h-8w-20"/>
-</div>
-))}
-</div>
-);
+export function SkeletonList({ count = 3, className }: { count?: number; className?: string }) {
+  return (
+    <div className={cn("space-y-3", className)}>
+      {Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="flex items-center gap-4 p-4 rounded-lg border">
+          <Skeleton className="size-10 rounded-full" />
+          <div className="flex-1 space-y-2">
+            <Skeleton className="h-4 w-1/4" />
+            <Skeleton className="h-3 w-1/2" />
+          </div>
+          <Skeleton className="h-8 w-20" />
+        </div>
+      ))}
+    </div>
+  );
 }
 
-exportfunctionSkeletonTable({rows=5,cols=4}:{rows?:number;cols?:number}){
-return(
-<divclassName="space-y-3">
-{/*Header*/}
-<divclassName="flexgap-4pb-3border-b">
-{Array.from({length:cols}).map((_,i)=>(
-<Skeletonkey={i}className="h-4flex-1"/>
-))}
-</div>
-{/*Rows*/}
-{Array.from({length:rows}).map((_,rowIndex)=>(
-<divkey={rowIndex}className="flexgap-4">
-{Array.from({length:cols}).map((_,colIndex)=>(
-<Skeletonkey={colIndex}className="h-8flex-1"/>
-))}
-</div>
-))}
-</div>
-);
+export function SkeletonTable({ rows = 5, cols = 4 }: { rows?: number; cols?: number }) {
+  return (
+    <div className="space-y-3">
+      {/* Header */}
+      <div className="flex gap-4 pb-3 border-b">
+        {Array.from({ length: cols }).map((_, i) => (
+          <Skeleton key={i} className="h-4 flex-1" />
+        ))}
+      </div>
+      {/* Rows */}
+      {Array.from({ length: rows }).map((_, rowIndex) => (
+        <div key={rowIndex} className="flex gap-4">
+          {Array.from({ length: cols }).map((_, colIndex) => (
+            <Skeleton key={colIndex} className="h-8 flex-1" />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
 }

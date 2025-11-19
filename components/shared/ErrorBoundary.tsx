@@ -1,170 +1,174 @@
-﻿"useclient";
+﻿"use client";
 
-import{Component,ReactNode}from"react";
-import{Button}from"@/components/ui/button";
-import{Card}from"@/components/ui/card";
-import{AlertCircle,RefreshCw,Send}from"lucide-react";
+import { Component, ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { AlertCircle, RefreshCw, Send } from "lucide-react";
 
-interfaceErrorBoundaryProps{
-children:ReactNode;
-fallback?:(error:Error,errorInfo:string,onReset:()=>void)=>ReactNode;
+interface ErrorBoundaryProps {
+  children: ReactNode;
+  fallback?: (
+    error: Error,
+    errorInfo: string,
+    onReset: () => void
+  ) => ReactNode;
 }
 
-interfaceErrorBoundaryState{
-hasError:boolean;
-error:Error|null;
-errorInfo:string|null;
+interface ErrorBoundaryState {
+  hasError: boolean;
+  error: Error | null;
+  errorInfo: string | null;
 }
 
-exportclassErrorBoundaryextendsComponent<ErrorBoundaryProps,ErrorBoundaryState>{
-constructor(props:ErrorBoundaryProps){
-super(props);
-this.state={
-hasError:false,
-error:null,
-errorInfo:null,
-};
-}
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = {
+      hasError: false,
+      error: null,
+      errorInfo: null,
+    };
+  }
 
-staticgetDerivedStateFromError(error:Error):Partial<ErrorBoundaryState>{
-return{
-hasError:true,
-error,
-};
-}
+  static getDerivedStateFromError(error: Error): Partial<ErrorBoundaryState> {
+    return {
+      hasError: true,
+      error,
+    };
+  }
 
-componentDidCatch(error:Error,errorInfo:React.ErrorInfo){
-//Logerrortoconsolefordebugging
-console.error("ErrorBoundarycaughtanerror:",error);
-console.error("Errorinfo:",errorInfo);
-console.error("Componentstack:",errorInfo.componentStack);
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log error to console for debugging
+    console.error("ErrorBoundary caught an error:", error);
+    console.error("Error info:", errorInfo);
+    console.error("Component stack:", errorInfo.componentStack);
 
-this.setState({
-errorInfo:errorInfo.componentStack||"Nostacktraceavailable",
-});
+    this.setState({
+      errorInfo: errorInfo.componentStack || "No stack trace available",
+    });
 
-//Inproduction,youwouldsendthistoanerrorreportingservice
-//Example:logErrorToService(error,errorInfo);
-}
+    // In production, you would send the error to an error reporting service
+    // Example: logErrorToService(error, errorInfo);
+  }
 
-handleReset=()=>{
-this.setState({
-hasError:false,
-error:null,
-errorInfo:null,
-});
-};
+  handleReset = () => {
+    this.setState({
+      hasError: false,
+      error: null,
+      errorInfo: null,
+    });
+  };
 
-handleReport=()=>{
-const{error,errorInfo}=this.state;
+  handleReport = () => {
+    const { error, errorInfo } = this.state;
 
-//Createerrorreport
-constreport={
-message:error?.message||"Unknownerror",
-stack:error?.stack||"Nostacktrace",
-componentStack:errorInfo||"Nocomponentstack",
-timestamp:newDate().toISOString(),
-userAgent:navigator.userAgent,
-url:window.location.href,
-};
+    // Create error report
+    const report = {
+      message: error?.message || "Unknown error",
+      stack: error?.stack || "No stack trace",
+      componentStack: errorInfo || "No component stack",
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+    };
 
-//Logtoconsolefordebugging
-console.log("ErrorReport:",report);
+    // Log to console for debugging
+    console.log("Error report:", report);
 
-//Inproduction,sendtoerrorreportingservice
-//Example:sendErrorReport(report);
+    // In production, send the error report to an error reporting service
+    // Example: sendErrorReport(report);
 
-//Showuserfeedback
-alert("Errorreporthasbeenlogged.Thankyouforhelpingusimprove!");
-};
+    // Show user feedback
+    alert("Error report has been logged. Thank you for helping us improve!");
+  };
 
-render(){
-if(this.state.hasError){
-//Usecustomfallbackifprovided
-if(this.props.fallback){
-returnthis.props.fallback(
-this.state.error!,
-this.state.errorInfo||"",
-this.handleReset
-);
-}
+  render() {
+    if (this.state.hasError) {
+      // Use custom fallback if provided
+      if (this.props.fallback) {
+        return this.props.fallback(
+          this.state.error!,
+          this.state.errorInfo || "",
+          this.handleReset
+        );
+      }
 
-//DefaulterrorUI
-return(
-<divclassName="min-h-screenflexitems-centerjustify-centerp-4bg-background">
-<CardclassName="max-w-2xlw-fullp-6space-y-6">
-<divclassName="flexitems-startgap-4">
-<divclassName="flex-shrink-0">
-<AlertCircleclassName="size-8text-destructive"aria-hidden="true"/>
-</div>
-<divclassName="flex-1space-y-2">
-<h1className="text-2xlfont-semiboldtext-foreground">
-Somethingwentwrong
-</h1>
-<pclassName="text-muted-foreground">
-Weencounteredanunexpectederror.Thishasbeenloggedandwe'lllookintoit.
-</p>
-</div>
-</div>
+      // Default error UI
+      return (
+        <div className="min-h-screen flex items-center justify-center p-4 bg-background">
+          <Card className="max-w-2xl w-full p-6 space-y-6">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0">
+                <AlertCircle className="size-8 text-destructive" aria-hidden="true" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <h1 className="text-2xl font-semibold text-foreground">
+                  Something went wrong
+                </h1>
+                <p className="text-muted-foreground">
+                  We encountered an unexpected error. This has been logged, and we'll look into it.
+                </p>
+              </div>
+            </div>
 
-{/*Errordetails(collapsedbydefaultinproduction)*/}
-{process.env.NODE_ENV==="development"&&this.state.error&&(
-<detailsclassName="space-y-2">
-<summaryclassName="cursor-pointertext-smfont-mediumtext-muted-foregroundhover:text-foreground">
-ErrorDetails(DevelopmentOnly)
-</summary>
-<divclassName="mt-2p-4bg-mutedrounded-md">
-<pclassName="text-smfont-monotext-destructivebreak-all">
-{this.state.error.message}
-</p>
-{this.state.error.stack&&(
-<preclassName="mt-2text-xsfont-monotext-muted-foregroundoverflow-automax-h-40">
-{this.state.error.stack}
-</pre>
-)}
-</div>
-</details>
-)}
+            {/* Error details (collapsed by default in production) */}
+            {process.env.NODE_ENV === "development" && this.state.error && (
+              <details className="space-y-2">
+                <summary className="cursor-pointer text-sm font-medium text-muted-foreground hover:text-foreground">
+                  Error Details (Development Only)
+                </summary>
+                <div className="mt-2 p-4 bg-muted rounded-md">
+                  <p className="text-sm font-monotext-destructive break-all">
+                    {this.state.error.message}
+                  </p>
+                  {this.state.error.stack && (
+                    <pre className="mt-2 text-xs font-monotext-muted-foreground overflow-auto max-h-40">
+                      {this.state.error.stack}
+                    </pre>
+                  )}
+                </div>
+              </details>
+            )}
 
-{/*Actionbuttons*/}
-<divclassName="flexflex-colsm:flex-rowgap-3">
-<Button
-onClick={this.handleReset}
-className="flex-1"
-aria-label="Retryloadingtheapplication"
->
-<RefreshCwclassName="size-4"aria-hidden="true"/>
-Retry
-</Button>
-<Button
-onClick={this.handleReport}
-variant="outline"
-className="flex-1"
-aria-label="Reportthiserror"
->
-<SendclassName="size-4"aria-hidden="true"/>
-ReportError
-</Button>
-</div>
+            {/* Action buttons */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                onClick={this.handleReset}
+                className="flex-1"
+                aria-label="Retry loading the application"
+              >
+                <RefreshCw className="size-4" aria-hidden="true" />
+                Retry
+              </Button>
+              <Button
+                onClick={this.handleReport}
+                variant="outline"
+                className="flex-1"
+                aria-label="Report this error"
+              >
+                <Send className="size-4" aria-hidden="true" />
+                Report Error
+              </Button>
+            </div>
 
-{/*Additionalhelp*/}
-<divclassName="pt-4border-t">
-<pclassName="text-smtext-muted-foreground">
-Ifthisproblempersists,tryrefreshingthepageor{""}
-<a
-href="/"
-className="text-primaryhover:underlinefocus:outline-nonefocus:ring-2focus:ring-ringfocus:ring-offset-2rounded"
->
-returntothehomepage
-</a>
-.
-</p>
-</div>
-</Card>
-</div>
-);
-}
+            {/* Additional help */}
+            <div className="pt-4 border-t">
+              <p className="text-sm text-muted-foreground">
+                If this problem persists, try refreshing the page or{""}
+                <a
+                  href="/"
+                  className="text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
+                >
+                  return to the homepage
+                </a>
+                .
+              </p>
+            </div>
+          </Card>
+        </div>
+      );
+    }
 
-returnthis.props.children;
-}
+    return this.props.children;
+  }
 }

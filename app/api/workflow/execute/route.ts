@@ -1,9 +1,9 @@
-﻿import{NextRequest,NextResponse}from"next/server";
-import{createClient,createServiceClient}from"@/lib/supabase/server";
-import{createAndPlanWorkflow,recordWorkflowHistory}from"@/lib/services/workflowService";
-import{executeWorkflow}from"@/lib/services/workflowExecutor";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { createAndPlanWorkflow, recordWorkflowHistory } from "@/lib/services/workflowService";
+import { executeWorkflow } from "@/lib/services/workflowExecutor";
 
-exportasyncfunctionPOST(request:NextRequest){
+export async function POST(request: NextRequest) {
 try{
 //Useanonclientforauthenticationcheck
 constanonClient=awaitcreateClient();

@@ -1,16 +1,16 @@
-﻿"useclient";
+﻿"use client";
 
-import{useEffect}from"react";
-import{registerServiceWorker}from"@/lib/sw-register";
+import { useEffect } from "react";
+import { registerServiceWorker } from "@/lib/sw-register";
 
 /**
-*Componenttoregisterserviceworkeronmount
-*Shouldbeincludedintherootlayout
-*/
-exportfunctionServiceWorkerRegistration(){
-useEffect(()=>{
-registerServiceWorker();
-},[]);
+ * Component to register service worker on mount.
+ * Should be included in the root layout.
+ */
+export function ServiceWorkerRegistration() {
+  useEffect(() => {
+    registerServiceWorker();
+  }, []);
 
-returnnull;
+  return null;
 }

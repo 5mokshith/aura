@@ -1,76 +1,76 @@
-﻿import{NextRequest,NextResponse}from"next/server";
-import{createClient}from"@/lib/supabase/server";
-import{getUserWorkflowHistory}from"@/lib/supabase/queries";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { getUserWorkflowHistory } from "@/lib/supabase/queries";
 
-exportasyncfunctionGET(request:NextRequest){
-try{
-constsupabase=awaitcreateClient();
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await createClient();
 
-//Verifyuserisauthenticated
-const{data:{user},error:authError}=awaitsupabase.auth.getUser();
+    // Verify user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-if(authError||!user){
-returnNextResponse.json(
-{error:"Unauthorized"},
-{status:401}
-);
-}
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
 
-//Parsequeryparameters
-constsearchParams=request.nextUrl.searchParams;
-constlimit=parseInt(searchParams.get("limit")||"20");
-constoffset=parseInt(searchParams.get("offset")||"0");
-conststatus=searchParams.get("status");
-constsearch=searchParams.get("search");
-conststartDate=searchParams.get("startDate");
-constendDate=searchParams.get("endDate");
+    // Parse query parameters
+    const searchParams = request.nextUrl.searchParams;
+    const limit = parseInt(searchParams.get("limit") || "20");
+    const offset = parseInt(searchParams.get("offset") || "0");
+    const status = searchParams.get("status");
+    const search = searchParams.get("search");
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
 
-//Getbasehistory
-lethistory=awaitgetUserWorkflowHistory(user.id,limit+offset);
+    // Get base history
+    let history = await getUserWorkflowHistory(user.id, limit + offset);
 
-//Applyfilters
-if(status){
-history=history.filter((item)=>item.status===status);
-}
+    // Apply filters
+    if (status) {
+      history = history.filter((item) => item.status === status);
+    }
 
-if(search){
-constsearchLower=search.toLowerCase();
-history=history.filter((item)=>
-item.command.toLowerCase().includes(searchLower)
-);
-}
+    if (search) {
+      const searchLower = search.toLowerCase();
+      history = history.filter((item) =>
+        item.command.toLowerCase().includes(searchLower)
+      );
+    }
 
-if(startDate){
-conststart=newDate(startDate);
-history=history.filter((item)=>newDate(item.executed_at)>=start);
-}
+    if (startDate) {
+      const start = new Date(startDate);
+      history = history.filter((item) => new Date(item.executed_at) >= start);
+    }
 
-if(endDate){
-constend=newDate(endDate);
-history=history.filter((item)=>newDate(item.executed_at)<=end);
-}
+    if (endDate) {
+      const end = new Date(endDate);
+      history = history.filter((item) => new Date(item.executed_at) <= end);
+    }
 
-//Applypagination
-constpaginatedHistory=history.slice(offset,offset+limit);
-consthasMore=history.length>offset+limit;
+    // Apply pagination
+    const paginatedHistory = history.slice(offset, offset + limit);
+    const hasMore = history.length > offset + limit;
 
-returnNextResponse.json({
-history:paginatedHistory,
-pagination:{
-limit,
-offset,
-total:history.length,
-hasMore,
-},
-});
-}catch(error){
-console.error("Errorfetchinghistory:",error);
-returnNextResponse.json(
-{
-error:"Failedtofetchhistory",
-message:errorinstanceofError?error.message:"Unknownerror"
-},
-{status:500}
-);
-}
+    return NextResponse.json({
+      history: paginatedHistory,
+      pagination: {
+        limit,
+        offset,
+        total: history.length,
+        hasMore,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching history:", error);
+    return NextResponse.json(
+      {
+        error: "Failed to fetch history",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 }
+    );
+  }
 }

@@ -1,168 +1,169 @@
-#***REMOVED***🚀***REMOVED***Quick***REMOVED***Start***REMOVED***-***REMOVED***Supabase***REMOVED***Integration
+# 🚀 Quick Start - Supabase Integration
 
-Get***REMOVED***AURA***REMOVED***running***REMOVED***with***REMOVED***Supabase***REMOVED***in***REMOVED***10***REMOVED***minutes!
+Get AURA running with Supabase in 10 minutes!
 
-##***REMOVED***✅***REMOVED***Prerequisites
+## ✅ Prerequisites
 
--***REMOVED***[***REMOVED***]***REMOVED***Node.js***REMOVED***installed
--***REMOVED***[***REMOVED***]***REMOVED***Google***REMOVED***OAuth***REMOVED***credentials***REMOVED***ready
--***REMOVED***[***REMOVED***]***REMOVED***Supabase***REMOVED***account***REMOVED***created
+- [ ] Node.js installed
+- [ ] Google OAuth credentials ready
+- [ ] Supabase account created
 
-##***REMOVED***📝***REMOVED***Step-by-Step
+## 📝 Step-by-Step
 
-###***REMOVED***1.***REMOVED***Create***REMOVED***Supabase***REMOVED***Project***REMOVED***(3***REMOVED***min)
+### 1. Create Supabase Project (3 min)
 ```
-1.***REMOVED***Go***REMOVED***to***REMOVED***https://app.supabase.com
-2.***REMOVED***Click***REMOVED***"New***REMOVED***Project"
-3.***REMOVED***Name:***REMOVED***aura-app
-4.***REMOVED***Generate***REMOVED***strong***REMOVED***password
-5.***REMOVED***Choose***REMOVED***region
-6.***REMOVED***Click***REMOVED***"Create"
-```
-
-###***REMOVED***2.***REMOVED***Get***REMOVED***API***REMOVED***Keys***REMOVED***(1***REMOVED***min)
-```
-1.***REMOVED***Go***REMOVED***to***REMOVED***Settings***REMOVED***→***REMOVED***API
-2.***REMOVED***Copy:
-***REMOVED******REMOVED******REMOVED***-***REMOVED***Project***REMOVED***URL
-***REMOVED******REMOVED******REMOVED***-***REMOVED***anon***REMOVED***public***REMOVED***key
-***REMOVED******REMOVED******REMOVED***-***REMOVED***service_role***REMOVED***key
+1. Go to https://app.supabase.com
+2. Click "New Project"
+3. Name: aura-app
+4. Generate strong password
+5. Choose region
+6. Click "Create"
 ```
 
-###***REMOVED***3.***REMOVED***Update***REMOVED***.env.local***REMOVED***(1***REMOVED***min)
+### 2. Get API Keys (1 min)
+```
+1. Go to Settings → API
+2. Copy:
+   - Project URL
+   - anon public key
+   - service_role key
+```
+
+### 3. Update .env.local (1 min)
 ```bash
-#***REMOVED***Copy***REMOVED***from***REMOVED***.env.local.example
-cp***REMOVED***.env.local.example***REMOVED***.env.local
+# Copy from .env.local.example
+cp .env.local.example .env.local
 
-#***REMOVED***Edit***REMOVED***.env.local***REMOVED***and***REMOVED***add:
+# Edit .env.local and add:
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=REDACTED
 SUPABASE_SERVICE_ROLE_KEY=REDACTED
 ```
 
-###***REMOVED***4.***REMOVED***Run***REMOVED***Database***REMOVED***Migrations***REMOVED***(2***REMOVED***min)
+### 4. Run Database Migrations (2 min)
 ```
-1.***REMOVED***Go***REMOVED***to***REMOVED***Supabase***REMOVED***→***REMOVED***SQL***REMOVED***Editor
-2.***REMOVED***Click***REMOVED***"New***REMOVED***Query"
-3.***REMOVED***Copy***REMOVED***content***REMOVED***from:***REMOVED***supabase/migrations/001_initial_schema.sql
-4.***REMOVED***Paste***REMOVED***and***REMOVED***click***REMOVED***"Run"
-5.***REMOVED***Click***REMOVED***"New***REMOVED***Query"***REMOVED***again
-6.***REMOVED***Copy***REMOVED***content***REMOVED***from:***REMOVED***supabase/migrations/002_add_google_oauth_tokens.sql
-7.***REMOVED***Paste***REMOVED***and***REMOVED***click***REMOVED***"Run"
-```
-
-###***REMOVED***5.***REMOVED***Configure***REMOVED***Google***REMOVED***OAuth***REMOVED***(2***REMOVED***min)
-```
-1.***REMOVED***Supabase***REMOVED***→***REMOVED***Authentication***REMOVED***→***REMOVED***Providers
-2.***REMOVED***Enable***REMOVED***Google
-3.***REMOVED***Add***REMOVED***your***REMOVED***Google***REMOVED***OAuth***REMOVED***credentials:
-***REMOVED******REMOVED******REMOVED***Client***REMOVED***ID:***REMOVED***
-***REMOVED******REMOVED******REMOVED***Client***REMOVED***Secret:***REMOVED***
-4.***REMOVED***Click***REMOVED***"Save"
+1. Go to Supabase → SQL Editor
+2. Click "New Query"
+3. Copy content from: supabase/migrations/001_initial_schema.sql
+4. Paste and click "Run"
+5. Click "New Query" again
+6. Copy content from: supabase/migrations/002_add_google_oauth_tokens.sql
+7. Paste and click "Run"
 ```
 
-###***REMOVED***6.***REMOVED***Add***REMOVED***Redirect***REMOVED***URLs***REMOVED***(1***REMOVED***min)
+### 5. Configure Google OAuth (2 min)
 ```
-Google***REMOVED***Cloud***REMOVED***Console:
-1.***REMOVED***Go***REMOVED***to***REMOVED***APIs***REMOVED***&***REMOVED***Services***REMOVED***→***REMOVED***Credentials
-2.***REMOVED***Add***REMOVED***redirect***REMOVED***URI:***REMOVED***http://localhost:3000/auth/callback
-3.***REMOVED***Add***REMOVED***redirect***REMOVED***URI:***REMOVED***https://your-project.supabase.co/auth/v1/callback
+1. Supabase → Authentication → Providers
+2. Enable Google
+3. Add your Google OAuth credentials:
+   Client ID: 
+   Client Secret: 
+4. Click "Save"
+```
+
+### 6. Add Redirect URLs (1 min)
+```
+Google Cloud Console:
+1. Go to APIs & Services → Credentials
+2. Add redirect URI: http://localhost:3000/auth/callback
+3. Add redirect URI: https://your-project.supabase.co/auth/v1/callback
 
 Supabase:
-1.***REMOVED***Authentication***REMOVED***→***REMOVED***URL***REMOVED***Configuration
-2.***REMOVED***Add:***REMOVED***http://localhost:3000/auth/callback
-3.***REMOVED***Site***REMOVED***URL:***REMOVED***http://localhost:3000
+1. Authentication → URL Configuration
+2. Add: http://localhost:3000/auth/callback
+3. Site URL: http://localhost:3000
 ```
 
-###***REMOVED***7.***REMOVED***Start***REMOVED***Development***REMOVED***Server***REMOVED***(1***REMOVED***min)
+### 7. Start Development Server (1 min)
 ```bash
-npm***REMOVED***install
-npm***REMOVED***run***REMOVED***dev
+npm install
+npm run dev
 ```
 
-###***REMOVED***8.***REMOVED***Test***REMOVED***Authentication***REMOVED***(1***REMOVED***min)
+### 8. Test Authentication (1 min)
 ```
-1.***REMOVED***Visit***REMOVED***http://localhost:3000
-2.***REMOVED***Click***REMOVED***"Sign***REMOVED***in***REMOVED***with***REMOVED***Google"
-3.***REMOVED***Grant***REMOVED***permissions
-4.***REMOVED***Should***REMOVED***redirect***REMOVED***to***REMOVED***dashboard
+1. Visit http://localhost:3000
+2. Click "Sign in with Google"
+3. Grant permissions
+4. Should redirect to dashboard
 ```
 
-##***REMOVED***✅***REMOVED***Verification***REMOVED***Checklist
+## ✅ Verification Checklist
 
-After***REMOVED***setup,***REMOVED***verify:
+After setup, verify:
 
--***REMOVED***[***REMOVED***]***REMOVED***Can***REMOVED***sign***REMOVED***in***REMOVED***with***REMOVED***Google
--***REMOVED***[***REMOVED***]***REMOVED***User***REMOVED***info***REMOVED***displays***REMOVED***correctly
--***REMOVED***[***REMOVED***]***REMOVED***Can***REMOVED***sign***REMOVED***out
--***REMOVED***[***REMOVED***]***REMOVED***Tokens***REMOVED***stored***REMOVED***in***REMOVED***database***REMOVED***(check***REMOVED***Supabase***REMOVED***→***REMOVED***Table***REMOVED***Editor***REMOVED***→***REMOVED***oauth_tokens)
--***REMOVED***[***REMOVED***]***REMOVED***No***REMOVED***console***REMOVED***errors
+- [ ] Can sign in with Google
+- [ ] User info displays correctly
+- [ ] Can sign out
+- [ ] Tokens stored in database (check Supabase → Table Editor → oauth_tokens)
+- [ ] No console errors
 
-##***REMOVED***🐛***REMOVED***Quick***REMOVED***Troubleshooting
+## 🐛 Quick Troubleshooting
 
-**"Invalid***REMOVED***API***REMOVED***key"**
+**"Invalid API key"**
 ```bash
-#***REMOVED***Restart***REMOVED***dev***REMOVED***server
-npm***REMOVED***run***REMOVED***dev
+# Restart dev server
+npm run dev
 ```
 
-**"Redirect***REMOVED***URI***REMOVED***mismatch"**
+**"Redirect URI mismatch"**
 ```
-Check***REMOVED***both:
--***REMOVED***Google***REMOVED***Cloud***REMOVED***Console***REMOVED***redirect***REMOVED***URIs
--***REMOVED***Supabase***REMOVED***Authentication***REMOVED***→***REMOVED***URL***REMOVED***Configuration
-```
-
-**"Failed***REMOVED***to***REMOVED***fetch"**
-```
--***REMOVED***Check***REMOVED***Supabase***REMOVED***project***REMOVED***is***REMOVED***active
--***REMOVED***Verify***REMOVED***.env.local***REMOVED***has***REMOVED***correct***REMOVED***values
--***REMOVED***Check***REMOVED***browser***REMOVED***console***REMOVED***for***REMOVED***errors
+Check both:
+- Google Cloud Console redirect URIs
+- Supabase Authentication → URL Configuration
 ```
 
-##***REMOVED***📚***REMOVED***Next***REMOVED***Steps
+**"Failed to fetch"**
+```
+- Check Supabase project is active
+- Verify .env.local has correct values
+- Check browser console for errors
+```
 
-1.***REMOVED*****Read***REMOVED***full***REMOVED***guide**:***REMOVED***`docs/COMPLETE_SETUP_GUIDE.md`
-2.***REMOVED*****Migrate***REMOVED***components**:***REMOVED***`docs/MIGRATION_CHECKLIST.md`
-3.***REMOVED*****Review***REMOVED***architecture**:***REMOVED***`docs/SUPABASE_ARCHITECTURE.md`
+## 📚 Next Steps
 
-##***REMOVED***🎯***REMOVED***What***REMOVED***You***REMOVED***Get
+1. **Read full guide**: `docs/COMPLETE_SETUP_GUIDE.md`
+2. **Migrate components**: `docs/MIGRATION_CHECKLIST.md`
+3. **Review architecture**: `docs/SUPABASE_ARCHITECTURE.md`
 
-✅***REMOVED***Google***REMOVED***OAuth***REMOVED***authentication
-✅***REMOVED***Secure***REMOVED***token***REMOVED***storage
-✅***REMOVED***Automatic***REMOVED***token***REMOVED***refresh
-✅***REMOVED***Database***REMOVED***with***REMOVED***RLS
-✅***REMOVED***Type-safe***REMOVED***queries
-✅***REMOVED***Ready***REMOVED***for***REMOVED***Google***REMOVED***Workspace***REMOVED***APIs
+## 🎯 What You Get
 
-##***REMOVED***💡***REMOVED***Quick***REMOVED***Tips
+✅ Google OAuth authentication
+✅ Secure token storage
+✅ Automatic token refresh
+✅ Database with RLS
+✅ Type-safe queries
+✅ Ready for Google Workspace APIs
 
--***REMOVED*****Development**:***REMOVED***Use***REMOVED***http://localhost:3000
--***REMOVED*****Tokens**:***REMOVED***Auto-refresh***REMOVED***before***REMOVED***expiry
--***REMOVED*****Database**:***REMOVED***All***REMOVED***queries***REMOVED***are***REMOVED***type-safe
--***REMOVED*****Security**:***REMOVED***RLS***REMOVED***protects***REMOVED***user***REMOVED***data
--***REMOVED*****Debugging**:***REMOVED***Check***REMOVED***Supabase***REMOVED***logs
+## 💡 Quick Tips
 
-##***REMOVED***🔗***REMOVED***Useful***REMOVED***Commands
+- **Development**: Use http://localhost:3000
+- **Tokens**: Auto-refresh before expiry
+- **Database**: All queries are type-safe
+- **Security**: RLS protects user data
+- **Debugging**: Check Supabase logs
+
+## 🔗 Useful Commands
 
 ```bash
-#***REMOVED***Start***REMOVED***dev***REMOVED***server
-npm***REMOVED***run***REMOVED***dev
+# Start dev server
+npm run dev
 
-#***REMOVED***Check***REMOVED***for***REMOVED***errors
-npm***REMOVED***run***REMOVED***build
+# Check for errors
+npm run build
 
-#***REMOVED***Generate***REMOVED***types***REMOVED***(after***REMOVED***schema***REMOVED***changes)
-npx***REMOVED***supabase***REMOVED***gen***REMOVED***types***REMOVED***typescript***REMOVED***--project-id***REMOVED***YOUR_PROJECT_ID***REMOVED***>***REMOVED***lib/supabase/database.types.ts
+# Generate types (after schema changes)
+npx supabase gen types typescript --project-id YOUR_PROJECT_ID > lib/supabase/database.types.ts
 ```
 
-##***REMOVED***📞***REMOVED***Need***REMOVED***Help?
+## 📞 Need Help?
 
--***REMOVED*****Setup***REMOVED***issues**:***REMOVED***Check***REMOVED***`docs/COMPLETE_SETUP_GUIDE.md`
--***REMOVED*****Migration***REMOVED***help**:***REMOVED***Check***REMOVED***`docs/MIGRATION_CHECKLIST.md`
--***REMOVED*****Supabase***REMOVED***docs**:***REMOVED***https://supabase.com/docs
--***REMOVED*****Discord**:***REMOVED***https://discord.supabase.com
+- **Setup issues**: Check `docs/COMPLETE_SETUP_GUIDE.md`
+- **Migration help**: Check `docs/MIGRATION_CHECKLIST.md`
+- **Supabase docs**: https://supabase.com/docs
+- **Discord**: https://discord.supabase.com
 
 ---
 
-**Ready?*****REMOVED***Start***REMOVED***with***REMOVED***Step***REMOVED***1!***REMOVED***🚀
+**Ready?** Start with Step 1! 🚀
+

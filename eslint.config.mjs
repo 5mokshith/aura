@@ -1,21 +1,22 @@
-import***REMOVED***{***REMOVED***defineConfig,***REMOVED***globalIgnores***REMOVED***}***REMOVED***from***REMOVED***"eslint/config";
-import***REMOVED***nextVitals***REMOVED***from***REMOVED***"eslint-config-next/core-web-vitals";
-import***REMOVED***nextTs***REMOVED***from***REMOVED***"eslint-config-next/typescript";
-import***REMOVED***prettierConfig***REMOVED***from***REMOVED***"eslint-config-prettier";
+import { defineConfig, globalIgnores } from "eslint/config";
+import nextVitals from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
+import prettierConfig from "eslint-config-prettier";
 
-const***REMOVED***eslintConfig***REMOVED***=***REMOVED***defineConfig([
-***REMOVED******REMOVED***...nextVitals,
-***REMOVED******REMOVED***...nextTs,
-***REMOVED******REMOVED***prettierConfig,
-***REMOVED******REMOVED***//***REMOVED***Override***REMOVED***default***REMOVED***ignores***REMOVED***of***REMOVED***eslint-config-next.
-***REMOVED******REMOVED***globalIgnores([
-***REMOVED******REMOVED******REMOVED******REMOVED***//***REMOVED***Default***REMOVED***ignores***REMOVED***of***REMOVED***eslint-config-next:
-***REMOVED******REMOVED******REMOVED******REMOVED***".next/**",
-***REMOVED******REMOVED******REMOVED******REMOVED***"out/**",
-***REMOVED******REMOVED******REMOVED******REMOVED***"build/**",
-***REMOVED******REMOVED******REMOVED******REMOVED***"next-env.d.ts",
-***REMOVED******REMOVED******REMOVED******REMOVED***"node_modules/**",
-***REMOVED******REMOVED***]),
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  prettierConfig,
+  // Override default ignores of eslint-config-next.
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    ".next/**",
+    "out/**",
+    "build/**",
+    "next-env.d.ts",
+    "node_modules/**",
+  ]),
 ]);
 
-export***REMOVED***default***REMOVED***eslintConfig;
+export default eslintConfig;
+

@@ -1,133 +1,144 @@
-﻿"useclient";
+﻿"use client";
 
-import{useState,useRef,TouchEvent,ReactNode}from"react";
-import{RefreshCw}from"lucide-react";
-import{cn}from"@/lib/utils";
+import {
+  useState,
+  useRef,
+  TouchEvent,
+  ReactNode,
+} from "react";
+import { RefreshCw } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-interfacePullToRefreshProps{
-onRefresh:()=>Promise<void>;
-children:ReactNode;
-className?:string;
+interface PullToRefreshProps {
+  onRefresh: () => Promise<void>;
+  children: ReactNode;
+  className?: string;
 }
 
-exportfunctionPullToRefresh({onRefresh,children,className}:PullToRefreshProps){
-const[pullDistance,setPullDistance]=useState(0);
-const[isRefreshing,setIsRefreshing]=useState(false);
-const[touchStart,setTouchStart]=useState<number|null>(null);
-constcontainerRef=useRef<HTMLDivElement>(null);
+export function PullToRefresh({
+  onRefresh,
+  children,
+  className,
+}: PullToRefreshProps) {
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-constmaxPullDistance=100;
-consttriggerDistance=70;
+  const maxPullDistance = 100;
+  const triggerDistance = 70;
 
-consthandleTouchStart=(e:TouchEvent)=>{
-//Onlyallowpull-to-refreshwhenscrolledtotop
-if(containerRef.current&&containerRef.current.scrollTop===0){
-setTouchStart(e.touches[0].clientY);
-}
-};
+  const handleTouchStart = (e: TouchEvent) => {
+    // Only allow pull-to-refresh when scrolled to top
+    if (containerRef.current && containerRef.current.scrollTop === 0) {
+      setTouchStart(e.touches[0].clientY);
+    }
+  };
 
-consthandleTouchMove=(e:TouchEvent)=>{
-if(touchStart===null||isRefreshing)return;
+  const handleTouchMove = (e: TouchEvent) => {
+    if (touchStart === null || isRefreshing) return;
 
-constcurrentTouch=e.touches[0].clientY;
-constdistance=currentTouch-touchStart;
+    const currentTouch = e.touches[0].clientY;
+    const distance = currentTouch - touchStart;
 
-//Onlypulldown,notup
-if(distance>0&&containerRef.current&&containerRef.current.scrollTop===0){
-//Applyresistancetopulldistance
-constresistedDistance=Math.min(
-distance*0.5,
-maxPullDistance
-);
-setPullDistance(resistedDistance);
+    // Only pull down, not up
+    if (distance > 0 && containerRef.current && containerRef.current.scrollTop === 0) {
+      // Apply resistance to pull distance
+      const resistedDistance = Math.min(
+        distance * 0.5,
+        maxPullDistance
+      );
+      setPullDistance(resistedDistance);
 
-//Preventdefaultscrollbehaviorwhenpulling
-if(distance>10){
-e.preventDefault();
-}
-}
-};
+      // Prevent default scroll behavior when pulling
+      if (distance > 10) {
+        e.preventDefault();
+      }
+    }
+  };
 
-consthandleTouchEnd=async()=>{
-if(touchStart===null||isRefreshing)return;
+  const handleTouchEnd = async () => {
+    if (touchStart === null || isRefreshing) return;
 
-if(pullDistance>=triggerDistance){
-setIsRefreshing(true);
+    if (pullDistance >= triggerDistance) {
+      setIsRefreshing(true);
 
-//Triggerhapticfeedbackifsupported
-if(typeofnavigator!=="undefined"&&"vibrate"innavigator){
-navigator.vibrate(20);
-}
+      // Trigger haptic feedback if supported
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        navigator.vibrate(20);
+      }
 
-try{
-awaitonRefresh();
-}catch(error){
-console.error("Refreshfailed:",error);
-}finally{
-setIsRefreshing(false);
-setPullDistance(0);
-}
-}else{
-setPullDistance(0);
-}
+      try {
+        await onRefresh();
+      } catch (error) {
+        console.error("Refresh failed:", error);
+      } finally {
+        setIsRefreshing(false);
+        setPullDistance(0);
+      }
+    } else {
+      setPullDistance(0);
+    }
 
-setTouchStart(null);
-};
+    setTouchStart(null);
+  };
 
-constgetRotation=()=>{
-if(isRefreshing)return360;
-return(pullDistance/triggerDistance)*360;
-};
+  const getRotation = () => {
+    if (isRefreshing) return 360;
+    return (pullDistance / triggerDistance) * 360;
+  };
 
-constgetOpacity=()=>{
-returnMath.min(pullDistance/triggerDistance,1);
-};
+  const getOpacity = () => {
+    return Math.min(pullDistance / triggerDistance, 1);
+  };
 
-return(
-<div
-ref={containerRef}
-className={cn("relativeoverflow-auto",className)}
-onTouchStart={handleTouchStart}
-onTouchMove={handleTouchMove}
-onTouchEnd={handleTouchEnd}
->
-{/*Pullindicator*/}
-<div
-className="absolutetop-0left-0right-0flexitems-centerjustify-centertransition-allduration-200pointer-events-none"
-style={{
-height:`${pullDistance}px`,
-opacity:getOpacity(),
-}}
->
-<divclassName="flexflex-colitems-centergap-1">
-<RefreshCw
-className={cn(
-"h-6w-6text-primarytransition-transform",
-isRefreshing&&"animate-spin"
-)}
-style={{
-transform:`rotate(${getRotation()}deg)`,
-}}
-/>
-<spanclassName="text-xstext-muted-foreground">
-{isRefreshing
-?"Refreshing..."
-:pullDistance>=triggerDistance
-?"Releasetorefresh"
-:"Pulltorefresh"}
-</span>
-</div>
-</div>
+  return (
+    <div
+      ref={containerRef}
+      className={cn("relative overflow-auto", className)}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Pull indicator */}
+      <div
+        className="absolute top-0 left-0 right-0 flex items-center justify-center transition-all duration-200 pointer-events-none"
+        style={{
+          height: `${pullDistance}px`,
+          opacity: getOpacity(),
+        }}
+      >
+        <div className="flex flex-col items-center gap-1">
+          <RefreshCw
+            className={cn(
+              "h-6 w-6 text-primary transition-transform",
+              isRefreshing && "animate-spin"
+            )}
+            style={{
+              transform: `rotate(${getRotation()}deg)`,
+            }}
+          />
+          <span className="text-xs text-muted-foreground">
+            {isRefreshing
+              ? "Refreshing..."
+              : pullDistance >= triggerDistance
+              ? "Release to refresh"
+              : "Pull to refresh"}
+          </span>
+        </div>
+      </div>
 
-{/*Contentwithoffsetwhenpulling*/}
-<div
-style={{
-transform:`translateY(${pullDistance}px)`,
-transition:isRefreshing||pullDistance===0?"transform0.2sease-out":"none",
-}}
->
-{children}
-</div>
-</div>
-);
+      {/* Content with offset when pulling */}
+      <div
+        style={{
+          transform: `translateY(${pullDistance}px)`,
+          transition: isRefreshing || pullDistance === 0
+            ? "transform 0.2s ease-out"
+            : "none",
+        }}
+      >
+        {children}
+      </div>
+    </div>
+  );
 }

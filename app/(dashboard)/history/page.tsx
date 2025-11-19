@@ -1,108 +1,108 @@
-﻿"useclient";
+﻿"use client";
 
-importReact,{useState}from"react";
-import{useSupabaseAuth}from"@/contexts/SupabaseAuthContext";
-import{useRouter}from"next/navigation";
-import{useEffect}from"react";
-importdynamicfrom"next/dynamic";
-import{DashboardLayout}from"@/components/layout/DashboardLayout";
-import{HistoryProvider,useHistory}from"@/contexts/HistoryContext";
-import{HistoryList}from"@/components/history/HistoryList";
-import{HistoryFilters}from"@/components/history/HistoryFilters";
-import{PullToRefresh}from"@/components/shared/PullToRefresh";
-import{HistoryasHistoryIcon}from"lucide-react";
+import React, { useState } from "react";
+import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import dynamic from "next/dynamic";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { HistoryProvider, useHistory } from "@/contexts/HistoryContext";
+import { HistoryList } from "@/components/history/HistoryList";
+import { HistoryFilters } from "@/components/history/HistoryFilters";
+import { PullToRefresh } from "@/components/shared/PullToRefresh";
+import { History as HistoryIcon } from "lucide-react";
 
-//Lazyloadthemodalforbetterperformance
-constTaskDetailModal=dynamic(
-()=>import("@/components/history/TaskDetailModal").then((mod)=>({default:mod.TaskDetailModal})),
-{ssr:false}
+// Lazy load the modal for better performance
+const TaskDetailModal = dynamic(
+  () => import("@/components/history/TaskDetailModal").then((mod) => ({ default: mod.TaskDetailModal })),
+  { ssr: false }
 );
 
-functionHistoryPageContent(){
-const[selectedTaskId,setSelectedTaskId]=useState<string|null>(null);
-const[isModalOpen,setIsModalOpen]=useState(false);
-const{refresh}=useHistory();
+function HistoryPageContent() {
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { refresh } = useHistory();
 
-consthandleItemSelect=(taskId:string)=>{
-setSelectedTaskId(taskId);
-setIsModalOpen(true);
-};
+  const handleItemSelect = (taskId: string) => {
+    setSelectedTaskId(taskId);
+    setIsModalOpen(true);
+  };
 
-consthandleModalClose=(open:boolean)=>{
-setIsModalOpen(open);
-if(!open){
-setSelectedTaskId(null);
-}
-};
+  const handleModalClose = (open: boolean) => {
+    setIsModalOpen(open);
+    if (!open) {
+      setSelectedTaskId(null);
+    }
+  };
 
-consthandleRefresh=async()=>{
-awaitrefresh();
-};
+  const handleRefresh = async () => {
+    await refresh();
+  };
 
-return(
-<DashboardLayout>
-<divclassName="space-y-4sm:space-y-6">
-{/*Header-Responsivesizing*/}
-<divclassName="flexitems-centergap-2sm:gap-3">
-<HistoryIconclassName="h-6w-6sm:h-8sm:w-8text-primaryshrink-0"/>
-<divclassName="min-w-0">
-<h1className="text-2xlsm:text-3xlfont-boldtracking-tight">History</h1>
-<pclassName="text-muted-foregroundmt-0.5sm:mt-1text-smsm:text-base">
-Viewandmanageyourpastworkflowexecutions
-</p>
-</div>
-</div>
+  return (
+    <DashboardLayout>
+      <div className="space-y-4 sm:space-y-6">
+        {/* Header - Responsive sizing */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          <HistoryIcon className="h-6 w-6 sm:h-8 sm:w-8 text-primary shrink-0" />
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">History</h1>
+            <p className="text-muted-foreground mt-0.5 sm:mt-1 text-sm sm:text-base">
+              View and manage your past workflow executions
+            </p>
+          </div>
+        </div>
 
-{/*Filters-Responsivelayout*/}
-<HistoryFilters/>
+        {/* Filters - Responsive layout */}
+        <HistoryFilters />
 
-{/*HistoryListwithPull-to-Refresh-Responsivepadding*/}
-<divclassName="rounded-lgborderbg-cardp-4sm:p-6">
-<PullToRefreshonRefresh={handleRefresh}className="lg:pointer-events-none">
-<HistoryListonItemSelect={handleItemSelect}/>
-</PullToRefresh>
-</div>
+        {/* HistoryList with Pull-to-Refresh - Responsive padding */}
+        <div className="rounded-lg border-b border-card p-4 sm:p-6">
+          <PullToRefresh onRefresh={handleRefresh} className="lg:pointer-events-none">
+            <HistoryList onItemSelect={handleItemSelect} />
+          </PullToRefresh>
+        </div>
 
-{/*TaskDetailModal*/}
-<TaskDetailModal
-taskId={selectedTaskId}
-open={isModalOpen}
-onOpenChange={handleModalClose}
-/>
-</div>
-</DashboardLayout>
-);
-}
-
-exportdefaultfunctionHistoryPage(){
-const{user,isLoading}=useSupabaseAuth();
-constrouter=useRouter();
-
-useEffect(()=>{
-//Redirecttologinifnotauthenticated
-if(!isLoading&&!user){
-router.push("/login");
-}
-},[user,isLoading,router]);
-
-if(isLoading){
-return(
-<divclassName="flexmin-h-screenitems-centerjustify-center">
-<divclassName="text-center">
-<divclassName="mb-4h-8w-8animate-spinrounded-fullborder-4border-gray-300border-t-blue-600mx-auto"></div>
-<pclassName="text-gray-600">Loading...</p>
-</div>
-</div>
-);
+        {/* TaskDetailModal */}
+        <TaskDetailModal
+          taskId={selectedTaskId}
+          open={isModalOpen}
+          onOpenChange={handleModalClose}
+        />
+      </div>
+    </DashboardLayout>
+  );
 }
 
-if(!user){
-returnnull;//Willredirecttologin
-}
+export default function HistoryPage() {
+  const { user, isLoading } = useSupabaseAuth();
+  const router = useRouter();
 
-return(
-<HistoryProvider>
-<HistoryPageContent/>
-</HistoryProvider>
-);
+  useEffect(() => {
+    // Redirect to login if not authenticated
+    if (!isLoading && !user) {
+      router.push("/login");
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 mx-auto" />
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to login
+  }
+
+  return (
+    <HistoryProvider>
+      <HistoryPageContent />
+    </HistoryProvider>
+  );
 }

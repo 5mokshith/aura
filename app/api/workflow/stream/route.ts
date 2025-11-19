@@ -1,101 +1,98 @@
-﻿import{NextRequest}from"next/server";
-import{createClient}from"@/lib/supabase/server";
+﻿import { NextRequest } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
-//Storeactiveworkflowstreams
-constactiveStreams=newMap<string,ReadableStreamDefaultController>();
+// Store active workflow streams
+const activeStreams = new Map<string, ReadableStreamDefaultController>();
 
-exportasyncfunctionGET(request:NextRequest){
-try{
-constsupabase=awaitcreateClient();
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await createClient();
 
-//Verifyuserisauthenticated
-const{data:{user},error:authError}=awaitsupabase.auth.getUser();
+    // Verify user is authenticated
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-if(authError||!user){
-returnnewResponse("Unauthorized",{status:401});
-}
+    if (authError || !user) {
+      return new Response("Unauthorized", { status: 401 });
+    }
 
-constsearchParams=request.nextUrl.searchParams;
-constworkflowId=searchParams.get("workflowId");
+    const searchParams = request.nextUrl.searchParams;
+    const workflowId = searchParams.get("workflowId");
 
-if(!workflowId){
-returnnewResponse("WorkflowIDrequired",{status:400});
-}
+    if (!workflowId) {
+      return new Response("WorkflowIDrequired", { status: 400 });
+    }
 
-//CreateSSEstream
-conststream=newReadableStream({
-start(controller){
-//Storecontrollerforthisworkflow
-activeStreams.set(workflowId,controller);
+    // Create SSE stream
+    const stream = new ReadableStream({
+      start(controller) {
+        // Store controller for this workflow
+        activeStreams.set(workflowId, controller);
 
-//Sendinitialconnectionmessage
-constencoder=newTextEncoder();
-controller.enqueue(
-encoder.encode(`data:${JSON.stringify({type:"connected",workflowId})}\n\n`)
-);
+        // Send initial connection message
+        const encoder = new TextEncoder();
+        controller.enqueue(
+          encoder.encode(`data:${JSON.stringify({ type: "connected", workflowId })}\n\n`)
+        );
 
-//Setupheartbeattokeepconnectionalive
-constheartbeat=setInterval(()=>{
-try{
-controller.enqueue(encoder.encode(`:heartbeat\n\n`));
-}catch(error){
-clearInterval(heartbeat);
-}
-},30000);//Every30seconds
+        // Setup heartbeat to keep connection alive
+        const heartbeat = setInterval(() => {
+          try {
+            controller.enqueue(encoder.encode(":heartbeat\n\n"));
+          } catch (error) {
+            clearInterval(heartbeat);
+          }
+        }, 30000); // Every 30 seconds
 
-//Cleanuponclose
-request.signal.addEventListener("abort",()=>{
-clearInterval(heartbeat);
-activeStreams.delete(workflowId);
-try{
-controller.close();
-}catch(error){
-//Controlleralreadyclosed
-}
-});
-},
-cancel(){
-activeStreams.delete(workflowId);
-},
-});
+        // Cleanup on close
+        request.signal.addEventListener("abort", () => {
+          clearInterval(heartbeat);
+          activeStreams.delete(workflowId);
+          try {
+            controller.close();
+          } catch (error) {
+            // Controller already closed
+          }
+        });
+      },
+      cancel() {
+        activeStreams.delete(workflowId);
+      },
+    });
 
-returnnewResponse(stream,{
-headers:{
-"Content-Type":"text/event-stream",
-"Cache-Control":"no-cache",
-"Connection":"keep-alive",
-},
-});
-}catch(error){
-console.error("ErrorcreatingSSEstream:",error);
-returnnewResponse("Internalservererror",{status:500});
-}
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      },
+    });
+  } catch (error) {
+    console.error("Error creating SSE stream:", error);
+    return new Response("Internal server error", { status: 500 });
+  }
 }
 
 /**
-*Sendaneventtoaspecificworkflowstream
-*/
-exportfunctionsendWorkflowEvent(
-workflowId:string,
-event:{
-type:"step_start"|"step_complete"|"step_error"|"workflow_complete";
-stepId?:string;
-data:any;
-}
-){
-constcontroller=activeStreams.get(workflowId);
+ * Send an event to a specific workflow stream
+ */
+export function sendWorkflowEvent(
+  workflowId: string,
+  event: {
+    type: "step_start" | "step_complete" | "step_error" | "workflow_complete";
+    stepId?: string;
+    data: any;
+  }
+) {
+  const controller = activeStreams.get(workflowId);
 
-if(controller){
-try{
-constencoder=newTextEncoder();
-consteventData=JSON.stringify(event);
-controller.enqueue(encoder.encode(`event:${event.type}\ndata:${eventData}\n\n`));
-}catch(error){
-console.error("Errorsendingworkflowevent:",error);
-activeStreams.delete(workflowId);
+  if (controller) {
+    try {
+      const encoder = new TextEncoder();
+      const eventData = JSON.stringify(event);
+      controller.enqueue(encoder.encode(`event:${event.type}\ndata:${eventData}\n\n`));
+    } catch (error) {
+      console.error("Error sending workflow event:", error);
+      activeStreams.delete(workflowId);
+    }
+  }
 }
-}
-}
-
-//Exportforuseinothermodules
-export{activeStreams};

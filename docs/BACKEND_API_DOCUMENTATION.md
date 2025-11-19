@@ -1,584 +1,584 @@
-#***REMOVED***Backend***REMOVED***API***REMOVED***Documentation
+# Backend API Documentation
 
-Complete***REMOVED***API***REMOVED***documentation***REMOVED***for***REMOVED***AURA's***REMOVED***Next.js***REMOVED***backend***REMOVED***with***REMOVED***Supabase***REMOVED***and***REMOVED***LLM***REMOVED***integration.
+Complete API documentation for AURA's Next.js backend with Supabase and LLM integration.
 
-##***REMOVED***🎯***REMOVED***Overview
+## 🎯 Overview
 
-The***REMOVED***backend***REMOVED***is***REMOVED***built***REMOVED***using***REMOVED***Next.js***REMOVED***API***REMOVED***routes***REMOVED***(Express-style)***REMOVED***with:
--***REMOVED*****Supabase*****REMOVED***for***REMOVED***authentication***REMOVED***and***REMOVED***database
--***REMOVED*****OpenAI***REMOVED***GPT-4*****REMOVED***for***REMOVED***LLM-powered***REMOVED***workflow***REMOVED***planning
--***REMOVED*****Server-Sent***REMOVED***Events***REMOVED***(SSE)*****REMOVED***for***REMOVED***real-time***REMOVED***updates
--***REMOVED*****Type-safe*****REMOVED***queries***REMOVED***and***REMOVED***responses
+The backend is built using Next.js API routes (Express-style) with:
+- **Supabase** for authentication and database
+- **OpenAI GPT-4** for LLM-powered workflow planning
+- **Server-Sent Events (SSE)** for real-time updates
+- **Type-safe** queries and responses
 
-##***REMOVED***🔐***REMOVED***Authentication
+## 🔐 Authentication
 
-All***REMOVED***API***REMOVED***routes***REMOVED***require***REMOVED***authentication***REMOVED***via***REMOVED***Supabase.***REMOVED***The***REMOVED***user's***REMOVED***session***REMOVED***is***REMOVED***verified***REMOVED***using:
+All API routes require authentication via Supabase. The user's session is verified using:
 
 ```typescript
-const***REMOVED***supabase***REMOVED***=***REMOVED***await***REMOVED***createClient();
-const***REMOVED***{***REMOVED***data:***REMOVED***{***REMOVED***user***REMOVED***},***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.auth.getUser();
+const supabase = await createClient();
+const { data: { user }, error } = await supabase.auth.getUser();
 ```
 
-##***REMOVED***📡***REMOVED***API***REMOVED***Routes
+## 📡 API Routes
 
-###***REMOVED***Workflow***REMOVED***Execution
+### Workflow Execution
 
-####***REMOVED***`POST***REMOVED***/api/workflow/execute`
-Create***REMOVED***and***REMOVED***plan***REMOVED***a***REMOVED***new***REMOVED***workflow***REMOVED***from***REMOVED***a***REMOVED***natural***REMOVED***language***REMOVED***command.
+#### `POST /api/workflow/execute`
+Create and plan a new workflow from a natural language command.
 
 **Request:**
 ```json
 {
-***REMOVED******REMOVED***"command":***REMOVED***"Send***REMOVED***a***REMOVED***summary***REMOVED***of***REMOVED***my***REMOVED***unread***REMOVED***emails***REMOVED***to***REMOVED***john@example.com"
+  "command": "Send a summary of my unread emails to john@example.com"
 }
 ```
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"success":***REMOVED***true,
-***REMOVED******REMOVED***"workflowId":***REMOVED***"uuid",
-***REMOVED******REMOVED***"steps":***REMOVED***[
-***REMOVED******REMOVED******REMOVED******REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"id":***REMOVED***"step_1",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"agentName":***REMOVED***"EmailAgent",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"action":***REMOVED***"search_emails",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"description":***REMOVED***"Search***REMOVED***for***REMOVED***unread***REMOVED***emails",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"status":***REMOVED***"pending",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"order":***REMOVED***0
-***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED***],
-***REMOVED******REMOVED***"message":***REMOVED***"Workflow***REMOVED***created***REMOVED***and***REMOVED***planned***REMOVED***successfully"
+  "success": true,
+  "workflowId": "uuid",
+  "steps": [
+    {
+      "id": "step_1",
+      "agentName": "EmailAgent",
+      "action": "search_emails",
+      "description": "Search for unread emails",
+      "status": "pending",
+      "order": 0
+    }
+  ],
+  "message": "Workflow created and planned successfully"
 }
 ```
 
 **Validation:**
--***REMOVED***Command***REMOVED***must***REMOVED***be***REMOVED***at***REMOVED***least***REMOVED***10***REMOVED***characters
--***REMOVED***User***REMOVED***must***REMOVED***have***REMOVED***Google***REMOVED***OAuth***REMOVED***tokens
--***REMOVED***Tokens***REMOVED***must***REMOVED***not***REMOVED***be***REMOVED***expired
+- Command must be at least 10 characters
+- User must have Google OAuth tokens
+- Tokens must not be expired
 
 **Process:**
-1.***REMOVED***Validates***REMOVED***user***REMOVED***authentication
-2.***REMOVED***Checks***REMOVED***Google***REMOVED***OAuth***REMOVED***token***REMOVED***status
-3.***REMOVED***Uses***REMOVED***LLM***REMOVED***to***REMOVED***generate***REMOVED***workflow***REMOVED***plan
-4.***REMOVED***Creates***REMOVED***workflow***REMOVED***in***REMOVED***database
-5.***REMOVED***Records***REMOVED***in***REMOVED***history
-6.***REMOVED***Returns***REMOVED***workflow***REMOVED***ID***REMOVED***and***REMOVED***steps
+1. Validates user authentication
+2. Checks Google OAuth token status
+3. Uses LLM to generate workflow plan
+4. Creates workflow in database
+5. Records in history
+6. Returns workflow ID and steps
 
 ---
 
-####***REMOVED***`GET***REMOVED***/api/workflow/stream?workflowId={id}`
-Stream***REMOVED***real-time***REMOVED***workflow***REMOVED***execution***REMOVED***updates***REMOVED***via***REMOVED***Server-Sent***REMOVED***Events***REMOVED***(SSE).
+#### `GET /api/workflow/stream?workflowId={id}`
+Stream real-time workflow execution updates via Server-Sent Events (SSE).
 
-**Query***REMOVED***Parameters:**
--***REMOVED***`workflowId`***REMOVED***(required):***REMOVED***The***REMOVED***workflow***REMOVED***ID***REMOVED***to***REMOVED***stream
+**Query Parameters:**
+- `workflowId` (required): The workflow ID to stream
 
-**Response:*****REMOVED***SSE***REMOVED***stream***REMOVED***with***REMOVED***events:
+**Response:** SSE stream with events:
 
 ```
-event:***REMOVED***connected
-data:***REMOVED***{"type":"connected","workflowId":"uuid"}
+event: connected
+data: {"type":"connected","workflowId":"uuid"}
 
-event:***REMOVED***step_start
-data:***REMOVED***{"type":"step_start","stepId":"step_1","data":{...}}
+event: step_start
+data: {"type":"step_start","stepId":"step_1","data":{...}}
 
-event:***REMOVED***step_complete
-data:***REMOVED***{"type":"step_complete","stepId":"step_1","data":{...}}
+event: step_complete
+data: {"type":"step_complete","stepId":"step_1","data":{...}}
 
-event:***REMOVED***step_error
-data:***REMOVED***{"type":"step_error","stepId":"step_1","data":{"error":"..."}}
+event: step_error
+data: {"type":"step_error","stepId":"step_1","data":{"error":"..."}}
 
-event:***REMOVED***workflow_complete
-data:***REMOVED***{"type":"workflow_complete","data":{"status":"completed"}}
+event: workflow_complete
+data: {"type":"workflow_complete","data":{"status":"completed"}}
 ```
 
 **Features:**
--***REMOVED***Automatic***REMOVED***heartbeat***REMOVED***every***REMOVED***30***REMOVED***seconds
--***REMOVED***Reconnection***REMOVED***support
--***REMOVED***Clean***REMOVED***disconnection***REMOVED***handling
+- Automatic heartbeat every 30 seconds
+- Reconnection support
+- Clean disconnection handling
 
 ---
 
-####***REMOVED***`POST***REMOVED***/api/workflow/cancel`
-Cancel***REMOVED***a***REMOVED***running***REMOVED***workflow.
+#### `POST /api/workflow/cancel`
+Cancel a running workflow.
 
 **Request:**
 ```json
 {
-***REMOVED******REMOVED***"workflowId":***REMOVED***"uuid"
+  "workflowId": "uuid"
 }
 ```
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"success":***REMOVED***true,
-***REMOVED******REMOVED***"message":***REMOVED***"Workflow***REMOVED***cancelled***REMOVED***successfully",
-***REMOVED******REMOVED***"responseTime":***REMOVED***150
+  "success": true,
+  "message": "Workflow cancelled successfully",
+  "responseTime": 150
 }
 ```
 
 **Performance:**
--***REMOVED***Target***REMOVED***response***REMOVED***time:***REMOVED***<200ms
--***REMOVED***Logs***REMOVED***warning***REMOVED***if***REMOVED***exceeds***REMOVED***target
+- Target response time: <200ms
+- Logs warning if exceeds target
 
 ---
 
-###***REMOVED***History***REMOVED***Management
+### History Management
 
-####***REMOVED***`GET***REMOVED***/api/history`
-Get***REMOVED***user's***REMOVED***workflow***REMOVED***history***REMOVED***with***REMOVED***filtering***REMOVED***and***REMOVED***pagination.
+#### `GET /api/history`
+Get user's workflow history with filtering and pagination.
 
-**Query***REMOVED***Parameters:**
--***REMOVED***`limit`***REMOVED***(optional,***REMOVED***default:***REMOVED***20):***REMOVED***Number***REMOVED***of***REMOVED***results
--***REMOVED***`offset`***REMOVED***(optional,***REMOVED***default:***REMOVED***0):***REMOVED***Pagination***REMOVED***offset
--***REMOVED***`status`***REMOVED***(optional):***REMOVED***Filter***REMOVED***by***REMOVED***status***REMOVED***(success/failed/cancelled)
--***REMOVED***`search`***REMOVED***(optional):***REMOVED***Search***REMOVED***in***REMOVED***command***REMOVED***text
--***REMOVED***`startDate`***REMOVED***(optional):***REMOVED***Filter***REMOVED***by***REMOVED***start***REMOVED***date***REMOVED***(ISO***REMOVED***8601)
--***REMOVED***`endDate`***REMOVED***(optional):***REMOVED***Filter***REMOVED***by***REMOVED***end***REMOVED***date***REMOVED***(ISO***REMOVED***8601)
+**Query Parameters:**
+- `limit` (optional, default: 20): Number of results
+- `offset` (optional, default: 0): Pagination offset
+- `status` (optional): Filter by status (success/failed/cancelled)
+- `search` (optional): Search in command text
+- `startDate` (optional): Filter by start date (ISO 8601)
+- `endDate` (optional): Filter by end date (ISO 8601)
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"history":***REMOVED***[
-***REMOVED******REMOVED******REMOVED******REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"id":***REMOVED***"uuid",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"user_id":***REMOVED***"uuid",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"workflow_id":***REMOVED***"uuid",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"command":***REMOVED***"Send***REMOVED***email***REMOVED***summary",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"status":***REMOVED***"completed",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"executed_at":***REMOVED***"2024-01-01T12:00:00Z",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"created_at":***REMOVED***"2024-01-01T12:00:00Z"
-***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED***],
-***REMOVED******REMOVED***"pagination":***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***"limit":***REMOVED***20,
-***REMOVED******REMOVED******REMOVED******REMOVED***"offset":***REMOVED***0,
-***REMOVED******REMOVED******REMOVED******REMOVED***"total":***REMOVED***45,
-***REMOVED******REMOVED******REMOVED******REMOVED***"hasMore":***REMOVED***true
-***REMOVED******REMOVED***}
+  "history": [
+    {
+      "id": "uuid",
+      "user_id": "uuid",
+      "workflow_id": "uuid",
+      "command": "Send email summary",
+      "status": "completed",
+      "executed_at": "2024-01-01T12:00:00Z",
+      "created_at": "2024-01-01T12:00:00Z"
+    }
+  ],
+  "pagination": {
+    "limit": 20,
+    "offset": 0,
+    "total": 45,
+    "hasMore": true
+  }
 }
 ```
 
 ---
 
-####***REMOVED***`GET***REMOVED***/api/history/[id]`
-Get***REMOVED***detailed***REMOVED***information***REMOVED***about***REMOVED***a***REMOVED***specific***REMOVED***workflow.
+#### `GET /api/history/[id]`
+Get detailed information about a specific workflow.
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"workflow":***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***"id":***REMOVED***"uuid",
-***REMOVED******REMOVED******REMOVED******REMOVED***"user_id":***REMOVED***"uuid",
-***REMOVED******REMOVED******REMOVED******REMOVED***"command":***REMOVED***"Send***REMOVED***email***REMOVED***summary",
-***REMOVED******REMOVED******REMOVED******REMOVED***"status":***REMOVED***"completed",
-***REMOVED******REMOVED******REMOVED******REMOVED***"steps":***REMOVED***[...],
-***REMOVED******REMOVED******REMOVED******REMOVED***"results":***REMOVED***[...],
-***REMOVED******REMOVED******REMOVED******REMOVED***"start_time":***REMOVED***"2024-01-01T12:00:00Z",
-***REMOVED******REMOVED******REMOVED******REMOVED***"end_time":***REMOVED***"2024-01-01T12:05:00Z",
-***REMOVED******REMOVED******REMOVED******REMOVED***"created_at":***REMOVED***"2024-01-01T12:00:00Z"
-***REMOVED******REMOVED***}
+  "workflow": {
+    "id": "uuid",
+    "user_id": "uuid",
+    "command": "Send email summary",
+    "status": "completed",
+    "steps": [...],
+    "results": [...],
+    "start_time": "2024-01-01T12:00:00Z",
+    "end_time": "2024-01-01T12:05:00Z",
+    "created_at": "2024-01-01T12:00:00Z"
+  }
 }
 ```
 
 ---
 
-####***REMOVED***`POST***REMOVED***/api/history/rerun`
-Re-run***REMOVED***a***REMOVED***previous***REMOVED***workflow***REMOVED***with***REMOVED***the***REMOVED***same***REMOVED***command.
+#### `POST /api/history/rerun`
+Re-run a previous workflow with the same command.
 
 **Request:**
 ```json
 {
-***REMOVED******REMOVED***"workflowId":***REMOVED***"uuid"
+  "workflowId": "uuid"
 }
 ```
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"success":***REMOVED***true,
-***REMOVED******REMOVED***"workflowId":***REMOVED***"new-uuid",
-***REMOVED******REMOVED***"steps":***REMOVED***[...],
-***REMOVED******REMOVED***"message":***REMOVED***"Workflow***REMOVED***rerun***REMOVED***initiated***REMOVED***successfully"
+  "success": true,
+  "workflowId": "new-uuid",
+  "steps": [...],
+  "message": "Workflow rerun initiated successfully"
 }
 ```
 
 ---
 
-###***REMOVED***Authentication
+### Authentication
 
-####***REMOVED***`GET***REMOVED***/api/auth/status`
-Check***REMOVED***current***REMOVED***authentication***REMOVED***and***REMOVED***Google***REMOVED***OAuth***REMOVED***status.
+#### `GET /api/auth/status`
+Check current authentication and Google OAuth status.
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"isAuthenticated":***REMOVED***true,
-***REMOVED******REMOVED***"session":***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***"userId":***REMOVED***"uuid",
-***REMOVED******REMOVED******REMOVED******REMOVED***"email":***REMOVED***"user@example.com",
-***REMOVED******REMOVED******REMOVED******REMOVED***"isAuthenticated":***REMOVED***true,
-***REMOVED******REMOVED******REMOVED******REMOVED***"oauthStatus":***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"isConnected":***REMOVED***true,
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"userEmail":***REMOVED***"user@example.com",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"scopes":***REMOVED***["gmail.modify",***REMOVED***"drive.file",***REMOVED***...],
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"expiresAt":***REMOVED***"2024-01-01T12:00:00Z"
-***REMOVED******REMOVED******REMOVED******REMOVED***},
-***REMOVED******REMOVED******REMOVED******REMOVED***"preferences":***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"theme":***REMOVED***"system",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"notificationsEnabled":***REMOVED***true,
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"defaultView":***REMOVED***"dashboard",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"favoriteActions":***REMOVED***[]
-***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED***}
+  "isAuthenticated": true,
+  "session": {
+    "userId": "uuid",
+    "email": "user@example.com",
+    "isAuthenticated": true,
+    "oauthStatus": {
+      "isConnected": true,
+      "userEmail": "user@example.com",
+      "scopes": ["gmail.modify", "drive.file", ...],
+      "expiresAt": "2024-01-01T12:00:00Z"
+    },
+    "preferences": {
+      "theme": "system",
+      "notificationsEnabled": true,
+      "defaultView": "dashboard",
+      "favoriteActions": []
+    }
+  }
 }
 ```
 
 ---
 
-####***REMOVED***`POST***REMOVED***/api/auth/refresh-google-token`
-Refresh***REMOVED***Google***REMOVED***OAuth***REMOVED***access***REMOVED***token.
+#### `POST /api/auth/refresh-google-token`
+Refresh Google OAuth access token.
 
 **Request:**
 ```json
 {
-***REMOVED******REMOVED***"refreshToken":***REMOVED***"refresh_token_here"
+  "refreshToken": "refresh_token_here"
 }
 ```
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"access_token":***REMOVED***"new_access_token",
-***REMOVED******REMOVED***"expires_in":***REMOVED***3600,
-***REMOVED******REMOVED***"token_type":***REMOVED***"Bearer",
-***REMOVED******REMOVED***"refresh_token":***REMOVED***"new_refresh_token"
+  "access_token": "new_access_token",
+  "expires_in": 3600,
+  "token_type": "Bearer",
+  "refresh_token": "new_refresh_token"
 }
 ```
 
 ---
 
-####***REMOVED***`POST***REMOVED***/api/auth/disconnect`
-Disconnect***REMOVED***Google***REMOVED***account***REMOVED***and***REMOVED***revoke***REMOVED***tokens.
+#### `POST /api/auth/disconnect`
+Disconnect Google account and revoke tokens.
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"success":***REMOVED***true,
-***REMOVED******REMOVED***"message":***REMOVED***"Successfully***REMOVED***disconnected***REMOVED***Google***REMOVED***account"
+  "success": true,
+  "message": "Successfully disconnected Google account"
 }
 ```
 
 **Process:**
-1.***REMOVED***Revokes***REMOVED***token***REMOVED***with***REMOVED***Google
-2.***REMOVED***Deletes***REMOVED***tokens***REMOVED***from***REMOVED***database
-3.***REMOVED***Returns***REMOVED***success
+1. Revokes token with Google
+2. Deletes tokens from database
+3. Returns success
 
 ---
 
-###***REMOVED***Quick***REMOVED***Actions
+### Quick Actions
 
-####***REMOVED***`GET***REMOVED***/api/quick-actions`
-Get***REMOVED***all***REMOVED***quick***REMOVED***actions***REMOVED***with***REMOVED***user's***REMOVED***favorites***REMOVED***marked.
+#### `GET /api/quick-actions`
+Get all quick actions with user's favorites marked.
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"actions":***REMOVED***[
-***REMOVED******REMOVED******REMOVED******REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"id":***REMOVED***"send-email",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"title":***REMOVED***"Send***REMOVED***Email",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"description":***REMOVED***"Compose***REMOVED***and***REMOVED***send***REMOVED***an***REMOVED***email",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"template":***REMOVED***"Send***REMOVED***an***REMOVED***email***REMOVED***to***REMOVED***{recipient}***REMOVED***about***REMOVED***{topic}",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"icon":***REMOVED***"mail",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"category":***REMOVED***"email",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"isFavorite":***REMOVED***true,
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"usageCount":***REMOVED***5
-***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED***]
+  "actions": [
+    {
+      "id": "send-email",
+      "title": "Send Email",
+      "description": "Compose and send an email",
+      "template": "Send an email to {recipient} about {topic}",
+      "icon": "mail",
+      "category": "email",
+      "isFavorite": true,
+      "usageCount": 5
+    }
+  ]
 }
 ```
 
 ---
 
-####***REMOVED***`POST***REMOVED***/api/quick-actions/favorite`
-Add***REMOVED***or***REMOVED***remove***REMOVED***a***REMOVED***quick***REMOVED***action***REMOVED***from***REMOVED***favorites.
+#### `POST /api/quick-actions/favorite`
+Add or remove a quick action from favorites.
 
 **Request:**
 ```json
 {
-***REMOVED******REMOVED***"actionId":***REMOVED***"send-email",
-***REMOVED******REMOVED***"isFavorite":***REMOVED***true
+  "actionId": "send-email",
+  "isFavorite": true
 }
 ```
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"success":***REMOVED***true,
-***REMOVED******REMOVED***"favoriteActions":***REMOVED***["send-email",***REMOVED***"create-doc",***REMOVED***...]
+  "success": true,
+  "favoriteActions": ["send-email", "create-doc", ...]
 }
 ```
 
 **Limits:**
--***REMOVED***Maximum***REMOVED***20***REMOVED***favorites***REMOVED***per***REMOVED***user
--***REMOVED***Automatically***REMOVED***removes***REMOVED***oldest***REMOVED***if***REMOVED***limit***REMOVED***exceeded
+- Maximum 20 favorites per user
+- Automatically removes oldest if limit exceeded
 
 ---
 
-###***REMOVED***Feedback
+### Feedback
 
-####***REMOVED***`POST***REMOVED***/api/feedback`
-Submit***REMOVED***feedback***REMOVED***for***REMOVED***a***REMOVED***workflow***REMOVED***result.
+#### `POST /api/feedback`
+Submit feedback for a workflow result.
 
 **Request:**
 ```json
 {
-***REMOVED******REMOVED***"workflowId":***REMOVED***"uuid",
-***REMOVED******REMOVED***"resultId":***REMOVED***"result_1",
-***REMOVED******REMOVED***"rating":***REMOVED***"positive",
-***REMOVED******REMOVED***"comment":***REMOVED***"Great***REMOVED***summary!"
+  "workflowId": "uuid",
+  "resultId": "result_1",
+  "rating": "positive",
+  "comment": "Great summary!"
 }
 ```
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"success":***REMOVED***true,
-***REMOVED******REMOVED***"message":***REMOVED***"Feedback***REMOVED***recorded***REMOVED***successfully"
+  "success": true,
+  "message": "Feedback recorded successfully"
 }
 ```
 
 **Validation:**
--***REMOVED***Rating***REMOVED***must***REMOVED***be***REMOVED***"positive"***REMOVED***or***REMOVED***"negative"
--***REMOVED***Comment***REMOVED***is***REMOVED***optional
+- Rating must be "positive" or "negative"
+- Comment is optional
 
 ---
 
-##***REMOVED***🤖***REMOVED***LLM***REMOVED***Integration
+## 🤖 LLM Integration
 
-###***REMOVED***LLM***REMOVED***Client***REMOVED***(`lib/llm/client.ts`)
+### LLM Client (`lib/llm/client.ts`)
 
-####***REMOVED***`chatCompletion(messages,***REMOVED***options)`
-Send***REMOVED***a***REMOVED***chat***REMOVED***completion***REMOVED***request***REMOVED***to***REMOVED***OpenAI.
+#### `chatCompletion(messages, options)`
+Send a chat completion request to OpenAI.
 
 ```typescript
-const***REMOVED***response***REMOVED***=***REMOVED***await***REMOVED***chatCompletion([
-***REMOVED******REMOVED***{***REMOVED***role:***REMOVED***"system",***REMOVED***content:***REMOVED***"You***REMOVED***are***REMOVED***a***REMOVED***helpful***REMOVED***assistant"***REMOVED***},
-***REMOVED******REMOVED***{***REMOVED***role:***REMOVED***"user",***REMOVED***content:***REMOVED***"Hello!"***REMOVED***}
-],***REMOVED***{
-***REMOVED******REMOVED***model:***REMOVED***"gpt-4-turbo-preview",
-***REMOVED******REMOVED***temperature:***REMOVED***0.7,
-***REMOVED******REMOVED***maxTokens:***REMOVED***4096
+const response = await chatCompletion([
+  { role: "system", content: "You are a helpful assistant" },
+  { role: "user", content: "Hello!" }
+], {
+  model: "gpt-4-turbo-preview",
+  temperature: 0.7,
+  maxTokens: 4096
 });
 ```
 
 ---
 
-####***REMOVED***`streamChatCompletion(messages,***REMOVED***options)`
-Stream***REMOVED***a***REMOVED***chat***REMOVED***completion***REMOVED***response.
+#### `streamChatCompletion(messages, options)`
+Stream a chat completion response.
 
 ```typescript
-for***REMOVED***await***REMOVED***(const***REMOVED***chunk***REMOVED***of***REMOVED***streamChatCompletion(messages))***REMOVED***{
-***REMOVED******REMOVED***console.log(chunk);***REMOVED***//***REMOVED***Partial***REMOVED***response
+for await (const chunk of streamChatCompletion(messages)) {
+  console.log(chunk); // Partial response
 }
 ```
 
 ---
 
-####***REMOVED***`parseCommand(command)`
-Parse***REMOVED***natural***REMOVED***language***REMOVED***command***REMOVED***and***REMOVED***extract***REMOVED***intent.
+#### `parseCommand(command)`
+Parse natural language command and extract intent.
 
 ```typescript
-const***REMOVED***result***REMOVED***=***REMOVED***await***REMOVED***parseCommand("Send***REMOVED***an***REMOVED***email***REMOVED***to***REMOVED***john@example.com");
-//***REMOVED***Returns:
+const result = await parseCommand("Send an email to john@example.com");
+// Returns:
 {
-***REMOVED******REMOVED***"intent":***REMOVED***"send_email",
-***REMOVED******REMOVED***"parameters":***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***"recipient":***REMOVED***"john@example.com"
-***REMOVED******REMOVED***},
-***REMOVED******REMOVED***"confidence":***REMOVED***0.95
+  "intent": "send_email",
+  "parameters": {
+    "recipient": "john@example.com"
+  },
+  "confidence": 0.95
 }
 ```
 
 ---
 
-####***REMOVED***`generateWorkflowPlan(command)`
-Generate***REMOVED***a***REMOVED***workflow***REMOVED***execution***REMOVED***plan.
+#### `generateWorkflowPlan(command)`
+Generate a workflow execution plan.
 
 ```typescript
-const***REMOVED***plan***REMOVED***=***REMOVED***await***REMOVED***generateWorkflowPlan("Summarize***REMOVED***my***REMOVED***emails***REMOVED***and***REMOVED***create***REMOVED***a***REMOVED***doc");
-//***REMOVED***Returns:
+const plan = await generateWorkflowPlan("Summarize my emails and create a doc");
+// Returns:
 {
-***REMOVED******REMOVED***"steps":***REMOVED***[
-***REMOVED******REMOVED******REMOVED******REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"id":***REMOVED***"step_1",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"agentName":***REMOVED***"EmailAgent",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"action":***REMOVED***"search_emails",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"description":***REMOVED***"Search***REMOVED***for***REMOVED***recent***REMOVED***emails",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"dependencies":***REMOVED***[]
-***REMOVED******REMOVED******REMOVED******REMOVED***},
-***REMOVED******REMOVED******REMOVED******REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"id":***REMOVED***"step_2",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"agentName":***REMOVED***"DocsAgent",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"action":***REMOVED***"create_document",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"description":***REMOVED***"Create***REMOVED***summary***REMOVED***document",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***"dependencies":***REMOVED***["step_1"]
-***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED***],
-***REMOVED******REMOVED***"estimatedDuration":***REMOVED***45
+  "steps": [
+    {
+      "id": "step_1",
+      "agentName": "EmailAgent",
+      "action": "search_emails",
+      "description": "Search for recent emails",
+      "dependencies": []
+    },
+    {
+      "id": "step_2",
+      "agentName": "DocsAgent",
+      "action": "create_document",
+      "description": "Create summary document",
+      "dependencies": ["step_1"]
+    }
+  ],
+  "estimatedDuration": 45
 }
 ```
 
 ---
 
-##***REMOVED***💾***REMOVED***Database***REMOVED***Services
+## 💾 Database Services
 
-###***REMOVED***Workflow***REMOVED***Service***REMOVED***(`lib/services/workflowService.ts`)
+### Workflow Service (`lib/services/workflowService.ts`)
 
-####***REMOVED***`createAndPlanWorkflow(userId,***REMOVED***command)`
-Create***REMOVED***and***REMOVED***plan***REMOVED***a***REMOVED***new***REMOVED***workflow.
+#### `createAndPlanWorkflow(userId, command)`
+Create and plan a new workflow.
 
 ```typescript
-const***REMOVED***{***REMOVED***workflowId,***REMOVED***steps***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***createAndPlanWorkflow(
-***REMOVED******REMOVED***user.id,
-***REMOVED******REMOVED***"Send***REMOVED***email***REMOVED***summary"
+const { workflowId, steps } = await createAndPlanWorkflow(
+  user.id,
+  "Send email summary"
 );
 ```
 
 ---
 
-####***REMOVED***`executeWorkflowStep(workflowId,***REMOVED***stepId,***REMOVED***accessToken)`
-Execute***REMOVED***a***REMOVED***single***REMOVED***workflow***REMOVED***step.
+#### `executeWorkflowStep(workflowId, stepId, accessToken)`
+Execute a single workflow step.
 
 ```typescript
-const***REMOVED***result***REMOVED***=***REMOVED***await***REMOVED***executeWorkflowStep(
-***REMOVED******REMOVED***workflowId,
-***REMOVED******REMOVED***"step_1",
-***REMOVED******REMOVED***googleAccessToken
+const result = await executeWorkflowStep(
+  workflowId,
+  "step_1",
+  googleAccessToken
 );
 ```
 
 ---
 
-####***REMOVED***`updateWorkflowStatus(workflowId,***REMOVED***status,***REMOVED***updates)`
-Update***REMOVED***workflow***REMOVED***status***REMOVED***and***REMOVED***data.
+#### `updateWorkflowStatus(workflowId, status, updates)`
+Update workflow status and data.
 
 ```typescript
-await***REMOVED***updateWorkflowStatus(workflowId,***REMOVED***"completed",***REMOVED***{
-***REMOVED******REMOVED***results:***REMOVED***[...],
-***REMOVED******REMOVED***steps:***REMOVED***[...]
+await updateWorkflowStatus(workflowId, "completed", {
+  results: [...],
+  steps: [...]
 });
 ```
 
 ---
 
-####***REMOVED***`cancelWorkflow(workflowId)`
-Cancel***REMOVED***a***REMOVED***running***REMOVED***workflow.
+#### `cancelWorkflow(workflowId)`
+Cancel a running workflow.
 
 ```typescript
-await***REMOVED***cancelWorkflow(workflowId);
+await cancelWorkflow(workflowId);
 ```
 
 ---
 
-####***REMOVED***`recordWorkflowHistory(userId,***REMOVED***workflowId,***REMOVED***command,***REMOVED***status)`
-Record***REMOVED***workflow***REMOVED***in***REMOVED***history.
+#### `recordWorkflowHistory(userId, workflowId, command, status)`
+Record workflow in history.
 
 ```typescript
-await***REMOVED***recordWorkflowHistory(
-***REMOVED******REMOVED***user.id,
-***REMOVED******REMOVED***workflowId,
-***REMOVED******REMOVED***"Send***REMOVED***email",
-***REMOVED******REMOVED***"completed"
+await recordWorkflowHistory(
+  user.id,
+  workflowId,
+  "Send email",
+  "completed"
 );
 ```
 
 ---
 
-##***REMOVED***🔒***REMOVED***Security
+## 🔒 Security
 
-###***REMOVED***Authentication
--***REMOVED***All***REMOVED***routes***REMOVED***verify***REMOVED***Supabase***REMOVED***session
--***REMOVED***User***REMOVED***ID***REMOVED***extracted***REMOVED***from***REMOVED***authenticated***REMOVED***session
--***REMOVED***No***REMOVED***manual***REMOVED***token***REMOVED***handling***REMOVED***required
+### Authentication
+- All routes verify Supabase session
+- User ID extracted from authenticated session
+- No manual token handling required
 
-###***REMOVED***Authorization
--***REMOVED***Users***REMOVED***can***REMOVED***only***REMOVED***access***REMOVED***their***REMOVED***own***REMOVED***data
--***REMOVED***Workflow***REMOVED***ownership***REMOVED***verified***REMOVED***before***REMOVED***operations
--***REMOVED***Row***REMOVED***Level***REMOVED***Security***REMOVED***(RLS)***REMOVED***enforced***REMOVED***at***REMOVED***database***REMOVED***level
+### Authorization
+- Users can only access their own data
+- Workflow ownership verified before operations
+- Row Level Security (RLS) enforced at database level
 
-###***REMOVED***Token***REMOVED***Management
--***REMOVED***Google***REMOVED***OAuth***REMOVED***tokens***REMOVED***stored***REMOVED***securely***REMOVED***in***REMOVED***database
--***REMOVED***Automatic***REMOVED***token***REMOVED***refresh***REMOVED***before***REMOVED***expiry
--***REMOVED***Tokens***REMOVED***revoked***REMOVED***on***REMOVED***disconnect
+### Token Management
+- Google OAuth tokens stored securely in database
+- Automatic token refresh before expiry
+- Tokens revoked on disconnect
 
-###***REMOVED***Input***REMOVED***Validation
--***REMOVED***Command***REMOVED***length***REMOVED***validation***REMOVED***(min***REMOVED***10***REMOVED***characters)
--***REMOVED***Required***REMOVED***parameters***REMOVED***checked
--***REMOVED***Type***REMOVED***validation***REMOVED***on***REMOVED***all***REMOVED***inputs
+### Input Validation
+- Command length validation (min 10 characters)
+- Required parameters checked
+- Type validation on all inputs
 
 ---
 
-##***REMOVED***📊***REMOVED***Error***REMOVED***Handling
+## 📊 Error Handling
 
-###***REMOVED***Standard***REMOVED***Error***REMOVED***Response
+### Standard Error Response
 ```json
 {
-***REMOVED******REMOVED***"error":***REMOVED***"Error***REMOVED***type",
-***REMOVED******REMOVED***"message":***REMOVED***"Detailed***REMOVED***error***REMOVED***message"
+  "error": "Error type",
+  "message": "Detailed error message"
 }
 ```
 
-###***REMOVED***HTTP***REMOVED***Status***REMOVED***Codes
--***REMOVED***`200`***REMOVED***-***REMOVED***Success
--***REMOVED***`400`***REMOVED***-***REMOVED***Bad***REMOVED***Request***REMOVED***(validation***REMOVED***error)
--***REMOVED***`401`***REMOVED***-***REMOVED***Unauthorized***REMOVED***(not***REMOVED***authenticated)
--***REMOVED***`403`***REMOVED***-***REMOVED***Forbidden***REMOVED***(not***REMOVED***authorized***REMOVED***for***REMOVED***resource)
--***REMOVED***`500`***REMOVED***-***REMOVED***Internal***REMOVED***Server***REMOVED***Error
+### HTTP Status Codes
+- `200` - Success
+- `400` - Bad Request (validation error)
+- `401` - Unauthorized (not authenticated)
+- `403` - Forbidden (not authorized for resource)
+- `500` - Internal Server Error
 
-###***REMOVED***Error***REMOVED***Logging
-All***REMOVED***errors***REMOVED***are***REMOVED***logged***REMOVED***to***REMOVED***console***REMOVED***with***REMOVED***context:
+### Error Logging
+All errors are logged to console with context:
 ```typescript
-console.error("Error***REMOVED***executing***REMOVED***workflow:",***REMOVED***error);
+console.error("Error executing workflow:", error);
 ```
 
 ---
 
-##***REMOVED***🚀***REMOVED***Performance
+## 🚀 Performance
 
-###***REMOVED***Response***REMOVED***Time***REMOVED***Targets
--***REMOVED***Workflow***REMOVED***execution:***REMOVED***<2s***REMOVED***for***REMOVED***planning
--***REMOVED***Cancel***REMOVED***operation:***REMOVED***<200ms
--***REMOVED***History***REMOVED***fetch:***REMOVED***<500ms
--***REMOVED***SSE***REMOVED***connection:***REMOVED***<100ms
+### Response Time Targets
+- Workflow execution: <2s for planning
+- Cancel operation: <200ms
+- History fetch: <500ms
+- SSE connection: <100ms
 
-###***REMOVED***Optimization
--***REMOVED***Database***REMOVED***queries***REMOVED***use***REMOVED***indexes
--***REMOVED***Pagination***REMOVED***for***REMOVED***large***REMOVED***datasets
--***REMOVED***Streaming***REMOVED***for***REMOVED***real-time***REMOVED***updates
--***REMOVED***Connection***REMOVED***pooling***REMOVED***via***REMOVED***Supabase
+### Optimization
+- Database queries use indexes
+- Pagination for large datasets
+- Streaming for real-time updates
+- Connection pooling via Supabase
 
 ---
 
-##***REMOVED***🧪***REMOVED***Testing
+## 🧪 Testing
 
-###***REMOVED***Manual***REMOVED***Testing
+### Manual Testing
 ```bash
-#***REMOVED***Start***REMOVED***dev***REMOVED***server
-npm***REMOVED***run***REMOVED***dev
+# Start dev server
+npm run dev
 
-#***REMOVED***Test***REMOVED***workflow***REMOVED***execution
-curl***REMOVED***-X***REMOVED***POST***REMOVED***http://localhost:3000/api/workflow/execute***REMOVED***\
-***REMOVED******REMOVED***-H***REMOVED***"Content-Type:***REMOVED***application/json"***REMOVED***\
-***REMOVED******REMOVED***-d***REMOVED***'{"command":"Send***REMOVED***an***REMOVED***email***REMOVED***summary"}'
+# Test workflow execution
+curl -X POST http://localhost:3000/api/workflow/execute \
+  -H "Content-Type: application/json" \
+  -d '{"command":"Send an email summary"}'
 
-#***REMOVED***Test***REMOVED***SSE***REMOVED***stream
-curl***REMOVED***-N***REMOVED***http://localhost:3000/api/workflow/stream?workflowId=uuid
+# Test SSE stream
+curl -N http://localhost:3000/api/workflow/stream?workflowId=uuid
 ```
 
-###***REMOVED***Environment***REMOVED***Variables***REMOVED***Required
+### Environment Variables Required
 ```env
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=REDACTED
@@ -590,20 +590,21 @@ GOOGLE_CLIENT_SECRET=REDACTED
 
 ---
 
-##***REMOVED***📝***REMOVED***Next***REMOVED***Steps
+## 📝 Next Steps
 
-1.***REMOVED*****Implement***REMOVED***Agent***REMOVED***Execution*****REMOVED***-***REMOVED***Add***REMOVED***actual***REMOVED***Google***REMOVED***API***REMOVED***calls
-2.***REMOVED*****Add***REMOVED***Error***REMOVED***Recovery*****REMOVED***-***REMOVED***Retry***REMOVED***logic***REMOVED***for***REMOVED***failed***REMOVED***steps
-3.***REMOVED*****Implement***REMOVED***Caching*****REMOVED***-***REMOVED***Cache***REMOVED***LLM***REMOVED***responses
-4.***REMOVED*****Add***REMOVED***Rate***REMOVED***Limiting*****REMOVED***-***REMOVED***Prevent***REMOVED***API***REMOVED***abuse
-5.***REMOVED*****Add***REMOVED***Monitoring*****REMOVED***-***REMOVED***Track***REMOVED***performance***REMOVED***metrics
-6.***REMOVED*****Add***REMOVED***Tests*****REMOVED***-***REMOVED***Unit***REMOVED***and***REMOVED***integration***REMOVED***tests
+1. **Implement Agent Execution** - Add actual Google API calls
+2. **Add Error Recovery** - Retry logic for failed steps
+3. **Implement Caching** - Cache LLM responses
+4. **Add Rate Limiting** - Prevent API abuse
+5. **Add Monitoring** - Track performance metrics
+6. **Add Tests** - Unit and integration tests
 
 ---
 
-##***REMOVED***🔗***REMOVED***Related***REMOVED***Documentation
+## 🔗 Related Documentation
 
--***REMOVED***[Supabase***REMOVED***Setup***REMOVED***Guide](./COMPLETE_SETUP_GUIDE.md)
--***REMOVED***[Database***REMOVED***Schema](./DATABASE_SETUP.md)
--***REMOVED***[Migration***REMOVED***Checklist](./MIGRATION_CHECKLIST.md)
--***REMOVED***[Quick***REMOVED***Start](../QUICK_START.md)
+- [Supabase Setup Guide](./COMPLETE_SETUP_GUIDE.md)
+- [Database Schema](./DATABASE_SETUP.md)
+- [Migration Checklist](./MIGRATION_CHECKLIST.md)
+- [Quick Start](../QUICK_START.md)
+

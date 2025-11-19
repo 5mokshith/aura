@@ -1,138 +1,138 @@
-#***REMOVED***Component***REMOVED***Migration***REMOVED***Checklist
+# Component Migration Checklist
 
-This***REMOVED***checklist***REMOVED***helps***REMOVED***you***REMOVED***migrate***REMOVED***existing***REMOVED***components***REMOVED***from***REMOVED***the***REMOVED***old***REMOVED***`AuthContext`***REMOVED***to***REMOVED***the***REMOVED***new***REMOVED***`SupabaseAuthContext`.
+This checklist helps you migrate existing components from the old `AuthContext` to the new `SupabaseAuthContext`.
 
-##***REMOVED***✅***REMOVED***What's***REMOVED***Already***REMOVED***Done
+## ✅ What's Already Done
 
--***REMOVED***✅***REMOVED***`SupabaseAuthContext`***REMOVED***created***REMOVED***with***REMOVED***Google***REMOVED***OAuth***REMOVED***token***REMOVED***management
--***REMOVED***✅***REMOVED***Database***REMOVED***schema***REMOVED***with***REMOVED***`oauth_tokens`***REMOVED***table
--***REMOVED***✅***REMOVED***API***REMOVED***routes***REMOVED***for***REMOVED***auth***REMOVED***management
--***REMOVED***✅***REMOVED***Root***REMOVED***layout***REMOVED***updated***REMOVED***to***REMOVED***use***REMOVED***`SupabaseAuthProvider`
--***REMOVED***✅***REMOVED***Error***REMOVED***boundary***REMOVED***and***REMOVED***toast***REMOVED***notifications***REMOVED***added
+- ✅ `SupabaseAuthContext` created with Google OAuth token management
+- ✅ Database schema with `oauth_tokens` table
+- ✅ API routes for auth management
+- ✅ Root layout updated to use `SupabaseAuthProvider`
+- ✅ Error boundary and toast notifications added
 
-##***REMOVED***🔄***REMOVED***Components***REMOVED***to***REMOVED***Update
+## 🔄 Components to Update
 
-###***REMOVED***High***REMOVED***Priority***REMOVED***(Auth-Related)
+### High Priority (Auth-Related)
 
-####***REMOVED***1.***REMOVED***Login***REMOVED***Page
-**File**:***REMOVED***`app/(auth)/login/page.tsx`
+#### 1. Login Page
+**File**: `app/(auth)/login/page.tsx`
 
-**Changes***REMOVED***needed**:
+**Changes needed**:
 ```tsx
-//***REMOVED***OLD
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
-const***REMOVED***{***REMOVED***login***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+// OLD
+import { useAuth } from "@/contexts/AuthContext";
+const { login } = useAuth();
 
-//***REMOVED***NEW
-import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
-const***REMOVED***{***REMOVED***signInWithGoogle***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
+// NEW
+import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
+const { signInWithGoogle } = useSupabaseAuth();
 ```
 
-####***REMOVED***2.***REMOVED***Settings***REMOVED***Page***REMOVED***-***REMOVED***OAuth***REMOVED***Status
-**File**:***REMOVED***`app/(dashboard)/settings/page.tsx`***REMOVED***or***REMOVED***`components/settings/OAuthStatus.tsx`
+#### 2. Settings Page - OAuth Status
+**File**: `app/(dashboard)/settings/page.tsx` or `components/settings/OAuthStatus.tsx`
 
-**Changes***REMOVED***needed**:
+**Changes needed**:
 ```tsx
-//***REMOVED***OLD
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
-const***REMOVED***{***REMOVED***session,***REMOVED***logout***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+// OLD
+import { useAuth } from "@/contexts/AuthContext";
+const { session, logout } = useAuth();
 
-//***REMOVED***NEW
-import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
-const***REMOVED***{***REMOVED***user,***REMOVED***googleOAuthStatus,***REMOVED***signOut***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
+// NEW
+import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
+const { user, googleOAuthStatus, signOut } = useSupabaseAuth();
 
-//***REMOVED***Access***REMOVED***Google***REMOVED***OAuth***REMOVED***info
-const***REMOVED***isConnected***REMOVED***=***REMOVED***googleOAuthStatus.isConnected;
-const***REMOVED***expiresAt***REMOVED***=***REMOVED***googleOAuthStatus.expiresAt;
-const***REMOVED***scopes***REMOVED***=***REMOVED***googleOAuthStatus.scopes;
+// Access Google OAuth info
+const isConnected = googleOAuthStatus.isConnected;
+const expiresAt = googleOAuthStatus.expiresAt;
+const scopes = googleOAuthStatus.scopes;
 ```
 
-####***REMOVED***3.***REMOVED***Top***REMOVED***Navigation
-**File**:***REMOVED***`components/layout/TopNavigation.tsx`
+#### 3. Top Navigation
+**File**: `components/layout/TopNavigation.tsx`
 
-**Changes***REMOVED***needed**:
+**Changes needed**:
 ```tsx
-//***REMOVED***OLD
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
-const***REMOVED***{***REMOVED***session,***REMOVED***logout***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+// OLD
+import { useAuth } from "@/contexts/AuthContext";
+const { session, logout } = useAuth();
 
-//***REMOVED***NEW
-import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
-const***REMOVED***{***REMOVED***user,***REMOVED***signOut***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
+// NEW
+import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
+const { user, signOut } = useSupabaseAuth();
 
-//***REMOVED***Display***REMOVED***user***REMOVED***info
+// Display user info
 <p>{user?.email}</p>
-<button***REMOVED***onClick={signOut}>Sign***REMOVED***Out</button>
+<button onClick={signOut}>Sign Out</button>
 ```
 
-###***REMOVED***Medium***REMOVED***Priority***REMOVED***(Data***REMOVED***Fetching)
+### Medium Priority (Data Fetching)
 
-####***REMOVED***4.***REMOVED***Dashboard***REMOVED***Page
-**File**:***REMOVED***`app/(dashboard)/page.tsx`
+#### 4. Dashboard Page
+**File**: `app/(dashboard)/page.tsx`
 
-**Changes***REMOVED***needed**:
+**Changes needed**:
 ```tsx
-//***REMOVED***OLD
-import***REMOVED***{***REMOVED***useAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/AuthContext";
-const***REMOVED***{***REMOVED***session***REMOVED***}***REMOVED***=***REMOVED***useAuth();
+// OLD
+import { useAuth } from "@/contexts/AuthContext";
+const { session } = useAuth();
 
-//***REMOVED***NEW
-import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
-const***REMOVED***{***REMOVED***user,***REMOVED***isLoading***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
+// NEW
+import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
+const { user, isLoading } = useSupabaseAuth();
 
-if***REMOVED***(isLoading)***REMOVED***return***REMOVED***<LoadingSpinner***REMOVED***/>;
-if***REMOVED***(!user)***REMOVED***redirect("/login");
+if (isLoading) return <LoadingSpinner />;
+if (!user) redirect("/login");
 ```
 
-####***REMOVED***5.***REMOVED***History***REMOVED***Page
-**File**:***REMOVED***`app/(dashboard)/history/page.tsx`
+#### 5. History Page
+**File**: `app/(dashboard)/history/page.tsx`
 
-**Changes***REMOVED***needed**:
+**Changes needed**:
 ```tsx
-//***REMOVED***OLD***REMOVED***-***REMOVED***Fetching***REMOVED***from***REMOVED***old***REMOVED***API
-const***REMOVED***response***REMOVED***=***REMOVED***await***REMOVED***fetch("/api/history");
+// OLD - Fetching from old API
+const response = await fetch("/api/history");
 
-//***REMOVED***NEW***REMOVED***-***REMOVED***Fetch***REMOVED***from***REMOVED***Supabase
-import***REMOVED***{***REMOVED***getUserWorkflowHistory***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/queries";
-const***REMOVED***{***REMOVED***user***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
-const***REMOVED***history***REMOVED***=***REMOVED***await***REMOVED***getUserWorkflowHistory(user.id);
+// NEW - Fetch from Supabase
+import { getUserWorkflowHistory } from "@/lib/supabase/queries";
+const { user } = useSupabaseAuth();
+const history = await getUserWorkflowHistory(user.id);
 ```
 
-####***REMOVED***6.***REMOVED***Workflow***REMOVED***Context
-**File**:***REMOVED***`contexts/WorkflowContext.tsx`
+#### 6. Workflow Context
+**File**: `contexts/WorkflowContext.tsx`
 
-**Changes***REMOVED***needed**:
+**Changes needed**:
 ```tsx
-//***REMOVED***Add***REMOVED***Supabase***REMOVED***integration***REMOVED***for***REMOVED***storing***REMOVED***workflows
-import***REMOVED***{***REMOVED***createWorkflow,***REMOVED***updateWorkflow***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/queries";
-import***REMOVED***{***REMOVED***useSupabaseAuth***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/SupabaseAuthContext";
+// Add Supabase integration for storing workflows
+import { createWorkflow, updateWorkflow } from "@/lib/supabase/queries";
+import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
 
-const***REMOVED***{***REMOVED***user***REMOVED***}***REMOVED***=***REMOVED***useSupabaseAuth();
+const { user } = useSupabaseAuth();
 
-//***REMOVED***When***REMOVED***creating***REMOVED***a***REMOVED***workflow
-const***REMOVED***workflow***REMOVED***=***REMOVED***await***REMOVED***createWorkflow({
-***REMOVED******REMOVED***user_id:***REMOVED***user.id,
-***REMOVED******REMOVED***command:***REMOVED***command,
-***REMOVED******REMOVED***status:***REMOVED***"planning",
-***REMOVED******REMOVED***steps:***REMOVED***[],
-***REMOVED******REMOVED***results:***REMOVED***[],
+// When creating a workflow
+const workflow = await createWorkflow({
+  user_id: user.id,
+  command: command,
+  status: "planning",
+  steps: [],
+  results: [],
 });
 
-//***REMOVED***When***REMOVED***updating***REMOVED***workflow
-await***REMOVED***updateWorkflow(workflowId,***REMOVED***{
-***REMOVED******REMOVED***status:***REMOVED***"completed",
-***REMOVED******REMOVED***results:***REMOVED***results,
-***REMOVED******REMOVED***end_time:***REMOVED***new***REMOVED***Date().toISOString(),
+// When updating workflow
+await updateWorkflow(workflowId, {
+  status: "completed",
+  results: results,
+  end_time: new Date().toISOString(),
 });
 ```
 
-###***REMOVED***Low***REMOVED***Priority***REMOVED***(Optional)
+### Low Priority (Optional)
 
-####***REMOVED***7.***REMOVED***Quick***REMOVED***Actions***REMOVED***Sidebar
-**File**:***REMOVED***`components/layout/QuickActionsSidebar.tsx`
+#### 7. Quick Actions Sidebar
+**File**: `components/layout/QuickActionsSidebar.tsx`
 
-**Changes***REMOVED***needed**:
+**Changes needed**:
 ```tsx
-//***REMOVED***Store***REMOVED***favorites***REMOVED***in***REMOVED***Supabase***REMOVED***profile***REMOVED***preferences
-import***REMOVED***{***REMOVED***updateProfile***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/queries";
-const***REMOVED***{***REMOVED***user***REMOVED***}***REMOVED***=***REMOVED***useSupabas
+// Store favorites in Supabase profile preferences
+import { updateProfile } from "@/lib/supabase/queries";
+const { user } = useSupabas

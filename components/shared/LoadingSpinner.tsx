@@ -1,84 +1,88 @@
-﻿"useclient";
+﻿"use client";
 
-importReactfrom"react";
-import{cn}from"@/lib/utils";
-import{Loader2}from"lucide-react";
+import React from "react";
+import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 
-interfaceLoadingSpinnerProps{
-size?:"sm"|"md"|"lg"|"xl";
-className?:string;
-label?:string;
+interface LoadingSpinnerProps {
+  size?: "sm" | "md" | "lg" | "xl";
+  className?: string;
+  label?: string;
 }
 
-constsizeClasses={
-sm:"size-4",
-md:"size-6",
-lg:"size-8",
-xl:"size-12",
+const sizeClasses = {
+  sm: "size-4",
+  md: "size-6",
+  lg: "size-8",
+  xl: "size-12",
 };
 
-exportfunctionLoadingSpinner({size="md",className,label}:LoadingSpinnerProps){
-return(
-<divclassName="flexitems-centerjustify-center"role="status"aria-live="polite">
-<Loader2
-className={cn("animate-spintext-primary",sizeClasses[size],className)}
-aria-hidden="true"
-/>
-{label&&<spanclassName="sr-only">{label}</span>}
-{!label&&<spanclassName="sr-only">Loading...</span>}
-</div>
-);
+export function LoadingSpinner({
+  size = "md",
+  className,
+  label,
+}: LoadingSpinnerProps) {
+  return (
+    <div className="flex items-center justify-center" role="status" aria-live="polite">
+      <Loader2
+        className={cn("animate-spin text-primary", sizeClasses[size], className)}
+        aria-hidden="true"
+      />
+      {label && <span className="sr-only">{label}</span>}
+      {!label && <span className="sr-only">Loading...</span>}
+    </div>
+  );
 }
 
-interfaceLoadingOverlayProps{
-isLoading:boolean;
-children:React.ReactNode;
-label?:string;
-className?:string;
+interface LoadingOverlayProps {
+  isLoading: boolean;
+  children: React.ReactNode;
+  label?: string;
+  className?: string;
 }
 
-exportfunctionLoadingOverlay({
-isLoading,
-children,
-label="Loading...",
-className,
-}:LoadingOverlayProps){
-return(
-<divclassName={cn("relative",className)}>
-{children}
-{isLoading&&(
-<div
-className="absoluteinset-0bg-background/80backdrop-blur-smflexitems-centerjustify-centerz-10"
-role="status"
-aria-live="polite"
->
-<divclassName="flexflex-colitems-centergap-2">
-<LoadingSpinnersize="lg"/>
-<pclassName="text-smtext-muted-foreground">{label}</p>
-</div>
-</div>
-)}
-</div>
-);
+export function LoadingOverlay({
+  isLoading,
+  children,
+  label = "Loading...",
+  className,
+}: LoadingOverlayProps) {
+  return (
+    <div className={cn("relative", className)}>
+      {children}
+      {isLoading && (
+        <div
+          className="absolute inset-0 bg-background/80 backdrop-blur-sm flex items-center justify-center z-10"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex flex-col items-center gap-2">
+            <LoadingSpinner size="lg" />
+            <p className="text-sm text-muted-foreground">{label}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
-interfaceDelayedLoadingProps{
-delay?:number;
-children:React.ReactNode;
+interface DelayedLoadingProps {
+  delay?: number;
+  children: React.ReactNode;
 }
 
-exportfunctionDelayedLoading({delay=300,children}:DelayedLoadingProps){
-const[show,setShow]=React.useState(false);
+export function DelayedLoading({ delay = 300, children }: DelayedLoadingProps) {
+  const [show, setShow] = React.useState(false);
 
-React.useEffect(()=>{
-consttimer=setTimeout(()=>{
-setShow(true);
-},delay);
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setShow(true);
+    }, delay);
 
-return()=>clearTimeout(timer);
-},[delay]);
+    return () => clearTimeout(timer);
+  }, [delay]);
 
-if(!show)returnnull;
+  if (!show) return null;
 
-return<>{children}</>;
+  return <>{children}</>;
 }

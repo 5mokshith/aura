@@ -1,21 +1,21 @@
-﻿"useclient";
+﻿"use client";
 
-import{useEffect}from"react";
-import{useRouter}from"next/navigation";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-exportdefaultfunctionHome(){
-constrouter=useRouter();
+export default function Home() {
+  const router = useRouter();
 
-useEffect(()=>{
-router.replace("/dashboard");
-},[router]);
+  useEffect(() => {
+    router.replace("/dashboard");
+  }, [router]);
 
-return(
-<divclassName="flexmin-h-screenitems-centerjustify-center">
-<divclassName="text-center">
-<divclassName="mb-4h-8w-8animate-spinrounded-fullborder-4border-gray-300border-t-blue-600mx-auto"></div>
-<pclassName="text-gray-600">Redirecting...</p>
-</div>
-</div>
-);
+  return (
+    <div className="flex min-h-screen items-center justify-center">
+      <div className="text-center">
+        <div className="mb-4 h-8 w-8 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600 mx-auto"></div>
+        <p className="text-gray-600">Redirecting...</p>
+      </div>
+    </div>
+  );
 }

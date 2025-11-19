@@ -1,251 +1,252 @@
-#***REMOVED***Error***REMOVED***Handling***REMOVED***and***REMOVED***Loading***REMOVED***States***REMOVED***Components
+# Error Handling and Loading States Components
 
-This***REMOVED***directory***REMOVED***contains***REMOVED***all***REMOVED***the***REMOVED***error***REMOVED***handling***REMOVED***and***REMOVED***loading***REMOVED***state***REMOVED***components***REMOVED***for***REMOVED***the***REMOVED***AURA***REMOVED***UI***REMOVED***System.
+This directory contains all the error handling and loading state components for the AURA UI System.
 
-##***REMOVED***Components***REMOVED***Overview
+## Components Overview
 
-###***REMOVED***Error***REMOVED***Handling
+### Error Handling
 
-####***REMOVED***ErrorBoundary
-Global***REMOVED***error***REMOVED***boundary***REMOVED***component***REMOVED***that***REMOVED***catches***REMOVED***React***REMOVED***component***REMOVED***errors.
+#### ErrorBoundary
+Global error boundary component that catches React component errors.
 
 ```tsx
-import***REMOVED***{***REMOVED***ErrorBoundary***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { ErrorBoundary } from "@/components/shared";
 
 <ErrorBoundary>
-***REMOVED******REMOVED***<YourApp***REMOVED***/>
+  <YourApp />
 </ErrorBoundary>
 
-//***REMOVED***With***REMOVED***custom***REMOVED***fallback
+// With custom fallback
 <ErrorBoundary
-***REMOVED******REMOVED***fallback={(error,***REMOVED***errorInfo,***REMOVED***onReset)***REMOVED***=>***REMOVED***(
-***REMOVED******REMOVED******REMOVED******REMOVED***<div>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<h1>Custom***REMOVED***Error***REMOVED***UI</h1>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<button***REMOVED***onClick={onReset}>Try***REMOVED***Again</button>
-***REMOVED******REMOVED******REMOVED******REMOVED***</div>
-***REMOVED******REMOVED***)}
+  fallback={(error, errorInfo, onReset) => (
+    <div>
+      <h1>Custom Error UI</h1>
+      <button onClick={onReset}>Try Again</button>
+    </div>
+  )}
 >
-***REMOVED******REMOVED***<YourApp***REMOVED***/>
+  <YourApp />
 </ErrorBoundary>
 ```
 
-####***REMOVED***Toast***REMOVED***Notifications
-Toast***REMOVED***notification***REMOVED***system***REMOVED***with***REMOVED***auto-dismiss***REMOVED***and***REMOVED***variants.
+#### Toast Notifications
+Toast notification system with auto-dismiss and variants.
 
 ```tsx
-import***REMOVED***{***REMOVED***ToastProvider,***REMOVED***useToast***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { ToastProvider, useToast } from "@/components/shared";
 
-//***REMOVED***Wrap***REMOVED***your***REMOVED***app
+// Wrap your app
 <ToastProvider>
-***REMOVED******REMOVED***<YourApp***REMOVED***/>
+  <YourApp />
 </ToastProvider>
 
-//***REMOVED***Use***REMOVED***in***REMOVED***components
-function***REMOVED***MyComponent()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***showToast***REMOVED***}***REMOVED***=***REMOVED***useToast();
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***return***REMOVED***(
-***REMOVED******REMOVED******REMOVED******REMOVED***<button***REMOVED***onClick={()***REMOVED***=>***REMOVED***showToast("Success!",***REMOVED***"success")}>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***Show***REMOVED***Toast
-***REMOVED******REMOVED******REMOVED******REMOVED***</button>
-***REMOVED******REMOVED***);
+// Use in components
+function MyComponent() {
+  const { showToast } = useToast();
+  
+  return (
+    <button onClick={() => showToast("Success!", "success")}>
+      Show Toast
+    </button>
+  );
 }
 ```
 
-**Toast***REMOVED***Variants:**
--***REMOVED***`success`***REMOVED***-***REMOVED***Auto-dismiss***REMOVED***in***REMOVED***3s
--***REMOVED***`error`***REMOVED***-***REMOVED***Manual***REMOVED***dismiss
--***REMOVED***`warning`***REMOVED***-***REMOVED***Auto-dismiss***REMOVED***in***REMOVED***5s
--***REMOVED***`info`***REMOVED***-***REMOVED***Auto-dismiss***REMOVED***in***REMOVED***4s
+**Toast Variants:**
+- `success` - Auto-dismiss in 3s
+- `error` - Manual dismiss
+- `warning` - Auto-dismiss in 5s
+- `info` - Auto-dismiss in 4s
 
-###***REMOVED***Loading***REMOVED***States
+### Loading States
 
-####***REMOVED***LoadingSpinner
-Simple***REMOVED***loading***REMOVED***spinner***REMOVED***with***REMOVED***size***REMOVED***variants.
+#### LoadingSpinner
+Simple loading spinner with size variants.
 
 ```tsx
-import***REMOVED***{***REMOVED***LoadingSpinner***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { LoadingSpinner } from "@/components/shared";
 
-<LoadingSpinner***REMOVED***size="md"***REMOVED***label="Loading***REMOVED***data..."***REMOVED***/>
+<LoadingSpinner size="md" label="Loading data..." />
 ```
 
-####***REMOVED***LoadingOverlay
-Overlay***REMOVED***loading***REMOVED***state***REMOVED***for***REMOVED***containers.
+#### LoadingOverlay
+Overlay loading state for containers.
 
 ```tsx
-import***REMOVED***{***REMOVED***LoadingOverlay***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { LoadingOverlay } from "@/components/shared";
 
-<LoadingOverlay***REMOVED***isLoading={isLoading}***REMOVED***label="Processing...">
-***REMOVED******REMOVED***<YourContent***REMOVED***/>
+<LoadingOverlay isLoading={isLoading} label="Processing...">
+  <YourContent />
 </LoadingOverlay>
 ```
 
-####***REMOVED***DelayedLoading
-Shows***REMOVED***loading***REMOVED***indicator***REMOVED***only***REMOVED***after***REMOVED***a***REMOVED***delay***REMOVED***(default***REMOVED***300ms).
+#### DelayedLoading
+Shows loading indicator only after a delay (default 300ms).
 
 ```tsx
-import***REMOVED***{***REMOVED***DelayedLoading,***REMOVED***LoadingSpinner***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { DelayedLoading, LoadingSpinner } from "@/components/shared";
 
-{isLoading***REMOVED***&&***REMOVED***(
-***REMOVED******REMOVED***<DelayedLoading***REMOVED***delay={300}>
-***REMOVED******REMOVED******REMOVED******REMOVED***<LoadingSpinner***REMOVED***/>
-***REMOVED******REMOVED***</DelayedLoading>
+{isLoading && (
+  <DelayedLoading delay={300}>
+    <LoadingSpinner />
+  </DelayedLoading>
 )}
 ```
 
-####***REMOVED***LoadingButton
-Button***REMOVED***with***REMOVED***integrated***REMOVED***loading***REMOVED***state.
+#### LoadingButton
+Button with integrated loading state.
 
 ```tsx
-import***REMOVED***{***REMOVED***LoadingButton***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { LoadingButton } from "@/components/shared";
 
 <LoadingButton
-***REMOVED******REMOVED***isLoading={isSubmitting}
-***REMOVED******REMOVED***loadingText="Submitting..."
-***REMOVED******REMOVED***onClick={handleSubmit}
+  isLoading={isSubmitting}
+  loadingText="Submitting..."
+  onClick={handleSubmit}
 >
-***REMOVED******REMOVED***Submit
+  Submit
 </LoadingButton>
 ```
 
-####***REMOVED***Skeleton***REMOVED***Screens
-Skeleton***REMOVED***loading***REMOVED***states***REMOVED***for***REMOVED***data***REMOVED***fetching.
+#### Skeleton Screens
+Skeleton loading states for data fetching.
 
 ```tsx
-import***REMOVED***{***REMOVED***Skeleton,***REMOVED***SkeletonText,***REMOVED***SkeletonCard,***REMOVED***SkeletonList***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { Skeleton, SkeletonText, SkeletonCard, SkeletonList } from "@/components/shared";
 
-//***REMOVED***Basic***REMOVED***skeleton
-<Skeleton***REMOVED***className="h-4***REMOVED***w-full"***REMOVED***/>
+// Basic skeleton
+<Skeleton className="h-4 w-full" />
 
-//***REMOVED***Text***REMOVED***skeleton
-<SkeletonText***REMOVED***lines={3}***REMOVED***/>
+// Text skeleton
+<SkeletonText lines={3} />
 
-//***REMOVED***Card***REMOVED***skeleton
-<SkeletonCard***REMOVED***/>
+// Card skeleton
+<SkeletonCard />
 
-//***REMOVED***List***REMOVED***skeleton
-<SkeletonList***REMOVED***count={5}***REMOVED***/>
+// List skeleton
+<SkeletonList count={5} />
 ```
 
-###***REMOVED***Workflow***REMOVED***State***REMOVED***Indicators
+### Workflow State Indicators
 
-####***REMOVED***WorkflowStateIndicator
-Shows***REMOVED***current***REMOVED***workflow***REMOVED***execution***REMOVED***state.
+#### WorkflowStateIndicator
+Shows current workflow execution state.
 
 ```tsx
-import***REMOVED***{***REMOVED***WorkflowStateIndicator***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { WorkflowStateIndicator } from "@/components/shared";
 
 <WorkflowStateIndicator
-***REMOVED******REMOVED***status={workflow.status}
-***REMOVED******REMOVED***error={workflow.error}
+  status={workflow.status}
+  error={workflow.error}
 />
 ```
 
-####***REMOVED***IdleState
-Prominent***REMOVED***idle***REMOVED***state***REMOVED***with***REMOVED***call-to-action.
+#### IdleState
+Prominent idle state with call-to-action.
 
 ```tsx
-import***REMOVED***{***REMOVED***IdleState***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { IdleState } from "@/components/shared";
 
-<IdleState***REMOVED***onFocus={()***REMOVED***=>***REMOVED***inputRef.current?.focus()}***REMOVED***/>
+<IdleState onFocus={() => inputRef.current?.focus()} />
 ```
 
-####***REMOVED***ExecutingState
-Shows***REMOVED***workflow***REMOVED***execution***REMOVED***in***REMOVED***progress.
+#### ExecutingState
+Shows workflow execution in progress.
 
 ```tsx
-import***REMOVED***{***REMOVED***ExecutingState***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { ExecutingState } from "@/components/shared";
 
 <ExecutingState
-***REMOVED******REMOVED***command="Create***REMOVED***a***REMOVED***summary***REMOVED***of***REMOVED***my***REMOVED***emails"
-***REMOVED******REMOVED***onCancel={handleCancel}
+  command="Create a summary of my emails"
+  onCancel={handleCancel}
 />
 ```
 
-####***REMOVED***SuccessState
-Success***REMOVED***state***REMOVED***with***REMOVED***auto-dismiss***REMOVED***(2s).
+#### SuccessState
+Success state with auto-dismiss (2s).
 
 ```tsx
-import***REMOVED***{***REMOVED***SuccessState***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { SuccessState } from "@/components/shared";
 
 <SuccessState
-***REMOVED******REMOVED***message="Workflow***REMOVED***completed!"
-***REMOVED******REMOVED***onDismiss={()***REMOVED***=>***REMOVED***setShowSuccess(false)}
+  message="Workflow completed!"
+  onDismiss={() => setShowSuccess(false)}
 />
 ```
 
-####***REMOVED***ErrorState
-Error***REMOVED***state***REMOVED***with***REMOVED***retry***REMOVED***and***REMOVED***dismiss***REMOVED***actions.
+#### ErrorState
+Error state with retry and dismiss actions.
 
 ```tsx
-import***REMOVED***{***REMOVED***ErrorState***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { ErrorState } from "@/components/shared";
 
 <ErrorState
-***REMOVED******REMOVED***error="Failed***REMOVED***to***REMOVED***execute***REMOVED***workflow"
-***REMOVED******REMOVED***onRetry={handleRetry}
-***REMOVED******REMOVED***onDismiss={handleDismiss}
+  error="Failed to execute workflow"
+  onRetry={handleRetry}
+  onDismiss={handleDismiss}
 />
 ```
 
-##***REMOVED***Hooks
+## Hooks
 
-###***REMOVED***useAsyncAction
-Hook***REMOVED***for***REMOVED***managing***REMOVED***async***REMOVED***operations***REMOVED***with***REMOVED***loading***REMOVED***states***REMOVED***and***REMOVED***toast***REMOVED***notifications.
+### useAsyncAction
+Hook for managing async operations with loading states and toast notifications.
 
 ```tsx
-import***REMOVED***{***REMOVED***useAsyncAction***REMOVED***}***REMOVED***from***REMOVED***"@/hooks/useAsyncAction";
+import { useAsyncAction } from "@/hooks/useAsyncAction";
 
-function***REMOVED***MyComponent()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***execute,***REMOVED***isLoading,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***useAsyncAction(
-***REMOVED******REMOVED******REMOVED******REMOVED***async***REMOVED***(data)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***await***REMOVED***api.submitData(data);
-***REMOVED******REMOVED******REMOVED******REMOVED***},
-***REMOVED******REMOVED******REMOVED******REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***successMessage:***REMOVED***"Data***REMOVED***submitted***REMOVED***successfully!",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***errorMessage:***REMOVED***"Failed***REMOVED***to***REMOVED***submit***REMOVED***data",
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***onSuccess:***REMOVED***(result)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***console.log("Success:",***REMOVED***result);
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***},
-***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED***);
+function MyComponent() {
+  const { execute, isLoading, error } = useAsyncAction(
+    async (data) => {
+      return await api.submitData(data);
+    },
+    {
+      successMessage: "Data submitted successfully!",
+      errorMessage: "Failed to submit data",
+      onSuccess: (result) => {
+        console.log("Success:", result);
+      },
+    }
+  );
 
-***REMOVED******REMOVED***return***REMOVED***(
-***REMOVED******REMOVED******REMOVED******REMOVED***<LoadingButton
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***isLoading={isLoading}
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***onClick={()***REMOVED***=>***REMOVED***execute(formData)}
-***REMOVED******REMOVED******REMOVED******REMOVED***>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***Submit
-***REMOVED******REMOVED******REMOVED******REMOVED***</LoadingButton>
-***REMOVED******REMOVED***);
+  return (
+    <LoadingButton
+      isLoading={isLoading}
+      onClick={() => execute(formData)}
+    >
+      Submit
+    </LoadingButton>
+  );
 }
 ```
 
-##***REMOVED***Usage***REMOVED***in***REMOVED***App***REMOVED***Layout
+## Usage in App Layout
 
-Wrap***REMOVED***your***REMOVED***app***REMOVED***with***REMOVED***the***REMOVED***necessary***REMOVED***providers:
+Wrap your app with the necessary providers:
 
 ```tsx
-import***REMOVED***{***REMOVED***ErrorBoundary,***REMOVED***ToastProvider***REMOVED***}***REMOVED***from***REMOVED***"@/components/shared";
+import { ErrorBoundary, ToastProvider } from "@/components/shared";
 
-export***REMOVED***default***REMOVED***function***REMOVED***RootLayout({***REMOVED***children***REMOVED***})***REMOVED***{
-***REMOVED******REMOVED***return***REMOVED***(
-***REMOVED******REMOVED******REMOVED******REMOVED***<html>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<body>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<ErrorBoundary>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***<ToastProvider>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***{children}
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</ToastProvider>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</ErrorBoundary>
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***</body>
-***REMOVED******REMOVED******REMOVED******REMOVED***</html>
-***REMOVED******REMOVED***);
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        <ErrorBoundary>
+          <ToastProvider>
+            {children}
+          </ToastProvider>
+        </ErrorBoundary>
+      </body>
+    </html>
+  );
 }
 ```
 
-##***REMOVED***Requirements***REMOVED***Fulfilled
+## Requirements Fulfilled
 
--***REMOVED*****8.1*****REMOVED***-***REMOVED***Idle***REMOVED***state***REMOVED***with***REMOVED***prominent***REMOVED***command***REMOVED***input
--***REMOVED*****8.2*****REMOVED***-***REMOVED***Executing***REMOVED***state***REMOVED***with***REMOVED***disabled***REMOVED***input***REMOVED***and***REMOVED***cancel***REMOVED***button
--***REMOVED*****8.3*****REMOVED***-***REMOVED***Success***REMOVED***state***REMOVED***with***REMOVED***green***REMOVED***checkmark***REMOVED***(2s***REMOVED***display)
--***REMOVED*****8.4*****REMOVED***-***REMOVED***Error***REMOVED***state***REMOVED***with***REMOVED***clear***REMOVED***message***REMOVED***and***REMOVED***actions
--***REMOVED*****8.5*****REMOVED***-***REMOVED***Loading***REMOVED***animations***REMOVED***for***REMOVED***operations***REMOVED***>***REMOVED***300ms
+- **8.1** - Idle state with prominent command input
+- **8.2** - Executing state with disabled input and cancel button
+- **8.3** - Success state with green checkmark (2s display)
+- **8.4** - Error state with clear message and actions
+- **8.5** - Loading animations for operations > 300ms
+

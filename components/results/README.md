@@ -1,117 +1,118 @@
-#***REMOVED***Results***REMOVED***Display***REMOVED***Components
+# Results Display Components
 
-This***REMOVED***directory***REMOVED***contains***REMOVED***components***REMOVED***for***REMOVED***displaying***REMOVED***workflow***REMOVED***results***REMOVED***in***REMOVED***the***REMOVED***AURA***REMOVED***UI.
+This directory contains components for displaying workflow results in the AURA UI.
 
-##***REMOVED***Components
+## Components
 
-###***REMOVED***ResultsPanel
-Main***REMOVED***container***REMOVED***component***REMOVED***that***REMOVED***displays***REMOVED***a***REMOVED***grid***REMOVED***of***REMOVED***result***REMOVED***cards.
-
-**Props:**
--***REMOVED***`results:***REMOVED***WorkflowResult[]`***REMOVED***-***REMOVED***Array***REMOVED***of***REMOVED***workflow***REMOVED***results***REMOVED***to***REMOVED***display
--***REMOVED***`onFeedback:***REMOVED***(resultId:***REMOVED***string,***REMOVED***rating:***REMOVED***"positive"***REMOVED***|***REMOVED***"negative")***REMOVED***=>***REMOVED***void`***REMOVED***-***REMOVED***Callback***REMOVED***for***REMOVED***feedback***REMOVED***submission
-
-**Features:**
--***REMOVED***Responsive***REMOVED***grid***REMOVED***layout***REMOVED***(1***REMOVED***column***REMOVED***mobile,***REMOVED***2***REMOVED***columns***REMOVED***tablet,***REMOVED***3***REMOVED***columns***REMOVED***desktop)
--***REMOVED***Empty***REMOVED***state***REMOVED***when***REMOVED***no***REMOVED***results
--***REMOVED***Result***REMOVED***count***REMOVED***display
-
-###***REMOVED***ResultCard
-Individual***REMOVED***result***REMOVED***card***REMOVED***with***REMOVED***type-specific***REMOVED***rendering.
+### ResultsPanel
+Main container component that displays a grid of result cards.
 
 **Props:**
--***REMOVED***`result:***REMOVED***WorkflowResult`***REMOVED***-***REMOVED***The***REMOVED***result***REMOVED***to***REMOVED***display
--***REMOVED***`onFeedback:***REMOVED***(resultId:***REMOVED***string,***REMOVED***rating:***REMOVED***"positive"***REMOVED***|***REMOVED***"negative")***REMOVED***=>***REMOVED***void`***REMOVED***-***REMOVED***Callback***REMOVED***for***REMOVED***feedback
+- `results: WorkflowResult[]` - Array of workflow results to display
+- `onFeedback: (resultId: string, rating: "positive" | "negative") => void` - Callback for feedback submission
 
 **Features:**
--***REMOVED***Type-specific***REMOVED***icons***REMOVED***and***REMOVED***colors***REMOVED***(document,***REMOVED***email,***REMOVED***calendar,***REMOVED***sheet,***REMOVED***file)
--***REMOVED***Preview***REMOVED***display***REMOVED***(truncated***REMOVED***to***REMOVED***500***REMOVED***characters)
--***REMOVED***Integrated***REMOVED***action***REMOVED***buttons
--***REMOVED***Feedback***REMOVED***widget
+- Responsive grid layout (1 column mobile, 2 columns tablet, 3 columns desktop)
+- Empty state when no results
+- Result count display
 
-###***REMOVED***ActionButtons
-Action***REMOVED***buttons***REMOVED***for***REMOVED***interacting***REMOVED***with***REMOVED***results.
+### ResultCard
+Individual result card with type-specific rendering.
 
 **Props:**
--***REMOVED***`result:***REMOVED***WorkflowResult`***REMOVED***-***REMOVED***The***REMOVED***result***REMOVED***to***REMOVED***create***REMOVED***actions***REMOVED***for
+- `result: WorkflowResult` - The result to display
+- `onFeedback: (resultId: string, rating: "positive" | "negative") => void` - Callback for feedback
 
 **Features:**
--***REMOVED***Type-specific***REMOVED***primary***REMOVED***actions:
-***REMOVED******REMOVED***-***REMOVED***Document:***REMOVED***"Open***REMOVED***in***REMOVED***Drive"
-***REMOVED******REMOVED***-***REMOVED***Email:***REMOVED***"View***REMOVED***Email"
-***REMOVED******REMOVED***-***REMOVED***Calendar:***REMOVED***"Open***REMOVED***Event"
-***REMOVED******REMOVED***-***REMOVED***Sheet:***REMOVED***"Open***REMOVED***Sheet"
-***REMOVED******REMOVED***-***REMOVED***File:***REMOVED***"Download"
--***REMOVED***Copy***REMOVED***to***REMOVED***clipboard***REMOVED***functionality
--***REMOVED***Opens***REMOVED***links***REMOVED***in***REMOVED***new***REMOVED***tab***REMOVED***with***REMOVED***security***REMOVED***attributes
+- Type-specific icons and colors (document, email, calendar, sheet, file)
+- Preview display (truncated to 500 characters)
+- Integrated action buttons
+- Feedback widget
 
-###***REMOVED***FeedbackWidget
-Thumbs***REMOVED***up/down***REMOVED***feedback***REMOVED***widget.
+### ActionButtons
+Action buttons for interacting with results.
 
 **Props:**
--***REMOVED***`resultId:***REMOVED***string`***REMOVED***-***REMOVED***ID***REMOVED***of***REMOVED***the***REMOVED***result
--***REMOVED***`onFeedback:***REMOVED***(resultId:***REMOVED***string,***REMOVED***rating:***REMOVED***"positive"***REMOVED***|***REMOVED***"negative")***REMOVED***=>***REMOVED***void`***REMOVED***-***REMOVED***Callback***REMOVED***for***REMOVED***feedback
+- `result: WorkflowResult` - The result to create actions for
 
 **Features:**
--***REMOVED***Visual***REMOVED***feedback***REMOVED***on***REMOVED***selection
--***REMOVED***Submits***REMOVED***to***REMOVED***`/api/feedback`***REMOVED***endpoint
--***REMOVED***Confirmation***REMOVED***message***REMOVED***after***REMOVED***submission
--***REMOVED***Prevents***REMOVED***duplicate***REMOVED***submissions
+- Type-specific primary actions:
+  - Document: "Open in Drive"
+  - Email: "View Email"
+  - Calendar: "Open Event"
+  - Sheet: "Open Sheet"
+  - File: "Download"
+- Copy to clipboard functionality
+- Opens links in new tab with security attributes
 
-##***REMOVED***Usage***REMOVED***Example
+### FeedbackWidget
+Thumbs up/down feedback widget.
+
+**Props:**
+- `resultId: string` - ID of the result
+- `onFeedback: (resultId: string, rating: "positive" | "negative") => void` - Callback for feedback
+
+**Features:**
+- Visual feedback on selection
+- Submits to `/api/feedback` endpoint
+- Confirmation message after submission
+- Prevents duplicate submissions
+
+## Usage Example
 
 ```tsx
-import***REMOVED***{***REMOVED***ResultsPanel***REMOVED***}***REMOVED***from***REMOVED***"@/components/results";
-import***REMOVED***{***REMOVED***useWorkflow***REMOVED***}***REMOVED***from***REMOVED***"@/contexts/WorkflowContext";
+import { ResultsPanel } from "@/components/results";
+import { useWorkflow } from "@/contexts/WorkflowContext";
 
-export***REMOVED***function***REMOVED***MyComponent()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***workflow***REMOVED***}***REMOVED***=***REMOVED***useWorkflow();
+export function MyComponent() {
+  const { workflow } = useWorkflow();
 
-***REMOVED******REMOVED***const***REMOVED***handleFeedback***REMOVED***=***REMOVED***(resultId:***REMOVED***string,***REMOVED***rating:***REMOVED***"positive"***REMOVED***|***REMOVED***"negative")***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***console.log(`Feedback:***REMOVED***${resultId}***REMOVED***-***REMOVED***${rating}`);
-***REMOVED******REMOVED***};
+  const handleFeedback = (resultId: string, rating: "positive" | "negative") => {
+    console.log(`Feedback: ${resultId} - ${rating}`);
+  };
 
-***REMOVED******REMOVED***return***REMOVED***(
-***REMOVED******REMOVED******REMOVED******REMOVED***<ResultsPanel***REMOVED***
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***results={workflow?.results***REMOVED***||***REMOVED***[]}***REMOVED***
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***onFeedback={handleFeedback}
-***REMOVED******REMOVED******REMOVED******REMOVED***/>
-***REMOVED******REMOVED***);
+  return (
+    <ResultsPanel 
+      results={workflow?.results || []} 
+      onFeedback={handleFeedback}
+    />
+  );
 }
 ```
 
-##***REMOVED***API***REMOVED***Endpoint
+## API Endpoint
 
-###***REMOVED***POST***REMOVED***/api/feedback
-Submits***REMOVED***user***REMOVED***feedback***REMOVED***for***REMOVED***a***REMOVED***result.
+### POST /api/feedback
+Submits user feedback for a result.
 
-**Request***REMOVED***Body:**
+**Request Body:**
 ```json
 {
-***REMOVED******REMOVED***"resultId":***REMOVED***"string",
-***REMOVED******REMOVED***"rating":***REMOVED***"positive"***REMOVED***|***REMOVED***"negative",
-***REMOVED******REMOVED***"timestamp":***REMOVED***"ISO***REMOVED***8601***REMOVED***string"
+  "resultId": "string",
+  "rating": "positive" | "negative",
+  "timestamp": "ISO 8601 string"
 }
 ```
 
 **Response:**
 ```json
 {
-***REMOVED******REMOVED***"success":***REMOVED***true,
-***REMOVED******REMOVED***"message":***REMOVED***"Feedback***REMOVED***submitted***REMOVED***successfully",
-***REMOVED******REMOVED***"resultId":***REMOVED***"string",
-***REMOVED******REMOVED***"rating":***REMOVED***"positive"***REMOVED***|***REMOVED***"negative"
+  "success": true,
+  "message": "Feedback submitted successfully",
+  "resultId": "string",
+  "rating": "positive" | "negative"
 }
 ```
 
-##***REMOVED***Demo
+## Demo
 
-Visit***REMOVED***`/results-demo`***REMOVED***to***REMOVED***see***REMOVED***all***REMOVED***components***REMOVED***in***REMOVED***action***REMOVED***with***REMOVED***sample***REMOVED***data.
+Visit `/results-demo` to see all components in action with sample data.
 
-##***REMOVED***Requirements***REMOVED***Met
+## Requirements Met
 
--***REMOVED***✅***REMOVED***3.1:***REMOVED***Display***REMOVED***results***REMOVED***within***REMOVED***1***REMOVED***second***REMOVED***of***REMOVED***completion
--***REMOVED***✅***REMOVED***3.2:***REMOVED***Type-specific***REMOVED***action***REMOVED***buttons***REMOVED***and***REMOVED***icons
--***REMOVED***✅***REMOVED***3.3:***REMOVED***Preview***REMOVED***display***REMOVED***for***REMOVED***documents***REMOVED***(500***REMOVED***chars)
--***REMOVED***✅***REMOVED***3.4:***REMOVED***Feedback***REMOVED***mechanism***REMOVED***(thumbs***REMOVED***up/down)
--***REMOVED***✅***REMOVED***3.5:***REMOVED***Links***REMOVED***open***REMOVED***in***REMOVED***new***REMOVED***browser***REMOVED***tab
+- ✅ 3.1: Display results within 1 second of completion
+- ✅ 3.2: Type-specific action buttons and icons
+- ✅ 3.3: Preview display for documents (500 chars)
+- ✅ 3.4: Feedback mechanism (thumbs up/down)
+- ✅ 3.5: Links open in new browser tab
+

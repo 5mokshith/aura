@@ -1,280 +1,247 @@
-﻿"useclient";
+﻿"use client";
 
-import{useEffect,useState}from"react";
-import{CheckCircle2,XCircle,AlertCircle,Loader2}from"lucide-react";
-import{cn}from"@/lib/utils";
-importtype{WorkflowState}from"@/types";
+import { useEffect, useState } from "react";
+import {
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+  Loader2,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import type { WorkflowState } from "@/types";
 
-interfaceWorkflowStateIndicatorProps{
-status:WorkflowState["status"];
-error?:string|null;
-className?:string;
+interface WorkflowStateIndicatorProps {
+  status: WorkflowState["status"];
+  error?: string | null;
+  className?: string;
 }
 
-exportfunctionWorkflowStateIndicator({status,error,className}:WorkflowStateIndicatorProps){
-const[showSuccess,setShowSuccess]=useState(false);
+export function WorkflowStateIndicator({
+  status,
+  error,
+  className,
+}: WorkflowStateIndicatorProps) {
+  const [showSuccess, setShowSuccess] = useState(false);
 
-//Showsuccessstatefor2seconds
-useEffect(()=>{
-if(status==="completed"){
-setShowSuccess(true);
-consttimer=setTimeout(()=>{
-setShowSuccess(false);
-},2000);
-return()=>clearTimeout(timer);
-}
-},[status]);
+  // Show success state for 2 seconds
+  useEffect(() => {
+    if (status === "completed") {
+      setShowSuccess(true);
+      const timer = setTimeout(() => {
+        setShowSuccess(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [status]);
 
-if(status==="idle"||(!showSuccess&&status==="completed")){
-returnnull;
-}
+  if (status === "idle" || (!showSuccess && status === "completed")) {
+    return null;
+  }
 
-return(
-<div
-className={cn(
-"flexitems-centergap-2px-4py-3rounded-lgborder",
-"transition-allduration-300",
-className
-)}
-role="status"
-aria-live="polite"
->
-{status==="planning"&&(
-<>
-<Loader2className="size-5animate-spintext-blue-600dark:text-blue-400"aria-hidden="true"/>
-<spanclassName="text-smfont-mediumtext-blue-900dark:text-blue-100">
-Planningworkflow...
-</span>
-</>
-)}
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-2 px-4 py-3 rounded-lg border",
+        "transition-all duration-300",
+        className
+      )}
+      role="status"
+      aria-live="polite"
+    >
+      {status === "planning" && (
+        <>
+          <Loader2
+            className="size-5 animate-spin text-blue-600 dark:text-blue-400"
+            aria-hidden="true"
+          />
+          <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+            Planning workflow...
+          </span>
+        </>
+      )}
 
-{status==="executing"&&(
-<>
-<Loader2className="size-5animate-spintext-blue-600dark:text-blue-400"aria-hidden="true"/>
-<spanclassName="text-smfont-mediumtext-blue-900dark:text-blue-100">
-Executingworkflow...
-</span>
-</>
-)}
+      {status === "executing" && (
+        <>
+          <Loader2
+            className="size-5 animate-spin text-blue-600 dark:text-blue-400"
+            aria-hidden="true"
+          />
+          <span className="text-sm font-medium text-blue-900 dark:text-blue-100">
+            Executing workflow...
+          </span>
+        </>
+      )}
 
-{showSuccess&&status==="completed"&&(
-<>
-<CheckCircle2className="size-5text-green-600dark:text-green-400"aria-hidden="true"/>
-<spanclassName="text-smfont-mediumtext-green-900dark:text-green-100">
-Workflowcompletedsuccessfully!
-</span>
-</>
-)}
+      {showSuccess && status === "completed" && (
+        <>
+          <CheckCircle2
+            className="size-5 text-green-600 dark:text-green-400"
+            aria-hidden="true"
+          />
+          <span className="text-sm font-medium text-green-900 dark:text-green-100">
+            Workflow completed successfully!
+          </span>
+        </>
+      )}
 
-{status==="failed"&&(
-<>
-<XCircleclassName="size-5text-red-600dark:text-red-400"aria-hidden="true"/>
-<divclassName="flex-1">
-<spanclassName="text-smfont-mediumtext-red-900dark:text-red-100block">
-Workflowfailed
-</span>
-{error&&(
-<spanclassName="text-xstext-red-700dark:text-red-300">
-{error}
-</span>
-)}
-</div>
-</>
-)}
+      {status === "failed" && (
+        <>
+          <XCircle
+            className="size-5 text-red-600 dark:text-red-400"
+            aria-hidden="true"
+          />
+          <div className="flex-1">
+            <span className="text-sm font-medium text-red-900 dark:text-red-100 block">
+              Workflow failed
+            </span>
+            {error && (
+              <span className="text-xs text-red-700 dark:text-red-300">
+                {error}
+              </span>
+            )}
+          </div>
+        </>
+      )}
 
-{status==="cancelled"&&(
-<>
-<AlertCircleclassName="size-5text-yellow-600dark:text-yellow-400"aria-hidden="true"/>
-<spanclassName="text-smfont-mediumtext-yellow-900dark:text-yellow-100">
-Workflowcancelled
-</span>
-</>
-)}
-</div>
-);
-}
-
-interfaceIdleStateProps{
-onFocus?:()=>void;
-className?:string;
-}
-
-exportfunctionIdleState({onFocus,className}:IdleStateProps){
-return(
-<div
-className={cn(
-"flexflex-colitems-centerjustify-centerpy-12px-4text-center",
-className
-)}
->
-<divclassName="max-w-mdspace-y-4">
-<divclassName="size-16mx-autorounded-fullbg-primary/10flexitems-centerjustify-center">
-<svg
-className="size-8text-primary"
-fill="none"
-viewBox="002424"
-stroke="currentColor"
-aria-hidden="true"
->
-<path
-strokeLinecap="round"
-strokeLinejoin="round"
-strokeWidth={2}
-d="M1310V3L414h7v7l9-11h-7z"
-/>
-</svg>
-</div>
-<divclassName="space-y-2">
-<h2className="text-2xlfont-semiboldtext-foreground">
-Readytoassist
-</h2>
-<pclassName="text-muted-foreground">
-Enteracommandtogetstarted.Icanhelpyouwithemails,documents,calendarevents,andmore.
-</p>
-</div>
-{onFocus&&(
-<button
-onClick={onFocus}
-className="text-smtext-primaryhover:underlinefocus:outline-nonefocus:ring-2focus:ring-ringfocus:ring-offset-2rounded"
->
-Clickheretostarttyping
-</button>
-)}
-</div>
-</div>
-);
+      {status === "cancelled" && (
+        <>
+          <AlertCircle
+            className="size-5 text-yellow-600 dark:text-yellow-400"
+            aria-hidden="true"
+          />
+          <span className="text-sm font-medium text-yellow-900 dark:text-yellow-100">
+            Workflow cancelled
+          </span>
+        </>
+      )}
+    </div>
+  );
 }
 
-interfaceExecutingStateProps{
-command:string;
-onCancel?:()=>void;
-className?:string;
+interface IdleStateProps {
+  onFocus?: () => void;
+  className?: string;
 }
 
-exportfunctionExecutingState({command,onCancel,className}:ExecutingStateProps){
-return(
-<div
-className={cn(
-"flexflex-colitems-centerjustify-centerpy-8px-4",
-className
-)}
-role="status"
-aria-live="polite"
->
-<divclassName="max-w-2xlw-fullspace-y-6">
-<divclassName="flexitems-startgap-4">
-<divclassName="flex-shrink-0">
-<Loader2className="size-8animate-spintext-primary"aria-hidden="true"/>
-</div>
-<divclassName="flex-1space-y-2">
-<h3className="text-lgfont-semiboldtext-foreground">
-Processingyourrequest
-</h3>
-<pclassName="text-smtext-muted-foreground">
-{command}
-</p>
-</div>
-</div>
-
-{onCancel&&(
-<divclassName="flexjustify-center">
-<button
-onClick={onCancel}
-className="px-4py-2text-smfont-mediumtext-destructivehover:text-destructive/90borderborder-destructive/20rounded-mdhover:bg-destructive/10transition-colorsfocus:outline-nonefocus:ring-2focus:ring-ringfocus:ring-offset-2"
-aria-label="Cancelworkflowexecution"
->
-Cancel
-</button>
-</div>
-)}
-</div>
-</div>
-);
+export function IdleState({ onFocus, className }: IdleStateProps) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center py-12 px-4 text-center",
+        className
+      )}
+    >
+      <div className="max-w-md space-y-4">
+        <div className="size-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+          <svg
+            className="size-8 text-primary"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 10V3L4 14h7v7l9-11h-7z"
+            />
+          </svg>
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-2xl font-semibold text-foreground">
+            Ready to assist
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Entera command to get started. I can help you with emails, documents,
+            calendar events, and more.
+          </p>
+        </div>
+        {onFocus && (
+          <button
+            onClick={onFocus}
+            className="text-sm text-primary hover:underline focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 rounded"
+          >
+            Click here to start typing
+          </button>
+        )}
+      </div>
+    </div>
+  );
 }
 
-interfaceSuccessStateProps{
-message?:string;
-onDismiss?:()=>void;
-className?:string;
+interface ExecutingStateProps {
+  command: string;
+  onCancel?: () => void;
+  className?: string;
 }
 
-exportfunctionSuccessState({message="Operationcompletedsuccessfully!",onDismiss,className}:SuccessStateProps){
-useEffect(()=>{
-if(onDismiss){
-consttimer=setTimeout(onDismiss,2000);
-return()=>clearTimeout(timer);
-}
-},[onDismiss]);
+export function ExecutingState({
+  command,
+  onCancel,
+  className,
+}: ExecutingStateProps) {
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center py-8 px-4",
+        className
+      )}
+      role="status"
+      aria-live="polite"
+    >
+      <div className="max-w-2xl w-full space-y-6">
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0">
+            <Loader2
+              className="size-8 animate-spin text-primary"
+              aria-hidden="true"
+            />
+          </div>
+          <div className="flex-1 space-y-2">
+            <h3 className="text-lg font-semibold text-foreground">
+              Processing your request
+            </h3>
+            <p className="text-sm text-muted-foreground">{command}</p>
+          </div>
+        </div>
 
-return(
-<div
-className={cn(
-"flexitems-centerjustify-centergap-3py-6px-4",
-"bg-green-50dark:bg-green-950borderborder-green-200dark:border-green-800rounded-lg",
-"animate-infade-inslide-in-from-top-2duration-300",
-className
-)}
-role="status"
-aria-live="polite"
->
-<CheckCircle2className="size-6text-green-600dark:text-green-400"aria-hidden="true"/>
-<spanclassName="text-smfont-mediumtext-green-900dark:text-green-100">
-{message}
-</span>
-</div>
-);
+        {onCancel && (
+          <div className="flex justify-center">
+            <button
+              onClick={onCancel}
+              className="px-4 py-2 text-sm font-medium text-destructive/90 border border-destructive/20 rounded-md hover:bg-destructive/10 transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              aria-label="Cancel workflow execution"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
-interfaceErrorStateProps{
-error:string;
-onRetry?:()=>void;
-onDismiss?:()=>void;
-className?:string;
+interface SuccessStateProps {
+  message?: string;
+  onDismiss?: () => void;
+  className?: string;
 }
 
-exportfunctionErrorState({error,onRetry,onDismiss,className}:ErrorStateProps){
-return(
-<div
-className={cn(
-"flexflex-colgap-4py-6px-4",
-"bg-red-50dark:bg-red-950borderborder-red-200dark:border-red-800rounded-lg",
-className
-)}
-role="alert"
-aria-live="assertive"
->
-<divclassName="flexitems-startgap-3">
-<XCircleclassName="size-6text-red-600dark:text-red-400flex-shrink-0mt-0.5"aria-hidden="true"/>
-<divclassName="flex-1space-y-1">
-<h3className="text-smfont-semiboldtext-red-900dark:text-red-100">
-Somethingwentwrong
-</h3>
-<pclassName="text-smtext-red-700dark:text-red-300">
-{error}
-</p>
-</div>
-</div>
+export function SuccessState({
+  message = "Operation completed successfully!",
+  onDismiss,
+  className,
+}: SuccessStateProps) {
+  useEffect(() => {
+    if (onDismiss) {
+      const timer = setTimeout(onDismiss, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [onDismiss]);
 
-<divclassName="flexgap-3">
-{onRetry&&(
-<button
-onClick={onRetry}
-className="px-4py-2text-smfont-mediumtext-whitebg-red-600hover:bg-red-700rounded-mdtransition-colorsfocus:outline-nonefocus:ring-2focus:ring-red-500focus:ring-offset-2"
-aria-label="Retrytheoperation"
->
-Retry
-</button>
-)}
-{onDismiss&&(
-<button
-onClick={onDismiss}
-className="px-4py-2text-smfont-mediumtext-red-700dark:text-red-300hover:text-red-900dark:hover:text-red-100borderborder-red-300dark:border-red-700rounded-mdhover:bg-red-100dark:hover:bg-red-900transition-colorsfocus:outline-nonefocus:ring-2focus:ring-red-500focus:ring-offset-2"
-aria-label="Dismisserrormessage"
->
-Dismiss
-</button>
-)}
-</div>
-</div>
-);
-}
+  return (
+    <div
+      className={cn(
+        "flex items-center justify-center gap-3 py-6 px-4",
+        "bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 rounded-lg",

@@ -1,10 +1,10 @@
-﻿import{NextRequest,NextResponse}from"next/server";
-import{createClient,createServiceClient}from"@/lib/supabase/server";
-import{getWorkflow}from"@/lib/supabase/queries";
-import{cancelWorkflow}from"@/lib/services/workflowService";
-import{sendWorkflowEvent}from"../stream/route";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { getWorkflow } from "@/lib/supabase/queries";
+import { cancelWorkflow } from "@/lib/services/workflowService";
+import { sendWorkflowEvent } from "../stream/route";
 
-exportasyncfunctionPOST(request:NextRequest){
+export async function POST(request: NextRequest) {
 conststartTime=Date.now();
 
 try{

@@ -1,9 +1,9 @@
-#***REMOVED***Supabase***REMOVED***Architecture***REMOVED***Overview
+# Supabase Architecture Overview
 
-This***REMOVED***document***REMOVED***explains***REMOVED***how***REMOVED***Supabase***REMOVED***integrates***REMOVED***with***REMOVED***AURA's***REMOVED***architecture.
+This document explains how Supabase integrates with AURA's architecture.
 
-##***REMOVED***System***REMOVED***Architecture
+## System Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***AURA***REMOVED***Fron
+│                         AURA Fron

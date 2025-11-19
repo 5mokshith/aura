@@ -1,248 +1,249 @@
-﻿import{createClient}from"./client";
-importtype{Database}from"./database.types";
-importtype{SupabaseClient}from"@supabase/supabase-js";
+﻿import { createClient } from "./client";
+import type { Database } from "./database.types";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-typeProfile=Database["public"]["Tables"]["profiles"]["Row"];
-typeWorkflow=Database["public"]["Tables"]["workflows"]["Row"];
-typeWorkflowHistory=Database["public"]["Tables"]["workflow_history"]["Row"];
-typeOAuthToken=Database["public"]["Tables"]["oauth_tokens"]["Row"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type Workflow = Database["public"]["Tables"]["workflows"]["Row"];
+type WorkflowHistory = Database["public"]["Tables"]["workflow_history"]["Row"];
+type OAuthToken = Database["public"]["Tables"]["oauth_tokens"]["Row"];
 
-//Profilequeries
-exportasyncfunctiongetProfile(userId:string){
-constsupabase=createClient();
+// Profile queries
+export async function getProfile(userId: string) {
+  const supabase = createClient();
 
-const{data,error}=awaitsupabase
-.from("profiles")
-.select("*")
-.eq("id",userId)
-.single();
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", userId)
+    .single();
 
-if(error)throwerror;
-returndataasProfile;
+  if (error) throw error;
+  return data as Profile;
 }
 
-exportasyncfunctionupdateProfile(
-userId:string,
-updates:Database["public"]["Tables"]["profiles"]["Update"]
-){
-constsupabase=createClient();
+export async function updateProfile(
+  userId: string,
+  updates: Database["public"]["Tables"]["profiles"]["Update"]
+) {
+  const supabase = createClient();
 
-const{data,error}=awaitsupabase
-.from("profiles")
-.update(updates)
-.eq("id",userId)
-.select()
-.single();
+  const { data, error } = await supabase
+    .from("profiles")
+    .update(updates)
+    .eq("id", userId)
+    .select()
+    .single();
 
-if(error)throwerror;
-returndataasProfile;
+  if (error) throw error;
+  return data as Profile;
 }
 
-exportasyncfunctionupsertProfile(
-profile:Database["public"]["Tables"]["profiles"]["Insert"]
-){
-constsupabase=createClient();
+export async function upsertProfile(
+  profile: Database["public"]["Tables"]["profiles"]["Insert"]
+) {
+  const supabase = createClient();
 
-const{data,error}=awaitsupabase
-.from("profiles")
-.upsert(profile)
-.select()
-.single();
+  const { data, error } = await supabase
+    .from("profiles")
+    .upsert(profile)
+    .select()
+    .single();
 
-if(error)throwerror;
-returndataasProfile;
+  if (error) throw error;
+  return data as Profile;
 }
 
-//Workflowqueries
-exportasyncfunctioncreateWorkflow(
-workflow:Database["public"]["Tables"]["workflows"]["Insert"],
-client?:SupabaseClient<Database>
-){
-constsupabase=client||createClient();
+// Workflow queries
+export async function createWorkflow(
+  workflow: Database["public"]["Tables"]["workflows"]["Insert"],
+  client?: SupabaseClient<Database>
+) {
+  const supabase = client || createClient();
 
-const{data,error}=awaitsupabase
-.from("workflows")
-.insert(workflow)
-.select()
-.single();
+  const { data, error } = await supabase
+    .from("workflows")
+    .insert(workflow)
+    .select()
+    .single();
 
-if(error)throwerror;
-returndataasWorkflow;
+  if (error) throw error;
+  return data as Workflow;
 }
 
-exportasyncfunctiongetWorkflow(workflowId:string){
-constsupabase=createClient();
+export async function getWorkflow(workflowId: string) {
+  const supabase = createClient();
 
-const{data,error}=awaitsupabase
-.from("workflows")
-.select("*")
-.eq("id",workflowId)
-.single();
+  const { data, error } = await supabase
+    .from("workflows")
+    .select("*")
+    .eq("id", workflowId)
+    .single();
 
-if(error)throwerror;
-returndataasWorkflow;
+  if (error) throw error;
+  return data as Workflow;
 }
 
-exportasyncfunctionupdateWorkflow(
-workflowId:string,
-updates:Database["public"]["Tables"]["workflows"]["Update"],
-client?:SupabaseClient<Database>
-){
-constsupabase=client||createClient();
+export async function updateWorkflow(
+  workflowId: string,
+  updates: Database["public"]["Tables"]["workflows"]["Update"],
+  client?: SupabaseClient<Database>
+) {
+  const supabase = client || createClient();
 
-const{data,error}=awaitsupabase
-.from("workflows")
-.update(updates)
-.eq("id",workflowId)
-.select()
-.single();
+  const { data, error } = await supabase
+    .from("workflows")
+    .update(updates)
+    .eq("id", workflowId)
+    .select()
+    .single();
 
-if(error)throwerror;
-returndataasWorkflow;
+  if (error) throw error;
+  return data as Workflow;
 }
 
-exportasyncfunctiongetUserWorkflows(userId:string,limit=10){
-constsupabase=createClient();
+export async function getUserWorkflows(userId: string, limit = 10) {
+  const supabase = createClient();
 
-const{data,error}=awaitsupabase
-.from("workflows")
-.select("*")
-.eq("user_id",userId)
-.order("created_at",{ascending:false})
-.limit(limit);
+  const { data, error } = await supabase
+    .from("workflows")
+    .select("*")
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
 
-if(error)throwerror;
-returndataasWorkflow[];
+  if (error) throw error;
+  return data as Workflow[];
 }
 
-//Workflowhistoryqueries
-exportasyncfunctionaddWorkflowHistory(
-history:Database["public"]["Tables"]["workflow_history"]["Insert"],
-client?:SupabaseClient<Database>
-){
-constsupabase=client||createClient();
+// Workflow history queries
+export async function addWorkflowHistory(
+  history: Database["public"]["Tables"]["workflow_history"]["Insert"],
+  client?: SupabaseClient<Database>
+) {
+  const supabase = client || createClient();
 
-const{data,error}=awaitsupabase
-.from("workflow_history")
-.insert(history)
-.select()
-.single();
+  const { data, error } = await supabase
+    .from("workflow_history")
+    .insert(history)
+    .select()
+    .single();
 
-if(error)throwerror;
-returndataasWorkflowHistory;
+  if (error) throw error;
+  return data as WorkflowHistory;
 }
 
-exportasyncfunctiongetUserWorkflowHistory(userId:string,limit=20){
-constsupabase=createClient();
+export async function getUserWorkflowHistory(userId: string, limit = 20) {
+  const supabase = createClient();
 
-const{data,error}=awaitsupabase
-.from("workflow_history")
-.select("*")
-.eq("user_id",userId)
-.order("executed_at",{ascending:false})
-.limit(limit);
+  const { data, error } = await supabase
+    .from("workflow_history")
+    .select("*")
+    .eq("user_id", userId)
+    .order("executed_at", { ascending: false })
+    .limit(limit);
 
-if(error)throwerror;
-returndataasWorkflowHistory[];
+  if (error) throw error;
+  return data as WorkflowHistory[];
 }
 
-exportasyncfunctiondeleteWorkflowHistory(historyId:string){
-constsupabase=createClient();
+export async function deleteWorkflowHistory(historyId: string) {
+  const supabase = createClient();
 
-const{error}=awaitsupabase
-.from("workflow_history")
-.delete()
-.eq("id",historyId);
+  const { error } = await supabase
+    .from("workflow_history")
+    .delete()
+    .eq("id", historyId);
 
-if(error)throwerror;
+  if (error) throw error;
 }
 
-exportasyncfunctionclearUserWorkflowHistory(userId:string){
-constsupabase=createClient();
+export async function clearUserWorkflowHistory(userId: string) {
+  const supabase = createClient();
 
-const{error}=awaitsupabase
-.from("workflow_history")
-.delete()
-.eq("user_id",userId);
+  const { error } = await supabase
+    .from("workflow_history")
+    .delete()
+    .eq("user_id", userId);
 
-if(error)throwerror;
+  if (error) throw error;
 }
 
-//OAuthtokenqueries
-exportasyncfunctionstoreGoogleOAuthTokens(
-userId:string,
-accessToken:string,
-refreshToken:string|null,
-expiresAt:Date,
-scopes:string[]
-){
-constsupabase=createClient();
+// OAuth token queries
+export async function storeGoogleOAuthTokens(
+  userId: string,
+  accessToken: string,
+  refreshToken: string | null,
+  expiresAt: Date,
+  scopes: string[]
+) {
+  const supabase = createClient();
 
-const{data,error}=awaitsupabase
-.from("oauth_tokens")
-.upsert({
-user_id:userId,
-provider:"google",
-access_token:accessToken,
-refresh_token:refreshToken,
-expires_at:expiresAt.toISOString(),
-scopes,
-})
-.select()
-.single();
+  const { data, error } = await supabase
+    .from("oauth_tokens")
+    .upsert({
+      user_id: userId,
+      provider: "google",
+      access_token: accessToken,
+      refresh_token: refreshToken,
+      expires_at: expiresAt.toISOString(),
+      scopes,
+    })
+    .select()
+    .single();
 
-if(error)throwerror;
-returndataasOAuthToken;
+  if (error) throw error;
+  return data as OAuthToken;
 }
 
-exportasyncfunctiongetGoogleOAuthTokens(userId:string){
-constsupabase=createClient();
+export async function getGoogleOAuthTokens(userId: string) {
+  const supabase = createClient();
 
-//UsetheSECURITYDEFINERfunctiontobypassRLS
-const{data,error}=awaitsupabase
-.rpc("get_google_oauth_token",{p_user_id:userId});
+  // Use the SECURITY DEFINER function to bypass RLS
+  const { data, error } = await supabase.rpc("get_google_oauth_token", {
+    p_user_id: userId,
+  });
 
-if(error){
-console.error("ErrorfetchingOAuthtokens:",error);
-throwerror;
+  if (error) {
+    console.error("Error fetching OAuth tokens:", error);
+    throw error;
+  }
+
+  // The function returns an array with one row or empty array
+  if (!data || data.length === 0) {
+    return null;
+  }
+
+  const token = data[0];
+  return {
+    access_token: token.access_token,
+    refresh_token: token.refresh_token,
+    expires_at: token.expires_at,
+    is_expired: token.is_expired,
+  } as any;
 }
 
-//Thefunctionreturnsanarraywithoneroworemptyarray
-if(!data||data.length===0){
-returnnull;
+export async function deleteGoogleOAuthTokens(userId: string) {
+  const supabase = createClient();
+
+  const { error } = await supabase
+    .from("oauth_tokens")
+    .delete()
+    .eq("user_id", userId)
+    .eq("provider", "google");
+
+  if (error) throw error;
 }
 
-consttoken=data[0];
-return{
-access_token:token.access_token,
-refresh_token:token.refresh_token,
-expires_at:token.expires_at,
-is_expired:token.is_expired,
-}asany;
-}
+export async function isGoogleTokenExpired(userId: string): Promise<boolean> {
+  const tokens = await getGoogleOAuthTokens(userId);
 
-exportasyncfunctiondeleteGoogleOAuthTokens(userId:string){
-constsupabase=createClient();
+  if (!tokens || !tokens.expires_at) {
+    return true;
+  }
 
-const{error}=awaitsupabase
-.from("oauth_tokens")
-.delete()
-.eq("user_id",userId)
-.eq("provider","google");
+  const expiresAt = new Date(tokens.expires_at);
+  const now = new Date();
 
-if(error)throwerror;
-}
-
-exportasyncfunctionisGoogleTokenExpired(userId:string):Promise<boolean>{
-consttokens=awaitgetGoogleOAuthTokens(userId);
-
-if(!tokens||!tokens.expires_at){
-returntrue;
-}
-
-constexpiresAt=newDate(tokens.expires_at);
-constnow=newDate();
-
-//Considerexpirediflessthan5minutesremaining
-returnexpiresAt.getTime()-now.getTime()<5*60*1000;
+  // Consider expired if less than 5 minutes remaining
+  return expiresAt.getTime() - now.getTime() < 5 * 60 * 1000;
 }

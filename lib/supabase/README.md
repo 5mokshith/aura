@@ -1,317 +1,318 @@
-#***REMOVED***Supabase***REMOVED***Integration
+# Supabase Integration
 
-This***REMOVED***directory***REMOVED***contains***REMOVED***all***REMOVED***Supabase-related***REMOVED***utilities***REMOVED***for***REMOVED***AURA.
+This directory contains all Supabase-related utilities for AURA.
 
-##***REMOVED***Files***REMOVED***Overview
+## Files Overview
 
-###***REMOVED***`client.ts`
-Browser-side***REMOVED***Supabase***REMOVED***client***REMOVED***for***REMOVED***use***REMOVED***in***REMOVED***React***REMOVED***components.
+### `client.ts`
+Browser-side Supabase client for use in React components.
 
 ```tsx
-import***REMOVED***{***REMOVED***createClient***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/client";
+import { createClient } from "@/lib/supabase/client";
 
-const***REMOVED***supabase***REMOVED***=***REMOVED***createClient();
-const***REMOVED***{***REMOVED***data,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.from("profiles").select("*");
+const supabase = createClient();
+const { data, error } = await supabase.from("profiles").select("*");
 ```
 
-###***REMOVED***`server.ts`
-Server-side***REMOVED***Supabase***REMOVED***client***REMOVED***for***REMOVED***use***REMOVED***in***REMOVED***Server***REMOVED***Components***REMOVED***and***REMOVED***API***REMOVED***routes.
+### `server.ts`
+Server-side Supabase client for use in Server Components and API routes.
 
 ```tsx
-import***REMOVED***{***REMOVED***createClient***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
-const***REMOVED***supabase***REMOVED***=***REMOVED***await***REMOVED***createClient();
-const***REMOVED***{***REMOVED***data:***REMOVED***{***REMOVED***user***REMOVED***}***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.auth.getUser();
+const supabase = await createClient();
+const { data: { user } } = await supabase.auth.getUser();
 ```
 
-###***REMOVED***`middleware.ts`
-Middleware***REMOVED***utilities***REMOVED***for***REMOVED***handling***REMOVED***auth***REMOVED***state***REMOVED***in***REMOVED***Next.js***REMOVED***middleware.
+### `middleware.ts`
+Middleware utilities for handling auth state in Next.js middleware.
 
 ```tsx
-import***REMOVED***{***REMOVED***updateSession***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/middleware";
+import { updateSession } from "@/lib/supabase/middleware";
 
-export***REMOVED***async***REMOVED***function***REMOVED***middleware(request:***REMOVED***NextRequest)***REMOVED***{
-***REMOVED******REMOVED***return***REMOVED***await***REMOVED***updateSession(request);
+export async function middleware(request: NextRequest) {
+  return await updateSession(request);
 }
 ```
 
-###***REMOVED***`database.types.ts`
-TypeScript***REMOVED***types***REMOVED***generated***REMOVED***from***REMOVED***your***REMOVED***Supabase***REMOVED***database***REMOVED***schema.
+### `database.types.ts`
+TypeScript types generated from your Supabase database schema.
 
-**Regenerate***REMOVED***types:**
+**Regenerate types:**
 ```bash
-npx***REMOVED***supabase***REMOVED***gen***REMOVED***types***REMOVED***typescript***REMOVED***--project-id***REMOVED***YOUR_PROJECT_ID***REMOVED***>***REMOVED***lib/supabase/database.types.ts
+npx supabase gen types typescript --project-id YOUR_PROJECT_ID > lib/supabase/database.types.ts
 ```
 
-###***REMOVED***`queries.ts`
-Pre-built***REMOVED***database***REMOVED***query***REMOVED***functions***REMOVED***with***REMOVED***proper***REMOVED***typing.
+### `queries.ts`
+Pre-built database query functions with proper typing.
 
 ```tsx
-import***REMOVED***{***REMOVED***getProfile,***REMOVED***updateProfile,***REMOVED***getUserWorkflows***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/queries";
+import { getProfile, updateProfile, getUserWorkflows } from "@/lib/supabase/queries";
 
-//***REMOVED***Get***REMOVED***user***REMOVED***profile
-const***REMOVED***profile***REMOVED***=***REMOVED***await***REMOVED***getProfile(userId);
+// Get user profile
+const profile = await getProfile(userId);
 
-//***REMOVED***Update***REMOVED***profile
-await***REMOVED***updateProfile(userId,***REMOVED***{***REMOVED***full_name:***REMOVED***"John***REMOVED***Doe"***REMOVED***});
+// Update profile
+await updateProfile(userId, { full_name: "John Doe" });
 
-//***REMOVED***Get***REMOVED***workflows
-const***REMOVED***workflows***REMOVED***=***REMOVED***await***REMOVED***getUserWorkflows(userId,***REMOVED***10);
+// Get workflows
+const workflows = await getUserWorkflows(userId, 10);
 ```
 
-##***REMOVED***Usage***REMOVED***Patterns
+## Usage Patterns
 
-###***REMOVED***Client***REMOVED***Components
+### Client Components
 
 ```tsx
-"use***REMOVED***client";
+"use client";
 
-import***REMOVED***{***REMOVED***createClient***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/client";
-import***REMOVED***{***REMOVED***useEffect,***REMOVED***useState***REMOVED***}***REMOVED***from***REMOVED***"react";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
 
-export***REMOVED***default***REMOVED***function***REMOVED***MyComponent()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***[data,***REMOVED***setData]***REMOVED***=***REMOVED***useState(null);
-***REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***createClient();
+export default function MyComponent() {
+  const [data, setData] = useState(null);
+  const supabase = createClient();
 
-***REMOVED******REMOVED***useEffect(()***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***async***REMOVED***function***REMOVED***fetchData()***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***const***REMOVED***{***REMOVED***data***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.from("profiles").select("*");
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***setData(data);
-***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED******REMOVED******REMOVED***fetchData();
-***REMOVED******REMOVED***},***REMOVED***[]);
+  useEffect(() => {
+    async function fetchData() {
+      const { data } = await supabase.from("profiles").select("*");
+      setData(data);
+    }
+    fetchData();
+  }, []);
 
-***REMOVED******REMOVED***return***REMOVED***<div>{/****REMOVED***render***REMOVED***data***REMOVED****/}</div>;
+  return <div>{/* render data */}</div>;
 }
 ```
 
-###***REMOVED***Server***REMOVED***Components
+### Server Components
 
 ```tsx
-import***REMOVED***{***REMOVED***createClient***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
-export***REMOVED***default***REMOVED***async***REMOVED***function***REMOVED***MyPage()***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***await***REMOVED***createClient();
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***data***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.from("profiles").select("*");
+export default async function MyPage() {
+  const supabase = await createClient();
+  const { data } = await supabase.from("profiles").select("*");
 
-***REMOVED******REMOVED***return***REMOVED***<div>{/****REMOVED***render***REMOVED***data***REMOVED****/}</div>;
+  return <div>{/* render data */}</div>;
 }
 ```
 
-###***REMOVED***API***REMOVED***Routes
+### API Routes
 
 ```tsx
-import***REMOVED***{***REMOVED***createClient***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/server";
-import***REMOVED***{***REMOVED***NextRequest,***REMOVED***NextResponse***REMOVED***}***REMOVED***from***REMOVED***"next/server";
+import { createClient } from "@/lib/supabase/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export***REMOVED***async***REMOVED***function***REMOVED***GET(request:***REMOVED***NextRequest)***REMOVED***{
-***REMOVED******REMOVED***const***REMOVED***supabase***REMOVED***=***REMOVED***await***REMOVED***createClient();
-***REMOVED******REMOVED***
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***data:***REMOVED***{***REMOVED***user***REMOVED***}***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.auth.getUser();
-***REMOVED******REMOVED***if***REMOVED***(!user)***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***return***REMOVED***NextResponse.json({***REMOVED***error:***REMOVED***"Unauthorized"***REMOVED***},***REMOVED***{***REMOVED***status:***REMOVED***401***REMOVED***});
-***REMOVED******REMOVED***}
+export async function GET(request: NextRequest) {
+  const supabase = await createClient();
+  
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
-***REMOVED******REMOVED***const***REMOVED***{***REMOVED***data***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.from("profiles").select("*");
-***REMOVED******REMOVED***return***REMOVED***NextResponse.json({***REMOVED***data***REMOVED***});
+  const { data } = await supabase.from("profiles").select("*");
+  return NextResponse.json({ data });
 }
 ```
 
-###***REMOVED***Using***REMOVED***Query***REMOVED***Helpers
+### Using Query Helpers
 
 ```tsx
-import***REMOVED***{***REMOVED***getProfile,***REMOVED***updateProfile***REMOVED***}***REMOVED***from***REMOVED***"@/lib/supabase/queries";
+import { getProfile, updateProfile } from "@/lib/supabase/queries";
 
-//***REMOVED***In***REMOVED***a***REMOVED***Server***REMOVED***Component***REMOVED***or***REMOVED***API***REMOVED***route
-const***REMOVED***profile***REMOVED***=***REMOVED***await***REMOVED***getProfile(userId);
+// In a Server Component or API route
+const profile = await getProfile(userId);
 
-await***REMOVED***updateProfile(userId,***REMOVED***{
-***REMOVED******REMOVED***full_name:***REMOVED***"Jane***REMOVED***Doe",
-***REMOVED******REMOVED***preferences:***REMOVED***{***REMOVED***theme:***REMOVED***"dark"***REMOVED***}
+await updateProfile(userId, {
+  full_name: "Jane Doe",
+  preferences: { theme: "dark" }
 });
 ```
 
-##***REMOVED***Authentication
+## Authentication
 
-###***REMOVED***Check***REMOVED***Auth***REMOVED***Status
+### Check Auth Status
 
 ```tsx
-const***REMOVED***supabase***REMOVED***=***REMOVED***createClient();
-const***REMOVED***{***REMOVED***data:***REMOVED***{***REMOVED***user***REMOVED***}***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.auth.getUser();
+const supabase = createClient();
+const { data: { user } } = await supabase.auth.getUser();
 
-if***REMOVED***(user)***REMOVED***{
-***REMOVED******REMOVED***console.log("User***REMOVED***is***REMOVED***authenticated:",***REMOVED***user.email);
+if (user) {
+  console.log("User is authenticated:", user.email);
 }
 ```
 
-###***REMOVED***Sign***REMOVED***In***REMOVED***with***REMOVED***Google
+### Sign In with Google
 
 ```tsx
-const***REMOVED***{***REMOVED***data,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.auth.signInWithOAuth({
-***REMOVED******REMOVED***provider:***REMOVED***"google",
-***REMOVED******REMOVED***options:***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED***redirectTo:***REMOVED***`${window.location.origin}/auth/callback`,
-***REMOVED******REMOVED***},
+const { data, error } = await supabase.auth.signInWithOAuth({
+  provider: "google",
+  options: {
+    redirectTo: `${window.location.origin}/auth/callback`,
+  },
 });
 ```
 
-###***REMOVED***Sign***REMOVED***Out
+### Sign Out
 
 ```tsx
-const***REMOVED***{***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase.auth.signOut();
+const { error } = await supabase.auth.signOut();
 ```
 
-##***REMOVED***Database***REMOVED***Operations
+## Database Operations
 
-###***REMOVED***Select
+### Select
 
 ```tsx
-const***REMOVED***{***REMOVED***data,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase
-***REMOVED******REMOVED***.from("workflows")
-***REMOVED******REMOVED***.select("*")
-***REMOVED******REMOVED***.eq("user_id",***REMOVED***userId)
-***REMOVED******REMOVED***.order("created_at",***REMOVED***{***REMOVED***ascending:***REMOVED***false***REMOVED***})
-***REMOVED******REMOVED***.limit(10);
+const { data, error } = await supabase
+  .from("workflows")
+  .select("*")
+  .eq("user_id", userId)
+  .order("created_at", { ascending: false })
+  .limit(10);
 ```
 
-###***REMOVED***Insert
+### Insert
 
 ```tsx
-const***REMOVED***{***REMOVED***data,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase
-***REMOVED******REMOVED***.from("workflows")
-***REMOVED******REMOVED***.insert({
-***REMOVED******REMOVED******REMOVED******REMOVED***user_id:***REMOVED***userId,
-***REMOVED******REMOVED******REMOVED******REMOVED***command:***REMOVED***"Create***REMOVED***summary",
-***REMOVED******REMOVED******REMOVED******REMOVED***status:***REMOVED***"planning",
-***REMOVED******REMOVED***})
-***REMOVED******REMOVED***.select()
-***REMOVED******REMOVED***.single();
+const { data, error } = await supabase
+  .from("workflows")
+  .insert({
+    user_id: userId,
+    command: "Create summary",
+    status: "planning",
+  })
+  .select()
+  .single();
 ```
 
-###***REMOVED***Update
+### Update
 
 ```tsx
-const***REMOVED***{***REMOVED***data,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase
-***REMOVED******REMOVED***.from("workflows")
-***REMOVED******REMOVED***.update({***REMOVED***status:***REMOVED***"completed"***REMOVED***})
-***REMOVED******REMOVED***.eq("id",***REMOVED***workflowId)
-***REMOVED******REMOVED***.select()
-***REMOVED******REMOVED***.single();
+const { data, error } = await supabase
+  .from("workflows")
+  .update({ status: "completed" })
+  .eq("id", workflowId)
+  .select()
+  .single();
 ```
 
-###***REMOVED***Delete
+### Delete
 
 ```tsx
-const***REMOVED***{***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase
-***REMOVED******REMOVED***.from("workflow_history")
-***REMOVED******REMOVED***.delete()
-***REMOVED******REMOVED***.eq("id",***REMOVED***historyId);
+const { error } = await supabase
+  .from("workflow_history")
+  .delete()
+  .eq("id", historyId);
 ```
 
-##***REMOVED***Real-time***REMOVED***Subscriptions
+## Real-time Subscriptions
 
 ```tsx
-const***REMOVED***channel***REMOVED***=***REMOVED***supabase
-***REMOVED******REMOVED***.channel('workflow-changes')
-***REMOVED******REMOVED***.on(
-***REMOVED******REMOVED******REMOVED******REMOVED***'postgres_changes',
-***REMOVED******REMOVED******REMOVED******REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***event:***REMOVED***'UPDATE',
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***schema:***REMOVED***'public',
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***table:***REMOVED***'workflows',
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***filter:***REMOVED***`user_id=eq.${userId}`
-***REMOVED******REMOVED******REMOVED******REMOVED***},
-***REMOVED******REMOVED******REMOVED******REMOVED***(payload)***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED******REMOVED******REMOVED******REMOVED******REMOVED***console.log('Change***REMOVED***received!',***REMOVED***payload);
-***REMOVED******REMOVED******REMOVED******REMOVED***}
-***REMOVED******REMOVED***)
-***REMOVED******REMOVED***.subscribe();
+const channel = supabase
+  .channel('workflow-changes')
+  .on(
+    'postgres_changes',
+    {
+      event: 'UPDATE',
+      schema: 'public',
+      table: 'workflows',
+      filter: `user_id=eq.${userId}`
+    },
+    (payload) => {
+      console.log('Change received!', payload);
+    }
+  )
+  .subscribe();
 
-//***REMOVED***Cleanup
-return***REMOVED***()***REMOVED***=>***REMOVED***{
-***REMOVED******REMOVED***supabase.removeChannel(channel);
+// Cleanup
+return () => {
+  supabase.removeChannel(channel);
 };
 ```
 
-##***REMOVED***Error***REMOVED***Handling
+## Error Handling
 
 ```tsx
-const***REMOVED***{***REMOVED***data,***REMOVED***error***REMOVED***}***REMOVED***=***REMOVED***await***REMOVED***supabase
-***REMOVED******REMOVED***.from("profiles")
-***REMOVED******REMOVED***.select("*")
-***REMOVED******REMOVED***.eq("id",***REMOVED***userId)
-***REMOVED******REMOVED***.single();
+const { data, error } = await supabase
+  .from("profiles")
+  .select("*")
+  .eq("id", userId)
+  .single();
 
-if***REMOVED***(error)***REMOVED***{
-***REMOVED******REMOVED***console.error("Database***REMOVED***error:",***REMOVED***error.message);
-***REMOVED******REMOVED***//***REMOVED***Handle***REMOVED***error***REMOVED***appropriately
-***REMOVED******REMOVED***return;
+if (error) {
+  console.error("Database error:", error.message);
+  // Handle error appropriately
+  return;
 }
 
-//***REMOVED***Use***REMOVED***data***REMOVED***safely
+// Use data safely
 console.log(data);
 ```
 
-##***REMOVED***Type***REMOVED***Safety
+## Type Safety
 
-All***REMOVED***queries***REMOVED***are***REMOVED***fully***REMOVED***typed***REMOVED***when***REMOVED***using***REMOVED***the***REMOVED***generated***REMOVED***types:
+All queries are fully typed when using the generated types:
 
 ```tsx
-import***REMOVED***type***REMOVED***{***REMOVED***Database***REMOVED***}***REMOVED***from***REMOVED***"./database.types";
+import type { Database } from "./database.types";
 
-type***REMOVED***Profile***REMOVED***=***REMOVED***Database["public"]["Tables"]["profiles"]["Row"];
-type***REMOVED***WorkflowInsert***REMOVED***=***REMOVED***Database["public"]["Tables"]["workflows"]["Insert"];
+type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+type WorkflowInsert = Database["public"]["Tables"]["workflows"]["Insert"];
 
-const***REMOVED***profile:***REMOVED***Profile***REMOVED***=***REMOVED***await***REMOVED***getProfile(userId);
+const profile: Profile = await getProfile(userId);
 ```
 
-##***REMOVED***Best***REMOVED***Practices
+## Best Practices
 
-1.***REMOVED*****Use***REMOVED***query***REMOVED***helpers*****REMOVED***from***REMOVED***`queries.ts`***REMOVED***for***REMOVED***common***REMOVED***operations
-2.***REMOVED*****Always***REMOVED***check***REMOVED***for***REMOVED***errors*****REMOVED***after***REMOVED***database***REMOVED***operations
-3.***REMOVED*****Use***REMOVED***server-side***REMOVED***client*****REMOVED***for***REMOVED***sensitive***REMOVED***operations
-4.***REMOVED*****Leverage***REMOVED***RLS***REMOVED***policies*****REMOVED***for***REMOVED***security
-5.***REMOVED*****Type***REMOVED***your***REMOVED***queries*****REMOVED***using***REMOVED***generated***REMOVED***types
-6.***REMOVED*****Handle***REMOVED***loading***REMOVED***states*****REMOVED***in***REMOVED***components
-7.***REMOVED*****Clean***REMOVED***up***REMOVED***subscriptions*****REMOVED***in***REMOVED***useEffect***REMOVED***cleanup
+1. **Use query helpers** from `queries.ts` for common operations
+2. **Always check for errors** after database operations
+3. **Use server-side client** for sensitive operations
+4. **Leverage RLS policies** for security
+5. **Type your queries** using generated types
+6. **Handle loading states** in components
+7. **Clean up subscriptions** in useEffect cleanup
 
-##***REMOVED***Security***REMOVED***Notes
+## Security Notes
 
--***REMOVED***Never***REMOVED***expose***REMOVED***`SUPABASE_SERVICE_ROLE_KEY`***REMOVED***in***REMOVED***client***REMOVED***code
--***REMOVED***Always***REMOVED***use***REMOVED***RLS***REMOVED***policies***REMOVED***for***REMOVED***data***REMOVED***access***REMOVED***control
--***REMOVED***Validate***REMOVED***user***REMOVED***input***REMOVED***before***REMOVED***database***REMOVED***operations
--***REMOVED***Use***REMOVED***server-side***REMOVED***client***REMOVED***for***REMOVED***admin***REMOVED***operations
--***REMOVED***Monitor***REMOVED***auth***REMOVED***logs***REMOVED***in***REMOVED***Supabase***REMOVED***dashboard
+- Never expose `SUPABASE_SERVICE_ROLE_KEY` in client code
+- Always use RLS policies for data access control
+- Validate user input before database operations
+- Use server-side client for admin operations
+- Monitor auth logs in Supabase dashboard
 
-##***REMOVED***Performance***REMOVED***Tips
+## Performance Tips
 
--***REMOVED***Use***REMOVED***`.select()`***REMOVED***to***REMOVED***fetch***REMOVED***only***REMOVED***needed***REMOVED***columns
--***REMOVED***Add***REMOVED***`.limit()`***REMOVED***to***REMOVED***prevent***REMOVED***large***REMOVED***data***REMOVED***fetches
--***REMOVED***Use***REMOVED***indexes***REMOVED***on***REMOVED***frequently***REMOVED***queried***REMOVED***columns
--***REMOVED***Consider***REMOVED***pagination***REMOVED***for***REMOVED***large***REMOVED***datasets
--***REMOVED***Cache***REMOVED***frequently***REMOVED***accessed***REMOVED***data
--***REMOVED***Use***REMOVED***real-time***REMOVED***subscriptions***REMOVED***sparingly
+- Use `.select()` to fetch only needed columns
+- Add `.limit()` to prevent large data fetches
+- Use indexes on frequently queried columns
+- Consider pagination for large datasets
+- Cache frequently accessed data
+- Use real-time subscriptions sparingly
 
-##***REMOVED***Troubleshooting
+## Troubleshooting
 
-###***REMOVED***"Invalid***REMOVED***API***REMOVED***key"
--***REMOVED***Check***REMOVED***environment***REMOVED***variables
--***REMOVED***Restart***REMOVED***dev***REMOVED***server
--***REMOVED***Verify***REMOVED***keys***REMOVED***in***REMOVED***Supabase***REMOVED***dashboard
+### "Invalid API key"
+- Check environment variables
+- Restart dev server
+- Verify keys in Supabase dashboard
 
-###***REMOVED***"Row***REMOVED***Level***REMOVED***Security***REMOVED***policy***REMOVED***violation"
--***REMOVED***Check***REMOVED***RLS***REMOVED***policies***REMOVED***are***REMOVED***set***REMOVED***up
--***REMOVED***Verify***REMOVED***user***REMOVED***is***REMOVED***authenticated
--***REMOVED***Ensure***REMOVED***user_id***REMOVED***matches***REMOVED***auth.uid()
+### "Row Level Security policy violation"
+- Check RLS policies are set up
+- Verify user is authenticated
+- Ensure user_id matches auth.uid()
 
-###***REMOVED***"Failed***REMOVED***to***REMOVED***fetch"
--***REMOVED***Check***REMOVED***network***REMOVED***connectivity
--***REMOVED***Verify***REMOVED***Supabase***REMOVED***project***REMOVED***is***REMOVED***active
--***REMOVED***Check***REMOVED***CORS***REMOVED***settings
+### "Failed to fetch"
+- Check network connectivity
+- Verify Supabase project is active
+- Check CORS settings
 
-##***REMOVED***Resources
+## Resources
 
--***REMOVED***[Supabase***REMOVED***Docs](https://supabase.com/docs)
--***REMOVED***[JavaScript***REMOVED***Client](https://supabase.com/docs/reference/javascript)
--***REMOVED***[Auth***REMOVED***Helpers](https://supabase.com/docs/guides/auth/auth-helpers/nextjs)
--***REMOVED***[Row***REMOVED***Level***REMOVED***Security](https://supabase.com/docs/guides/auth/row-level-security)
+- [Supabase Docs](https://supabase.com/docs)
+- [JavaScript Client](https://supabase.com/docs/reference/javascript)
+- [Auth Helpers](https://supabase.com/docs/guides/auth/auth-helpers/nextjs)
+- [Row Level Security](https://supabase.com/docs/guides/auth/row-level-security)
+

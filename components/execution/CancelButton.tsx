@@ -1,106 +1,106 @@
-﻿"useclient";
+﻿"use client";
 
-importReact,{useState}from"react";
-import{Button}from"@/components/ui/button";
-import{
-Dialog,
-DialogContent,
-DialogDescription,
-DialogFooter,
-DialogHeader,
-DialogTitle,
-}from"@/components/ui/dialog";
-import{Ban,Loader2}from"lucide-react";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Ban, Loader2 } from "lucide-react";
 
-interfaceCancelButtonProps{
-onCancel:()=>Promise<void>;
-disabled?:boolean;
-className?:string;
+interface CancelButtonProps {
+  onCancel: () => Promise<void>;
+  disabled?: boolean;
+  className?: string;
 }
 
-exportfunctionCancelButton({
-onCancel,
-disabled=false,
-className,
-}:CancelButtonProps){
-const[showConfirmDialog,setShowConfirmDialog]=useState(false);
-const[isCancelling,setIsCancelling]=useState(false);
+export function CancelButton({
+  onCancel,
+  disabled = false,
+  className,
+}: CancelButtonProps) {
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
 
-consthandleCancelClick=()=>{
-setShowConfirmDialog(true);
-};
+  const handleCancelClick = () => {
+    setShowConfirmDialog(true);
+  };
 
-consthandleConfirmCancel=async()=>{
-setIsCancelling(true);
-try{
-awaitonCancel();
-setShowConfirmDialog(false);
-}catch(error){
-console.error("Errorcancellingworkflow:",error);
-//Errorhandlingisdoneintheparentcomponent
-}finally{
-setIsCancelling(false);
-}
-};
+  const handleConfirmCancel = async () => {
+    setIsCancelling(true);
+    try {
+      await onCancel();
+      setShowConfirmDialog(false);
+    } catch (error) {
+      console.error("Error cancelling workflow:", error);
+      // Error handling is done in the parent component
+    } finally {
+      setIsCancelling(false);
+    }
+  };
 
-consthandleCloseDialog=()=>{
-if(!isCancelling){
-setShowConfirmDialog(false);
-}
-};
+  const handleCloseDialog = () => {
+    if (!isCancelling) {
+      setShowConfirmDialog(false);
+    }
+  };
 
-return(
-<>
-<Button
-variant="destructive"
-size="sm"
-onClick={handleCancelClick}
-disabled={disabled||isCancelling}
-className={className}
-aria-label="Cancelworkflowexecution"
->
-<BanclassName="h-4w-4"/>
-CancelWorkflow
-</Button>
+  return (
+    <>
+      <Button
+        variant="destructive"
+        size="sm"
+        onClick={handleCancelClick}
+        disabled={disabled || isCancelling}
+        className={className}
+        aria-label="Cancel workflow execution"
+      >
+        <Ban className="h-4 w-4" />
+        Cancel Workflow
+      </Button>
 
-<Dialogopen={showConfirmDialog}onOpenChange={handleCloseDialog}>
-<DialogContent>
-<DialogHeader>
-<DialogTitle>CancelWorkflow?</DialogTitle>
-<DialogDescription>
-Areyousureyouwanttocancelthisworkflow?Anystepsthathave
-alreadycompletedwillbepreserved,butin-progressandpending
-stepswillbecancelled.
-</DialogDescription>
-</DialogHeader>
-<DialogFooter>
-<Button
-variant="outline"
-onClick={handleCloseDialog}
-disabled={isCancelling}
->
-KeepRunning
-</Button>
-<Button
-variant="destructive"
-onClick={handleConfirmCancel}
-disabled={isCancelling}
->
-{isCancelling?(
-<>
-<Loader2className="h-4w-4animate-spin"/>
-Cancelling...
-</>
-):(
-<>
-<BanclassName="h-4w-4"/>
-Yes,Cancel
-</>
-)}
-</Button>
-</DialogFooter>
-</DialogContent>
-</Dialog>
-</>
-);
+      <Dialog open={showConfirmDialog} onOpenChange={handleCloseDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Cancel Workflow?</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to cancel this workflow? Any steps that
+              have already completed will be preserved, but in-progress and
+              pending steps will be cancelled.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={handleCloseDialog}
+              disabled={isCancelling}
+            >
+              Keep Running
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleConfirmCancel}
+              disabled={isCancelling}
+            >
+              {isCancelling ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Cancelling...
+                </>
+              ) : (
+                <>
+                  <Ban className="h-4 w-4" />
+                  Yes, Cancel
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
 }

@@ -1,159 +1,160 @@
-#***REMOVED***Requirements***REMOVED***Document
+# Requirements Document
 
-##***REMOVED***Introduction
+## Introduction
 
-This***REMOVED***document***REMOVED***defines***REMOVED***the***REMOVED***requirements***REMOVED***for***REMOVED***the***REMOVED***AURA***REMOVED***(Agentic***REMOVED***Unified***REMOVED***Reasoning***REMOVED***Assistant)***REMOVED***user***REMOVED***interface.***REMOVED***The***REMOVED***UI***REMOVED***System***REMOVED***enables***REMOVED***users***REMOVED***to***REMOVED***interact***REMOVED***with***REMOVED***an***REMOVED***AI-powered***REMOVED***agent***REMOVED***system***REMOVED***that***REMOVED***automates***REMOVED***multi-step***REMOVED***workflows***REMOVED***across***REMOVED***Google***REMOVED***Workspace***REMOVED***services***REMOVED***(Gmail,***REMOVED***Drive,***REMOVED***Docs,***REMOVED***Sheets,***REMOVED***Calendar)***REMOVED***through***REMOVED***natural***REMOVED***language***REMOVED***commands.***REMOVED***The***REMOVED***interface***REMOVED***provides***REMOVED***real-time***REMOVED***visibility***REMOVED***into***REMOVED***agent***REMOVED***execution,***REMOVED***displays***REMOVED***results,***REMOVED***and***REMOVED***manages***REMOVED***user***REMOVED***authentication***REMOVED***and***REMOVED***settings.
+This document defines the requirements for the AURA (Agentic Unified Reasoning Assistant) user interface. The UI System enables users to interact with an AI-powered agent system that automates multi-step workflows across Google Workspace services (Gmail, Drive, Docs, Sheets, Calendar) through natural language commands. The interface provides real-time visibility into agent execution, displays results, and manages user authentication and settings.
 
-##***REMOVED***Glossary
+## Glossary
 
--***REMOVED*****UI***REMOVED***System**:***REMOVED***The***REMOVED***complete***REMOVED***Next.js-based***REMOVED***frontend***REMOVED***application***REMOVED***for***REMOVED***AURA
--***REMOVED*****Command***REMOVED***Input***REMOVED***Component**:***REMOVED***The***REMOVED***text***REMOVED***input***REMOVED***interface***REMOVED***where***REMOVED***users***REMOVED***enter***REMOVED***natural***REMOVED***language***REMOVED***instructions
--***REMOVED*****Execution***REMOVED***Tracker**:***REMOVED***The***REMOVED***visual***REMOVED***component***REMOVED***displaying***REMOVED***real-time***REMOVED***progress***REMOVED***of***REMOVED***agent***REMOVED***workflow***REMOVED***execution
--***REMOVED*****Agent**:***REMOVED***An***REMOVED***autonomous***REMOVED***software***REMOVED***component***REMOVED***that***REMOVED***performs***REMOVED***specific***REMOVED***tasks***REMOVED***(e.g.,***REMOVED***Email***REMOVED***Agent,***REMOVED***Drive***REMOVED***Agent)
--***REMOVED*****Workflow**:***REMOVED***A***REMOVED***sequence***REMOVED***of***REMOVED***steps***REMOVED***executed***REMOVED***by***REMOVED***multiple***REMOVED***agents***REMOVED***to***REMOVED***complete***REMOVED***a***REMOVED***user***REMOVED***request
--***REMOVED*****Quick***REMOVED***Action**:***REMOVED***A***REMOVED***pre-configured***REMOVED***workflow***REMOVED***template***REMOVED***that***REMOVED***users***REMOVED***can***REMOVED***trigger***REMOVED***with***REMOVED***one***REMOVED***click
--***REMOVED*****Task***REMOVED***History**:***REMOVED***A***REMOVED***chronological***REMOVED***record***REMOVED***of***REMOVED***all***REMOVED***user***REMOVED***requests***REMOVED***and***REMOVED***their***REMOVED***execution***REMOVED***results
--***REMOVED*****OAuth***REMOVED***Connection**:***REMOVED***The***REMOVED***authenticated***REMOVED***link***REMOVED***between***REMOVED***the***REMOVED***user's***REMOVED***Google***REMOVED***account***REMOVED***and***REMOVED***AURA
--***REMOVED*****Results***REMOVED***Panel**:***REMOVED***The***REMOVED***display***REMOVED***area***REMOVED***showing***REMOVED***outputs***REMOVED***from***REMOVED***completed***REMOVED***workflows
-
----
-
-##***REMOVED***Requirements
-
-###***REMOVED***Requirement***REMOVED***1
-
-**User***REMOVED***Story:*****REMOVED***As***REMOVED***a***REMOVED***user,***REMOVED***I***REMOVED***want***REMOVED***to***REMOVED***input***REMOVED***natural***REMOVED***language***REMOVED***commands***REMOVED***so***REMOVED***that***REMOVED***I***REMOVED***can***REMOVED***instruct***REMOVED***AURA***REMOVED***to***REMOVED***perform***REMOVED***complex***REMOVED***workflows***REMOVED***without***REMOVED***technical***REMOVED***knowledge
-
-####***REMOVED***Acceptance***REMOVED***Criteria
-
-1.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***provide***REMOVED***a***REMOVED***text***REMOVED***input***REMOVED***field***REMOVED***with***REMOVED***minimum***REMOVED***3***REMOVED***lines***REMOVED***of***REMOVED***visible***REMOVED***text***REMOVED***area
-2.***REMOVED***WHEN***REMOVED***the***REMOVED***user***REMOVED***types***REMOVED***in***REMOVED***the***REMOVED***Command***REMOVED***Input***REMOVED***Component,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***character***REMOVED***count***REMOVED***and***REMOVED***suggested***REMOVED***completions
-3.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***provide***REMOVED***at***REMOVED***least***REMOVED***5***REMOVED***pre-written***REMOVED***prompt***REMOVED***templates***REMOVED***that***REMOVED***users***REMOVED***can***REMOVED***select
-4.***REMOVED***WHEN***REMOVED***the***REMOVED***user***REMOVED***submits***REMOVED***a***REMOVED***command,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***validate***REMOVED***that***REMOVED***the***REMOVED***input***REMOVED***contains***REMOVED***at***REMOVED***least***REMOVED***10***REMOVED***characters***REMOVED***before***REMOVED***processing
-5.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***support***REMOVED***keyboard***REMOVED***shortcut***REMOVED***"Ctrl+Enter"***REMOVED***(or***REMOVED***"Cmd+Enter"***REMOVED***on***REMOVED***Mac)***REMOVED***to***REMOVED***submit***REMOVED***commands
+- **UI System**: The complete Next.js-based frontend application for AURA
+- **Command Input Component**: The text input interface where users enter natural language instructions
+- **Execution Tracker**: The visual component displaying real-time progress of agent workflow execution
+- **Agent**: An autonomous software component that performs specific tasks (e.g., Email Agent, Drive Agent)
+- **Workflow**: A sequence of steps executed by multiple agents to complete a user request
+- **Quick Action**: A pre-configured workflow template that users can trigger with one click
+- **Task History**: A chronological record of all user requests and their execution results
+- **OAuth Connection**: The authenticated link between the user's Google account and AURA
+- **Results Panel**: The display area showing outputs from completed workflows
 
 ---
 
-###***REMOVED***Requirement***REMOVED***2
+## Requirements
 
-**User***REMOVED***Story:*****REMOVED***As***REMOVED***a***REMOVED***user,***REMOVED***I***REMOVED***want***REMOVED***to***REMOVED***see***REMOVED***real-time***REMOVED***progress***REMOVED***of***REMOVED***my***REMOVED***request***REMOVED***so***REMOVED***that***REMOVED***I***REMOVED***understand***REMOVED***what***REMOVED***AURA***REMOVED***is***REMOVED***doing***REMOVED***and***REMOVED***how***REMOVED***long***REMOVED***it***REMOVED***will***REMOVED***take
+### Requirement 1
 
-####***REMOVED***Acceptance***REMOVED***Criteria
+**User Story:** As a user, I want to input natural language commands so that I can instruct AURA to perform complex workflows without technical knowledge
 
-1.***REMOVED***WHEN***REMOVED***a***REMOVED***workflow***REMOVED***begins***REMOVED***execution,***REMOVED***THE***REMOVED***Execution***REMOVED***Tracker***REMOVED***SHALL***REMOVED***display***REMOVED***a***REMOVED***progress***REMOVED***indicator***REMOVED***showing***REMOVED***current***REMOVED***step***REMOVED***and***REMOVED***total***REMOVED***steps
-2.***REMOVED***THE***REMOVED***Execution***REMOVED***Tracker***REMOVED***SHALL***REMOVED***update***REMOVED***within***REMOVED***500***REMOVED***milliseconds***REMOVED***of***REMOVED***each***REMOVED***agent***REMOVED***state***REMOVED***change
-3.***REMOVED***WHEN***REMOVED***an***REMOVED***agent***REMOVED***starts***REMOVED***a***REMOVED***task,***REMOVED***THE***REMOVED***Execution***REMOVED***Tracker***REMOVED***SHALL***REMOVED***display***REMOVED***the***REMOVED***agent***REMOVED***name***REMOVED***and***REMOVED***current***REMOVED***action***REMOVED***description
-4.***REMOVED***THE***REMOVED***Execution***REMOVED***Tracker***REMOVED***SHALL***REMOVED***provide***REMOVED***expandable***REMOVED***details***REMOVED***for***REMOVED***each***REMOVED***completed***REMOVED***step***REMOVED***showing***REMOVED***inputs***REMOVED***and***REMOVED***outputs
-5.***REMOVED***WHEN***REMOVED***a***REMOVED***workflow***REMOVED***step***REMOVED***fails,***REMOVED***THE***REMOVED***Execution***REMOVED***Tracker***REMOVED***SHALL***REMOVED***display***REMOVED***an***REMOVED***error***REMOVED***message***REMOVED***with***REMOVED***retry***REMOVED***option***REMOVED***within***REMOVED***2***REMOVED***seconds
+#### Acceptance Criteria
 
----
-
-###***REMOVED***Requirement***REMOVED***3
-
-**User***REMOVED***Story:*****REMOVED***As***REMOVED***a***REMOVED***user,***REMOVED***I***REMOVED***want***REMOVED***to***REMOVED***view***REMOVED***and***REMOVED***interact***REMOVED***with***REMOVED***workflow***REMOVED***results***REMOVED***so***REMOVED***that***REMOVED***I***REMOVED***can***REMOVED***use***REMOVED***the***REMOVED***generated***REMOVED***content***REMOVED***and***REMOVED***verify***REMOVED***correctness
-
-####***REMOVED***Acceptance***REMOVED***Criteria
-
-1.***REMOVED***WHEN***REMOVED***a***REMOVED***workflow***REMOVED***completes***REMOVED***successfully,***REMOVED***THE***REMOVED***Results***REMOVED***Panel***REMOVED***SHALL***REMOVED***display***REMOVED***all***REMOVED***generated***REMOVED***outputs***REMOVED***within***REMOVED***1***REMOVED***second
-2.***REMOVED***THE***REMOVED***Results***REMOVED***Panel***REMOVED***SHALL***REMOVED***provide***REMOVED***action***REMOVED***buttons***REMOVED***for***REMOVED***each***REMOVED***result***REMOVED***type***REMOVED***(e.g.,***REMOVED***"Open***REMOVED***in***REMOVED***Drive",***REMOVED***"View***REMOVED***Email",***REMOVED***"Download")
-3.***REMOVED***WHERE***REMOVED***a***REMOVED***result***REMOVED***is***REMOVED***a***REMOVED***Google***REMOVED***Doc***REMOVED***or***REMOVED***Sheet,***REMOVED***THE***REMOVED***Results***REMOVED***Panel***REMOVED***SHALL***REMOVED***display***REMOVED***a***REMOVED***preview***REMOVED***with***REMOVED***first***REMOVED***500***REMOVED***characters
-4.***REMOVED***THE***REMOVED***Results***REMOVED***Panel***REMOVED***SHALL***REMOVED***provide***REMOVED***a***REMOVED***feedback***REMOVED***mechanism***REMOVED***allowing***REMOVED***users***REMOVED***to***REMOVED***rate***REMOVED***results***REMOVED***as***REMOVED***positive***REMOVED***or***REMOVED***negative
-5.***REMOVED***WHEN***REMOVED***the***REMOVED***user***REMOVED***clicks***REMOVED***an***REMOVED***action***REMOVED***button,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***open***REMOVED***the***REMOVED***corresponding***REMOVED***resource***REMOVED***in***REMOVED***a***REMOVED***new***REMOVED***browser***REMOVED***tab
+1. THE UI System SHALL provide a text input field with minimum 3 lines of visible text area
+2. WHEN the user types in the Command Input Component, THE UI System SHALL display character count and suggested completions
+3. THE UI System SHALL provide at least 5 pre-written prompt templates that users can select
+4. WHEN the user submits a command, THE UI System SHALL validate that the input contains at least 10 characters before processing
+5. THE UI System SHALL support keyboard shortcut "Ctrl+Enter" (or "Cmd+Enter" on Mac) to submit commands
 
 ---
 
-###***REMOVED***Requirement***REMOVED***4
+### Requirement 2
 
-**User***REMOVED***Story:*****REMOVED***As***REMOVED***a***REMOVED***user,***REMOVED***I***REMOVED***want***REMOVED***quick***REMOVED***access***REMOVED***to***REMOVED***common***REMOVED***workflows***REMOVED***so***REMOVED***that***REMOVED***I***REMOVED***can***REMOVED***execute***REMOVED***frequent***REMOVED***tasks***REMOVED***efficiently
+**User Story:** As a user, I want to see real-time progress of my request so that I understand what AURA is doing and how long it will take
 
-####***REMOVED***Acceptance***REMOVED***Criteria
+#### Acceptance Criteria
 
-1.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***a***REMOVED***Quick***REMOVED***Actions***REMOVED***sidebar***REMOVED***containing***REMOVED***at***REMOVED***least***REMOVED***8***REMOVED***pre-configured***REMOVED***workflow***REMOVED***templates
-2.***REMOVED***WHEN***REMOVED***the***REMOVED***user***REMOVED***clicks***REMOVED***a***REMOVED***Quick***REMOVED***Action,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***populate***REMOVED***the***REMOVED***Command***REMOVED***Input***REMOVED***Component***REMOVED***with***REMOVED***the***REMOVED***template***REMOVED***text
-3.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***allow***REMOVED***users***REMOVED***to***REMOVED***mark***REMOVED***workflows***REMOVED***as***REMOVED***favorites,***REMOVED***storing***REMOVED***up***REMOVED***to***REMOVED***20***REMOVED***favorites***REMOVED***per***REMOVED***user
-4.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***the***REMOVED***5***REMOVED***most***REMOVED***recently***REMOVED***used***REMOVED***workflows***REMOVED***in***REMOVED***the***REMOVED***Quick***REMOVED***Actions***REMOVED***sidebar
-5.***REMOVED***WHERE***REMOVED***a***REMOVED***Quick***REMOVED***Action***REMOVED***requires***REMOVED***parameters,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***prompt***REMOVED***the***REMOVED***user***REMOVED***for***REMOVED***required***REMOVED***inputs***REMOVED***before***REMOVED***execution
-
----
-
-###***REMOVED***Requirement***REMOVED***5
-
-**User***REMOVED***Story:*****REMOVED***As***REMOVED***a***REMOVED***user,***REMOVED***I***REMOVED***want***REMOVED***to***REMOVED***review***REMOVED***my***REMOVED***past***REMOVED***requests***REMOVED***and***REMOVED***their***REMOVED***results***REMOVED***so***REMOVED***that***REMOVED***I***REMOVED***can***REMOVED***track***REMOVED***my***REMOVED***activity***REMOVED***and***REMOVED***re-run***REMOVED***successful***REMOVED***workflows
-
-####***REMOVED***Acceptance***REMOVED***Criteria
-
-1.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***provide***REMOVED***a***REMOVED***History***REMOVED***page***REMOVED***displaying***REMOVED***all***REMOVED***user***REMOVED***requests***REMOVED***in***REMOVED***reverse***REMOVED***chronological***REMOVED***order
-2.***REMOVED***THE***REMOVED***Task***REMOVED***History***REMOVED***SHALL***REMOVED***display***REMOVED***at***REMOVED***minimum:***REMOVED***timestamp,***REMOVED***command***REMOVED***text,***REMOVED***status,***REMOVED***and***REMOVED***execution***REMOVED***duration***REMOVED***for***REMOVED***each***REMOVED***entry
-3.***REMOVED***THE***REMOVED***Task***REMOVED***History***REMOVED***SHALL***REMOVED***support***REMOVED***filtering***REMOVED***by***REMOVED***date***REMOVED***range,***REMOVED***status***REMOVED***(success/failure),***REMOVED***and***REMOVED***agent***REMOVED***type
-4.***REMOVED***WHEN***REMOVED***the***REMOVED***user***REMOVED***selects***REMOVED***a***REMOVED***history***REMOVED***entry,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***the***REMOVED***complete***REMOVED***workflow***REMOVED***execution***REMOVED***details
-5.***REMOVED***THE***REMOVED***Task***REMOVED***History***REMOVED***SHALL***REMOVED***provide***REMOVED***a***REMOVED***"Re-run"***REMOVED***button***REMOVED***that***REMOVED***executes***REMOVED***the***REMOVED***same***REMOVED***command***REMOVED***with***REMOVED***current***REMOVED***context
+1. WHEN a workflow begins execution, THE Execution Tracker SHALL display a progress indicator showing current step and total steps
+2. THE Execution Tracker SHALL update within 500 milliseconds of each agent state change
+3. WHEN an agent starts a task, THE Execution Tracker SHALL display the agent name and current action description
+4. THE Execution Tracker SHALL provide expandable details for each completed step showing inputs and outputs
+5. WHEN a workflow step fails, THE Execution Tracker SHALL display an error message with retry option within 2 seconds
 
 ---
 
-###***REMOVED***Requirement***REMOVED***6
+### Requirement 3
 
-**User***REMOVED***Story:*****REMOVED***As***REMOVED***a***REMOVED***user,***REMOVED***I***REMOVED***want***REMOVED***to***REMOVED***manage***REMOVED***my***REMOVED***Google***REMOVED***account***REMOVED***connection***REMOVED***and***REMOVED***permissions***REMOVED***so***REMOVED***that***REMOVED***I***REMOVED***control***REMOVED***what***REMOVED***AURA***REMOVED***can***REMOVED***access
+**User Story:** As a user, I want to view and interact with workflow results so that I can use the generated content and verify correctness
 
-####***REMOVED***Acceptance***REMOVED***Criteria
+#### Acceptance Criteria
 
-1.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***OAuth***REMOVED***connection***REMOVED***status***REMOVED***on***REMOVED***every***REMOVED***page***REMOVED***showing***REMOVED***"Connected"***REMOVED***or***REMOVED***"Disconnected"
-2.***REMOVED***WHEN***REMOVED***the***REMOVED***user***REMOVED***is***REMOVED***not***REMOVED***authenticated,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***a***REMOVED***"Connect***REMOVED***Google***REMOVED***Account"***REMOVED***button***REMOVED***prominently
-3.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***provide***REMOVED***a***REMOVED***Settings***REMOVED***page***REMOVED***listing***REMOVED***all***REMOVED***requested***REMOVED***OAuth***REMOVED***scopes***REMOVED***with***REMOVED***descriptions
-4.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***allow***REMOVED***users***REMOVED***to***REMOVED***disconnect***REMOVED***their***REMOVED***Google***REMOVED***account,***REMOVED***which***REMOVED***SHALL***REMOVED***revoke***REMOVED***all***REMOVED***stored***REMOVED***tokens
-5.***REMOVED***WHEN***REMOVED***token***REMOVED***expiration***REMOVED***occurs,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***prompt***REMOVED***the***REMOVED***user***REMOVED***to***REMOVED***re-authenticate***REMOVED***within***REMOVED***5***REMOVED***seconds
-
----
-
-###***REMOVED***Requirement***REMOVED***7
-
-**User***REMOVED***Story:*****REMOVED***As***REMOVED***a***REMOVED***user,***REMOVED***I***REMOVED***want***REMOVED***the***REMOVED***interface***REMOVED***to***REMOVED***be***REMOVED***responsive***REMOVED***and***REMOVED***work***REMOVED***on***REMOVED***mobile***REMOVED***devices***REMOVED***so***REMOVED***that***REMOVED***I***REMOVED***can***REMOVED***use***REMOVED***AURA***REMOVED***from***REMOVED***any***REMOVED***device
-
-####***REMOVED***Acceptance***REMOVED***Criteria
-
-1.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***render***REMOVED***correctly***REMOVED***on***REMOVED***viewport***REMOVED***widths***REMOVED***from***REMOVED***320***REMOVED***pixels***REMOVED***to***REMOVED***2560***REMOVED***pixels
-2.***REMOVED***WHEN***REMOVED***accessed***REMOVED***on***REMOVED***mobile***REMOVED***devices***REMOVED***(viewport***REMOVED***width***REMOVED***less***REMOVED***than***REMOVED***768***REMOVED***pixels),***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***use***REMOVED***a***REMOVED***single-column***REMOVED***layout
-3.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***support***REMOVED***touch***REMOVED***gestures***REMOVED***including***REMOVED***swipe-to-navigate***REMOVED***for***REMOVED***history***REMOVED***entries***REMOVED***on***REMOVED***mobile
-4.***REMOVED***WHEN***REMOVED***on***REMOVED***mobile,***REMOVED***THE***REMOVED***Execution***REMOVED***Tracker***REMOVED***SHALL***REMOVED***display***REMOVED***as***REMOVED***a***REMOVED***bottom***REMOVED***sheet***REMOVED***that***REMOVED***users***REMOVED***can***REMOVED***expand***REMOVED***or***REMOVED***collapse
-5.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***maintain***REMOVED***functionality***REMOVED***and***REMOVED***readability***REMOVED***at***REMOVED***font***REMOVED***sizes***REMOVED***from***REMOVED***12px***REMOVED***to***REMOVED***20px
+1. WHEN a workflow completes successfully, THE Results Panel SHALL display all generated outputs within 1 second
+2. THE Results Panel SHALL provide action buttons for each result type (e.g., "Open in Drive", "View Email", "Download")
+3. WHERE a result is a Google Doc or Sheet, THE Results Panel SHALL display a preview with first 500 characters
+4. THE Results Panel SHALL provide a feedback mechanism allowing users to rate results as positive or negative
+5. WHEN the user clicks an action button, THE UI System SHALL open the corresponding resource in a new browser tab
 
 ---
 
-###***REMOVED***Requirement***REMOVED***8
+### Requirement 4
 
-**User***REMOVED***Story:*****REMOVED***As***REMOVED***a***REMOVED***user,***REMOVED***I***REMOVED***want***REMOVED***clear***REMOVED***visual***REMOVED***feedback***REMOVED***for***REMOVED***different***REMOVED***system***REMOVED***states***REMOVED***so***REMOVED***that***REMOVED***I***REMOVED***always***REMOVED***understand***REMOVED***what's***REMOVED***happening
+**User Story:** As a user, I want quick access to common workflows so that I can execute frequent tasks efficiently
 
-####***REMOVED***Acceptance***REMOVED***Criteria
+#### Acceptance Criteria
 
-1.***REMOVED***WHEN***REMOVED***no***REMOVED***workflow***REMOVED***is***REMOVED***active,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***an***REMOVED***idle***REMOVED***state***REMOVED***with***REMOVED***prominent***REMOVED***Command***REMOVED***Input***REMOVED***Component
-2.***REMOVED***WHEN***REMOVED***a***REMOVED***workflow***REMOVED***is***REMOVED***executing,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***disable***REMOVED***the***REMOVED***Command***REMOVED***Input***REMOVED***Component***REMOVED***and***REMOVED***display***REMOVED***a***REMOVED***"Cancel"***REMOVED***button
-3.***REMOVED***WHEN***REMOVED***a***REMOVED***workflow***REMOVED***completes***REMOVED***successfully,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***a***REMOVED***success***REMOVED***indicator***REMOVED***(green***REMOVED***checkmark)***REMOVED***for***REMOVED***at***REMOVED***least***REMOVED***2***REMOVED***seconds
-4.***REMOVED***WHEN***REMOVED***a***REMOVED***workflow***REMOVED***fails,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***an***REMOVED***error***REMOVED***state***REMOVED***with***REMOVED***clear***REMOVED***error***REMOVED***message***REMOVED***and***REMOVED***suggested***REMOVED***actions
-5.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***provide***REMOVED***loading***REMOVED***animations***REMOVED***for***REMOVED***all***REMOVED***asynchronous***REMOVED***operations***REMOVED***lasting***REMOVED***longer***REMOVED***than***REMOVED***300***REMOVED***milliseconds
-
----
-
-###***REMOVED***Requirement***REMOVED***9
-
-**User***REMOVED***Story:*****REMOVED***As***REMOVED***a***REMOVED***user,***REMOVED***I***REMOVED***want***REMOVED***keyboard***REMOVED***shortcuts***REMOVED***and***REMOVED***accessibility***REMOVED***features***REMOVED***so***REMOVED***that***REMOVED***I***REMOVED***can***REMOVED***navigate***REMOVED***efficiently***REMOVED***and***REMOVED***use***REMOVED***assistive***REMOVED***technologies
-
-####***REMOVED***Acceptance***REMOVED***Criteria
-
-1.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***support***REMOVED***keyboard***REMOVED***navigation***REMOVED***for***REMOVED***all***REMOVED***interactive***REMOVED***elements***REMOVED***using***REMOVED***Tab***REMOVED***and***REMOVED***Arrow***REMOVED***keys
-2.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***provide***REMOVED***ARIA***REMOVED***labels***REMOVED***for***REMOVED***all***REMOVED***interactive***REMOVED***components***REMOVED***to***REMOVED***support***REMOVED***screen***REMOVED***readers
-3.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***support***REMOVED***keyboard***REMOVED***shortcut***REMOVED***"Ctrl+K"***REMOVED***(or***REMOVED***"Cmd+K"***REMOVED***on***REMOVED***Mac)***REMOVED***to***REMOVED***focus***REMOVED***the***REMOVED***Command***REMOVED***Input***REMOVED***Component
-4.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***maintain***REMOVED***focus***REMOVED***management***REMOVED***so***REMOVED***that***REMOVED***focus***REMOVED***returns***REMOVED***to***REMOVED***logical***REMOVED***elements***REMOVED***after***REMOVED***modal***REMOVED***closures
-5.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***meet***REMOVED***WCAG***REMOVED***2.1***REMOVED***Level***REMOVED***AA***REMOVED***contrast***REMOVED***requirements***REMOVED***for***REMOVED***all***REMOVED***text***REMOVED***and***REMOVED***interactive***REMOVED***elements
+1. THE UI System SHALL display a Quick Actions sidebar containing at least 8 pre-configured workflow templates
+2. WHEN the user clicks a Quick Action, THE UI System SHALL populate the Command Input Component with the template text
+3. THE UI System SHALL allow users to mark workflows as favorites, storing up to 20 favorites per user
+4. THE UI System SHALL display the 5 most recently used workflows in the Quick Actions sidebar
+5. WHERE a Quick Action requires parameters, THE UI System SHALL prompt the user for required inputs before execution
 
 ---
 
-###***REMOVED***Requirement***REMOVED***10
+### Requirement 5
 
-**User***REMOVED***Story:*****REMOVED***As***REMOVED***a***REMOVED***user,***REMOVED***I***REMOVED***want***REMOVED***to***REMOVED***cancel***REMOVED***long-running***REMOVED***workflows***REMOVED***so***REMOVED***that***REMOVED***I***REMOVED***can***REMOVED***stop***REMOVED***operations***REMOVED***that***REMOVED***are***REMOVED***taking***REMOVED***too***REMOVED***long***REMOVED***or***REMOVED***were***REMOVED***started***REMOVED***by***REMOVED***mistake
+**User Story:** As a user, I want to review my past requests and their results so that I can track my activity and re-run successful workflows
 
-####***REMOVED***Acceptance***REMOVED***Criteria
+#### Acceptance Criteria
 
-1.***REMOVED***WHEN***REMOVED***a***REMOVED***workflow***REMOVED***is***REMOVED***executing,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***a***REMOVED***"Cancel"***REMOVED***button***REMOVED***in***REMOVED***the***REMOVED***Execution***REMOVED***Tracker
-2.***REMOVED***WHEN***REMOVED***the***REMOVED***user***REMOVED***clicks***REMOVED***"Cancel",***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***send***REMOVED***a***REMOVED***cancellation***REMOVED***request***REMOVED***to***REMOVED***the***REMOVED***backend***REMOVED***within***REMOVED***200***REMOVED***milliseconds
-3.***REMOVED***WHEN***REMOVED***cancellation***REMOVED***is***REMOVED***confirmed,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***a***REMOVED***cancelled***REMOVED***state***REMOVED***and***REMOVED***return***REMOVED***to***REMOVED***idle***REMOVED***within***REMOVED***1***REMOVED***second
-4.***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***preserve***REMOVED***partial***REMOVED***results***REMOVED***from***REMOVED***cancelled***REMOVED***workflows***REMOVED***in***REMOVED***the***REMOVED***Task***REMOVED***History
-5.***REMOVED***WHEN***REMOVED***a***REMOVED***workflow***REMOVED***is***REMOVED***cancelled,***REMOVED***THE***REMOVED***UI***REMOVED***System***REMOVED***SHALL***REMOVED***display***REMOVED***which***REMOVED***steps***REMOVED***completed***REMOVED***and***REMOVED***which***REMOVED***were***REMOVED***cancelled
+1. THE UI System SHALL provide a History page displaying all user requests in reverse chronological order
+2. THE Task History SHALL display at minimum: timestamp, command text, status, and execution duration for each entry
+3. THE Task History SHALL support filtering by date range, status (success/failure), and agent type
+4. WHEN the user selects a history entry, THE UI System SHALL display the complete workflow execution details
+5. THE Task History SHALL provide a "Re-run" button that executes the same command with current context
+
+---
+
+### Requirement 6
+
+**User Story:** As a user, I want to manage my Google account connection and permissions so that I control what AURA can access
+
+#### Acceptance Criteria
+
+1. THE UI System SHALL display OAuth connection status on every page showing "Connected" or "Disconnected"
+2. WHEN the user is not authenticated, THE UI System SHALL display a "Connect Google Account" button prominently
+3. THE UI System SHALL provide a Settings page listing all requested OAuth scopes with descriptions
+4. THE UI System SHALL allow users to disconnect their Google account, which SHALL revoke all stored tokens
+5. WHEN token expiration occurs, THE UI System SHALL prompt the user to re-authenticate within 5 seconds
+
+---
+
+### Requirement 7
+
+**User Story:** As a user, I want the interface to be responsive and work on mobile devices so that I can use AURA from any device
+
+#### Acceptance Criteria
+
+1. THE UI System SHALL render correctly on viewport widths from 320 pixels to 2560 pixels
+2. WHEN accessed on mobile devices (viewport width less than 768 pixels), THE UI System SHALL use a single-column layout
+3. THE UI System SHALL support touch gestures including swipe-to-navigate for history entries on mobile
+4. WHEN on mobile, THE Execution Tracker SHALL display as a bottom sheet that users can expand or collapse
+5. THE UI System SHALL maintain functionality and readability at font sizes from 12px to 20px
+
+---
+
+### Requirement 8
+
+**User Story:** As a user, I want clear visual feedback for different system states so that I always understand what's happening
+
+#### Acceptance Criteria
+
+1. WHEN no workflow is active, THE UI System SHALL display an idle state with prominent Command Input Component
+2. WHEN a workflow is executing, THE UI System SHALL disable the Command Input Component and display a "Cancel" button
+3. WHEN a workflow completes successfully, THE UI System SHALL display a success indicator (green checkmark) for at least 2 seconds
+4. WHEN a workflow fails, THE UI System SHALL display an error state with clear error message and suggested actions
+5. THE UI System SHALL provide loading animations for all asynchronous operations lasting longer than 300 milliseconds
+
+---
+
+### Requirement 9
+
+**User Story:** As a user, I want keyboard shortcuts and accessibility features so that I can navigate efficiently and use assistive technologies
+
+#### Acceptance Criteria
+
+1. THE UI System SHALL support keyboard navigation for all interactive elements using Tab and Arrow keys
+2. THE UI System SHALL provide ARIA labels for all interactive components to support screen readers
+3. THE UI System SHALL support keyboard shortcut "Ctrl+K" (or "Cmd+K" on Mac) to focus the Command Input Component
+4. THE UI System SHALL maintain focus management so that focus returns to logical elements after modal closures
+5. THE UI System SHALL meet WCAG 2.1 Level AA contrast requirements for all text and interactive elements
+
+---
+
+### Requirement 10
+
+**User Story:** As a user, I want to cancel long-running workflows so that I can stop operations that are taking too long or were started by mistake
+
+#### Acceptance Criteria
+
+1. WHEN a workflow is executing, THE UI System SHALL display a "Cancel" button in the Execution Tracker
+2. WHEN the user clicks "Cancel", THE UI System SHALL send a cancellation request to the backend within 200 milliseconds
+3. WHEN cancellation is confirmed, THE UI System SHALL display a cancelled state and return to idle within 1 second
+4. THE UI System SHALL preserve partial results from cancelled workflows in the Task History
+5. WHEN a workflow is cancelled, THE UI System SHALL display which steps completed and which were cancelled
+

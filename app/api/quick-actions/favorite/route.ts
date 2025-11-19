@@ -1,8 +1,8 @@
-﻿import{NextRequest,NextResponse}from"next/server";
-import{createClient}from"@/lib/supabase/server";
-import{getProfile,updateProfile}from"@/lib/supabase/queries";
+﻿import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { getProfile, updateProfile } from "@/lib/supabase/queries";
 
-exportasyncfunctionPOST(request:NextRequest){
+export async function POST(request: NextRequest) {
 try{
 constsupabase=awaitcreateClient();
 

@@ -1,22 +1,23 @@
-﻿"useclient";
+﻿"use client";
 
-import{useSupabaseAuth}from"@/contexts/SupabaseAuthContext";
-import{useRouter}from"next/navigation";
-import{useEffect,useState}from"react";
-import{DashboardLayout}from"@/components/layout/DashboardLayout";
-import{CommandInputWithShortcuts}from"@/components/command";
+import { useSupabaseAuth } from "@/contexts/SupabaseAuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { CommandInputWithShortcuts } from "@/components/command";
 
-exportdefaultfunctionDashboard(){
-const{user,isLoading,googleOAuthStatus}=useSupabaseAuth();
-constrouter=useRouter();
-const[isExecuting,setIsExecuting]=useState(false);
-const[commandValue,setCommandValue]=useState("");
+export default function Dashboard() {
+  const { user, isLoading, googleOAuthStatus } = useSupabaseAuth();
+  const router = useRouter();
+  const [ isExecuting, setIsExecuting ] = useState(false);
+  const [ commandValue, setCommandValue ] = useState("");
 
-useEffect(()=>{
-//Redirecttologinifnotauthenticated
-if(!isLoading&&!user){
-router.push("/login");
-}
+  useEffect(() => {
+    // Redirect to login if not authenticated
+    if (!isLoading && !user) {
+      router.push("/login");
+    }
+  }, [ user, isLoading, router ]);
 },[user,isLoading,router]);
 
 consthandleQuickActionSelect=(template:string)=>{

@@ -1,179 +1,180 @@
-#***REMOVED***🚀***REMOVED***AURA***REMOVED***Setup***REMOVED***Checklist
+# 🚀 AURA Setup Checklist
 
-Use***REMOVED***this***REMOVED***checklist***REMOVED***to***REMOVED***get***REMOVED***AURA***REMOVED***up***REMOVED***and***REMOVED***running***REMOVED***quickly.
+Use this checklist to get AURA up and running quickly.
 
-##***REMOVED***✅***REMOVED***Prerequisites
+## ✅ Prerequisites
 
--***REMOVED***[***REMOVED***]***REMOVED***Node.js***REMOVED***20+***REMOVED***installed
--***REMOVED***[***REMOVED***]***REMOVED***npm***REMOVED***installed
--***REMOVED***[***REMOVED***]***REMOVED***Google***REMOVED***account***REMOVED***(for***REMOVED***Gemini***REMOVED***API)
--***REMOVED***[***REMOVED***]***REMOVED***Supabase***REMOVED***account***REMOVED***(optional***REMOVED***for***REMOVED***local***REMOVED***dev)
+- [ ] Node.js 20+ installed
+- [ ] npm installed
+- [ ] Google account (for Gemini API)
+- [ ] Supabase account (optional for local dev)
 
-##***REMOVED***✅***REMOVED***Installation
+## ✅ Installation
 
--***REMOVED***[***REMOVED***]***REMOVED***Clone***REMOVED***the***REMOVED***repository
--***REMOVED***[***REMOVED***]***REMOVED***Run***REMOVED***`npm***REMOVED***install`
--***REMOVED***[***REMOVED***]***REMOVED***Copy***REMOVED***`.env.example`***REMOVED***to***REMOVED***`.env.local`
+- [ ] Clone the repository
+- [ ] Run `npm install`
+- [ ] Copy `.env.example` to `.env.local`
 
-##***REMOVED***✅***REMOVED***LLM***REMOVED***Configuration***REMOVED***(Gemini***REMOVED***-***REMOVED***Recommended)
+## ✅ LLM Configuration (Gemini - Recommended)
 
--***REMOVED***[***REMOVED***]***REMOVED***Visit***REMOVED***[Google***REMOVED***AI***REMOVED***Studio](https://aistudio.google.com/app/apikey)
--***REMOVED***[***REMOVED***]***REMOVED***Sign***REMOVED***in***REMOVED***and***REMOVED***create***REMOVED***API***REMOVED***key
--***REMOVED***[***REMOVED***]***REMOVED***Copy***REMOVED***API***REMOVED***key***REMOVED***(starts***REMOVED***with***REMOVED***`AIza...`)
--***REMOVED***[***REMOVED***]***REMOVED***Add***REMOVED***to***REMOVED***`.env.local`:
-***REMOVED******REMOVED***```bash
-***REMOVED******REMOVED***LLM_PROVIDER=gemini
-***REMOVED******REMOVED***GOOGLE_GEMINI_API_KEY=AIza...your_key_here
-***REMOVED******REMOVED***GOOGLE_GEMINI_MODEL=gemini-2.0-flash-exp
-***REMOVED******REMOVED***```
+- [ ] Visit [Google AI Studio](https://aistudio.google.com/app/apikey)
+- [ ] Sign in and create API key
+- [ ] Copy API key (starts with `AIza...`)
+- [ ] Add to `.env.local`:
+  ```bash
+  LLM_PROVIDER=gemini
+  GOOGLE_GEMINI_API_KEY=AIza...your_key_here
+  GOOGLE_GEMINI_MODEL=gemini-2.0-flash-exp
+  ```
 
-**📖***REMOVED***Detailed***REMOVED***Guide**:***REMOVED***[Gemini***REMOVED***Setup](./docs/GEMINI_SETUP.md)
+**📖 Detailed Guide**: [Gemini Setup](./docs/GEMINI_SETUP.md)
 
-##***REMOVED***✅***REMOVED***Supabase***REMOVED***Configuration
+## ✅ Supabase Configuration
 
--***REMOVED***[***REMOVED***]***REMOVED***Create***REMOVED***Supabase***REMOVED***project***REMOVED***at***REMOVED***[supabase.com](https://supabase.com)
--***REMOVED***[***REMOVED***]***REMOVED***Get***REMOVED***project***REMOVED***URL***REMOVED***and***REMOVED***keys***REMOVED***from***REMOVED***Settings***REMOVED***>***REMOVED***API
--***REMOVED***[***REMOVED***]***REMOVED***Add***REMOVED***to***REMOVED***`.env.local`:
-***REMOVED******REMOVED***```bash
-***REMOVED******REMOVED***NEXT_PUBLIC_SUPABASE_URL=your_project_url
-***REMOVED******REMOVED***NEXT_PUBLIC_SUPABASE_ANON_KEY=REDACTED
-***REMOVED******REMOVED***SUPABASE_SERVICE_ROLE_KEY=REDACTED
-***REMOVED******REMOVED***```
+- [ ] Create Supabase project at [supabase.com](https://supabase.com)
+- [ ] Get project URL and keys from Settings > API
+- [ ] Add to `.env.local`:
+  ```bash
+  NEXT_PUBLIC_SUPABASE_URL=your_project_url
+  NEXT_PUBLIC_SUPABASE_ANON_KEY=REDACTED
+  SUPABASE_SERVICE_ROLE_KEY=REDACTED
+  ```
 
-**📖***REMOVED***Detailed***REMOVED***Guide**:***REMOVED***[Supabase***REMOVED***Quickstart](./docs/SUPABASE_QUICKSTART.md)
+**📖 Detailed Guide**: [Supabase Quickstart](./docs/SUPABASE_QUICKSTART.md)
 
-##***REMOVED***✅***REMOVED***Google***REMOVED***OAuth***REMOVED***Configuration
+## ✅ Google OAuth Configuration
 
--***REMOVED***[***REMOVED***]***REMOVED***Create***REMOVED***Google***REMOVED***Cloud***REMOVED***Project
--***REMOVED***[***REMOVED***]***REMOVED***Enable***REMOVED***Google***REMOVED***Workspace***REMOVED***APIs
--***REMOVED***[***REMOVED***]***REMOVED***Create***REMOVED***OAuth***REMOVED***2.0***REMOVED***credentials
--***REMOVED***[***REMOVED***]***REMOVED***Add***REMOVED***to***REMOVED***`.env.local`:
-***REMOVED******REMOVED***```bash
-***REMOVED******REMOVED***GOOGLE_CLIENT_ID=your_client_id
-***REMOVED******REMOVED***GOOGLE_CLIENT_SECRET=REDACTED
-***REMOVED******REMOVED***```
--***REMOVED***[***REMOVED***]***REMOVED***Configure***REMOVED***in***REMOVED***Supabase:***REMOVED***Authentication***REMOVED***>***REMOVED***Providers***REMOVED***>***REMOVED***Google
+- [ ] Create Google Cloud Project
+- [ ] Enable Google Workspace APIs
+- [ ] Create OAuth 2.0 credentials
+- [ ] Add to `.env.local`:
+  ```bash
+  GOOGLE_CLIENT_ID=your_client_id
+  GOOGLE_CLIENT_SECRET=REDACTED
+  ```
+- [ ] Configure in Supabase: Authentication > Providers > Google
 
-**📖***REMOVED***Detailed***REMOVED***Guide**:***REMOVED***[Complete***REMOVED***Setup***REMOVED***Guide](./docs/COMPLETE_SETUP_GUIDE.md)
+**📖 Detailed Guide**: [Complete Setup Guide](./docs/COMPLETE_SETUP_GUIDE.md)
 
-##***REMOVED***✅***REMOVED***Start***REMOVED***Development***REMOVED***Server
+## ✅ Start Development Server
 
--***REMOVED***[***REMOVED***]***REMOVED***Run***REMOVED***`npm***REMOVED***run***REMOVED***dev`
--***REMOVED***[***REMOVED***]***REMOVED***Open***REMOVED***http://localhost:3000
--***REMOVED***[***REMOVED***]***REMOVED***Verify***REMOVED***no***REMOVED***errors***REMOVED***in***REMOVED***console
+- [ ] Run `npm run dev`
+- [ ] Open http://localhost:3000
+- [ ] Verify no errors in console
 
-##***REMOVED***✅***REMOVED***Test***REMOVED***Basic***REMOVED***Functionality
+## ✅ Test Basic Functionality
 
--***REMOVED***[***REMOVED***]***REMOVED***Can***REMOVED***access***REMOVED***the***REMOVED***homepage
--***REMOVED***[***REMOVED***]***REMOVED***Can***REMOVED***see***REMOVED***the***REMOVED***UI***REMOVED***components
--***REMOVED***[***REMOVED***]***REMOVED***No***REMOVED***console***REMOVED***errors
+- [ ] Can access the homepage
+- [ ] Can see the UI components
+- [ ] No console errors
 
-##***REMOVED***✅***REMOVED***Test***REMOVED***LLM***REMOVED***Integration***REMOVED***(Optional)
+## ✅ Test LLM Integration (Optional)
 
--***REMOVED***[***REMOVED***]***REMOVED***Try***REMOVED***a***REMOVED***simple***REMOVED***workflow***REMOVED***command
--***REMOVED***[***REMOVED***]***REMOVED***Verify***REMOVED***Gemini***REMOVED***is***REMOVED***responding
--***REMOVED***[***REMOVED***]***REMOVED***Check***REMOVED***console***REMOVED***logs***REMOVED***for***REMOVED***"Using***REMOVED***LLM***REMOVED***provider:***REMOVED***gemini"
+- [ ] Try a simple workflow command
+- [ ] Verify Gemini is responding
+- [ ] Check console logs for "Using LLM provider: gemini"
 
-##***REMOVED***🎯***REMOVED***Quick***REMOVED***Start***REMOVED***Paths
+## 🎯 Quick Start Paths
 
-###***REMOVED***Path***REMOVED***1:***REMOVED***Just***REMOVED***Want***REMOVED***to***REMOVED***See***REMOVED***the***REMOVED***UI***REMOVED***(5***REMOVED***minutes)
-1.***REMOVED***✅***REMOVED***Install***REMOVED***dependencies
-2.***REMOVED***✅***REMOVED***Copy***REMOVED***`.env.example`***REMOVED***to***REMOVED***`.env.local`
-3.***REMOVED***✅***REMOVED***Run***REMOVED***`npm***REMOVED***run***REMOVED***dev`
-4.***REMOVED***✅***REMOVED***Open***REMOVED***http://localhost:3000
+### Path 1: Just Want to See the UI (5 minutes)
+1. ✅ Install dependencies
+2. ✅ Copy `.env.example` to `.env.local`
+3. ✅ Run `npm run dev`
+4. ✅ Open http://localhost:3000
 
-**Note**:***REMOVED***Some***REMOVED***features***REMOVED***won't***REMOVED***work***REMOVED***without***REMOVED***API***REMOVED***keys,***REMOVED***but***REMOVED***you***REMOVED***can***REMOVED***explore***REMOVED***the***REMOVED***UI.
+**Note**: Some features won't work without API keys, but you can explore the UI.
 
-###***REMOVED***Path***REMOVED***2:***REMOVED***Full***REMOVED***Setup***REMOVED***with***REMOVED***Gemini***REMOVED***(15***REMOVED***minutes)
-1.***REMOVED***✅***REMOVED***Install***REMOVED***dependencies
-2.***REMOVED***✅***REMOVED***Get***REMOVED***Gemini***REMOVED***API***REMOVED***key
-3.***REMOVED***✅***REMOVED***Configure***REMOVED***`.env.local`
-4.***REMOVED***✅***REMOVED***Run***REMOVED***`npm***REMOVED***run***REMOVED***dev`
-5.***REMOVED***✅***REMOVED***Test***REMOVED***workflows
+### Path 2: Full Setup with Gemini (15 minutes)
+1. ✅ Install dependencies
+2. ✅ Get Gemini API key
+3. ✅ Configure `.env.local`
+4. ✅ Run `npm run dev`
+5. ✅ Test workflows
 
-**Guide**:***REMOVED***[Gemini***REMOVED***Setup](./docs/GEMINI_SETUP.md)
+**Guide**: [Gemini Setup](./docs/GEMINI_SETUP.md)
 
-###***REMOVED***Path***REMOVED***3:***REMOVED***Production***REMOVED***Setup***REMOVED***(30-60***REMOVED***minutes)
-1.***REMOVED***✅***REMOVED***Install***REMOVED***dependencies
-2.***REMOVED***✅***REMOVED***Get***REMOVED***Gemini***REMOVED***API***REMOVED***key
-3.***REMOVED***✅***REMOVED***Set***REMOVED***up***REMOVED***Supabase
-4.***REMOVED***✅***REMOVED***Configure***REMOVED***Google***REMOVED***OAuth
-5.***REMOVED***✅***REMOVED***Configure***REMOVED***all***REMOVED***environment***REMOVED***variables
-6.***REMOVED***✅***REMOVED***Run***REMOVED***`npm***REMOVED***run***REMOVED***dev`
-7.***REMOVED***✅***REMOVED***Test***REMOVED***all***REMOVED***features
+### Path 3: Production Setup (30-60 minutes)
+1. ✅ Install dependencies
+2. ✅ Get Gemini API key
+3. ✅ Set up Supabase
+4. ✅ Configure Google OAuth
+5. ✅ Configure all environment variables
+6. ✅ Run `npm run dev`
+7. ✅ Test all features
 
-**Guide**:***REMOVED***[Complete***REMOVED***Setup***REMOVED***Guide](./docs/COMPLETE_SETUP_GUIDE.md)
+**Guide**: [Complete Setup Guide](./docs/COMPLETE_SETUP_GUIDE.md)
 
-##***REMOVED***📚***REMOVED***Documentation
+## 📚 Documentation
 
-###***REMOVED***Quick***REMOVED***Start
--***REMOVED***[Gemini***REMOVED***Setup***REMOVED***(5***REMOVED***min)](./docs/GEMINI_SETUP.md)
--***REMOVED***[Supabase***REMOVED***Quickstart](./docs/SUPABASE_QUICKSTART.md)
+### Quick Start
+- [Gemini Setup (5 min)](./docs/GEMINI_SETUP.md)
+- [Supabase Quickstart](./docs/SUPABASE_QUICKSTART.md)
 
-###***REMOVED***Detailed***REMOVED***Guides
--***REMOVED***[Complete***REMOVED***Setup***REMOVED***Guide](./docs/COMPLETE_SETUP_GUIDE.md)
--***REMOVED***[LLM***REMOVED***Configuration](./docs/LLM_CONFIGURATION.md)
--***REMOVED***[Performance***REMOVED***Optimizations](./docs/PERFORMANCE_OPTIMIZATIONS.md)
+### Detailed Guides
+- [Complete Setup Guide](./docs/COMPLETE_SETUP_GUIDE.md)
+- [LLM Configuration](./docs/LLM_CONFIGURATION.md)
+- [Performance Optimizations](./docs/PERFORMANCE_OPTIMIZATIONS.md)
 
-###***REMOVED***Reference
--***REMOVED***[Environment***REMOVED***Variables](./.env.example)
--***REMOVED***[README](./README.md)
+### Reference
+- [Environment Variables](./.env.example)
+- [README](./README.md)
 
-##***REMOVED***🆘***REMOVED***Troubleshooting
+## 🆘 Troubleshooting
 
-###***REMOVED***Server***REMOVED***won't***REMOVED***start
--***REMOVED***Check***REMOVED***Node.js***REMOVED***version:***REMOVED***`node***REMOVED***--version`***REMOVED***(should***REMOVED***be***REMOVED***20+)
--***REMOVED***Delete***REMOVED***`node_modules`***REMOVED***and***REMOVED***run***REMOVED***`npm***REMOVED***install`***REMOVED***again
--***REMOVED***Check***REMOVED***for***REMOVED***port***REMOVED***conflicts***REMOVED***(default:***REMOVED***3000)
+### Server won't start
+- Check Node.js version: `node --version` (should be 20+)
+- Delete `node_modules` and run `npm install` again
+- Check for port conflicts (default: 3000)
 
-###***REMOVED***"API***REMOVED***key***REMOVED***not***REMOVED***found"***REMOVED***errors
--***REMOVED***Verify***REMOVED***`.env.local`***REMOVED***exists
--***REMOVED***Check***REMOVED***API***REMOVED***key***REMOVED***format***REMOVED***(Gemini***REMOVED***keys***REMOVED***start***REMOVED***with***REMOVED***`AIza...`)
--***REMOVED***Restart***REMOVED***the***REMOVED***dev***REMOVED***server***REMOVED***after***REMOVED***changing***REMOVED***`.env.local`
+### "API key not found" errors
+- Verify `.env.local` exists
+- Check API key format (Gemini keys start with `AIza...`)
+- Restart the dev server after changing `.env.local`
 
-###***REMOVED***Supabase***REMOVED***connection***REMOVED***errors
--***REMOVED***Verify***REMOVED***Supabase***REMOVED***URL***REMOVED***and***REMOVED***keys
--***REMOVED***Check***REMOVED***Supabase***REMOVED***project***REMOVED***is***REMOVED***active
--***REMOVED***Verify***REMOVED***network***REMOVED***connectivity
+### Supabase connection errors
+- Verify Supabase URL and keys
+- Check Supabase project is active
+- Verify network connectivity
 
-###***REMOVED***Google***REMOVED***OAuth***REMOVED***not***REMOVED***working
--***REMOVED***Check***REMOVED***OAuth***REMOVED***credentials***REMOVED***in***REMOVED***Google***REMOVED***Cloud***REMOVED***Console
--***REMOVED***Verify***REMOVED***redirect***REMOVED***URIs***REMOVED***are***REMOVED***configured
--***REMOVED***Check***REMOVED***Supabase***REMOVED***Google***REMOVED***provider***REMOVED***settings
+### Google OAuth not working
+- Check OAuth credentials in Google Cloud Console
+- Verify redirect URIs are configured
+- Check Supabase Google provider settings
 
-##***REMOVED***💡***REMOVED***Pro***REMOVED***Tips
+## 💡 Pro Tips
 
-1.***REMOVED*****Start***REMOVED***Simple**:***REMOVED***Get***REMOVED***Gemini***REMOVED***working***REMOVED***first,***REMOVED***then***REMOVED***add***REMOVED***other***REMOVED***features
-2.***REMOVED*****Use***REMOVED***Free***REMOVED***Tiers**:***REMOVED***Gemini***REMOVED***and***REMOVED***Supabase***REMOVED***both***REMOVED***have***REMOVED***generous***REMOVED***free***REMOVED***tiers
-3.***REMOVED*****Check***REMOVED***Logs**:***REMOVED***Console***REMOVED***logs***REMOVED***are***REMOVED***your***REMOVED***friend***REMOVED***for***REMOVED***debugging
-4.***REMOVED*****Read***REMOVED***Docs**:***REMOVED***We***REMOVED***have***REMOVED***detailed***REMOVED***guides***REMOVED***for***REMOVED***everything
-5.***REMOVED*****Ask***REMOVED***for***REMOVED***Help**:***REMOVED***Check***REMOVED***documentation***REMOVED***or***REMOVED***reach***REMOVED***out***REMOVED***if***REMOVED***stuck
+1. **Start Simple**: Get Gemini working first, then add other features
+2. **Use Free Tiers**: Gemini and Supabase both have generous free tiers
+3. **Check Logs**: Console logs are your friend for debugging
+4. **Read Docs**: We have detailed guides for everything
+5. **Ask for Help**: Check documentation or reach out if stuck
 
-##***REMOVED***🎉***REMOVED***Success***REMOVED***Criteria
+## 🎉 Success Criteria
 
-You're***REMOVED***ready***REMOVED***to***REMOVED***go***REMOVED***when:
+You're ready to go when:
 
--***REMOVED***✅***REMOVED***Server***REMOVED***starts***REMOVED***without***REMOVED***errors
--***REMOVED***✅***REMOVED***Can***REMOVED***access***REMOVED***http://localhost:3000
--***REMOVED***✅***REMOVED***UI***REMOVED***loads***REMOVED***correctly
--***REMOVED***✅***REMOVED***Gemini***REMOVED***API***REMOVED***is***REMOVED***responding***REMOVED***(if***REMOVED***configured)
--***REMOVED***✅***REMOVED***No***REMOVED***console***REMOVED***errors
+- ✅ Server starts without errors
+- ✅ Can access http://localhost:3000
+- ✅ UI loads correctly
+- ✅ Gemini API is responding (if configured)
+- ✅ No console errors
 
-##***REMOVED***🚀***REMOVED***Next***REMOVED***Steps
+## 🚀 Next Steps
 
-Once***REMOVED***setup***REMOVED***is***REMOVED***complete:
+Once setup is complete:
 
-1.***REMOVED***Explore***REMOVED***the***REMOVED***UI***REMOVED***and***REMOVED***features
-2.***REMOVED***Try***REMOVED***some***REMOVED***workflow***REMOVED***commands
-3.***REMOVED***Read***REMOVED***the***REMOVED***[Performance***REMOVED***Optimizations](./docs/PERFORMANCE_OPTIMIZATIONS.md)***REMOVED***guide
-4.***REMOVED***Customize***REMOVED***for***REMOVED***your***REMOVED***needs
-5.***REMOVED***Deploy***REMOVED***to***REMOVED***production***REMOVED***(when***REMOVED***ready)
+1. Explore the UI and features
+2. Try some workflow commands
+3. Read the [Performance Optimizations](./docs/PERFORMANCE_OPTIMIZATIONS.md) guide
+4. Customize for your needs
+5. Deploy to production (when ready)
 
 ---
 
-**Need***REMOVED***Help?**
--***REMOVED***📖***REMOVED***Check***REMOVED***the***REMOVED***[documentation](./docs/)
--***REMOVED***🔍***REMOVED***Search***REMOVED***for***REMOVED***error***REMOVED***messages
--***REMOVED***💬***REMOVED***Review***REMOVED***troubleshooting***REMOVED***section***REMOVED***above
+**Need Help?**
+- 📖 Check the [documentation](./docs/)
+- 🔍 Search for error messages
+- 💬 Review troubleshooting section above
 
-**Happy***REMOVED***Building!***REMOVED***🎉**
+**Happy Building! 🎉**
+

@@ -1,32 +1,32 @@
-﻿"useclient";
+﻿"use client";
 
-import{useEffect}from"react";
-import{useReportWebVitals}from"next/web-vitals";
-import{reportWebVitals,rateMetric}from"@/lib/performance";
+import { useEffect } from "react";
+import { useReportWebVitals } from "next/web-vitals";
+import { reportWebVitals, rateMetric } from "@/lib/performance";
 
 /**
-*ComponenttoreportWebVitalsmetrics
-*AutomaticallytracksCoreWebVitalsandreportsthem
-*/
-exportfunctionWebVitalsReporter(){
-useReportWebVitals((metric)=>{
-constrating=rateMetric(metric.name,metric.value);
+ * Component to report Web Vitals metrics
+ * Automatically tracks Core Web Vitals and reports them
+ */
+export function WebVitalsReporter() {
+  useReportWebVitals((metric) => {
+    const rating = rateMetric(metric.name, metric.value);
 
-reportWebVitals({
-name:metric.name,
-value:metric.value,
-rating,
-delta:metric.delta,
-});
-});
+    reportWebVitals({
+      name: metric.name,
+      value: metric.value,
+      rating,
+      delta: metric.delta,
+    });
+  });
 
-//Monitorlongtasksindevelopment
-useEffect(()=>{
-if(process.env.NODE_ENV==="development"){
-const{monitorLongTasks}=require("@/lib/performance");
-monitorLongTasks();
-}
-},[]);
+  // Monitor long tasks in development
+  useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      const { monitorLongTasks } = require("@/lib/performance");
+      monitorLongTasks();
+    }
+  }, []);
 
-returnnull;
+  return null;
 }
