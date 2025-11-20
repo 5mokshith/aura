@@ -126,19 +126,19 @@ export function ChatInterface({
     setMessages((prev) => [...prev, assistantMessage]);
   };
 
-  // Public method to add messages (for external updates like Realtime)
-  const addMessage = (message: MessageType) => {
-    setMessages((prev) => [...prev, message]);
-  };
+  // Public methods for external updates (e.g., Realtime subscriptions)
+  // These can be exposed via useImperativeHandle if needed in the future
+  // const addMessage = (message: MessageType) => {
+  //   setMessages((prev) => [...prev, message]);
+  // };
 
-  // Public method to update a message (for live updates)
-  const updateMessage = (messageId: string, updates: Partial<MessageType>) => {
-    setMessages((prev) =>
-      prev.map((msg) =>
-        msg.id === messageId ? { ...msg, ...updates } : msg
-      )
-    );
-  };
+  // const updateMessage = (messageId: string, updates: Partial<MessageType>) => {
+  //   setMessages((prev) =>
+  //     prev.map((msg) =>
+  //       msg.id === messageId ? { ...msg, ...updates } : msg
+  //     )
+  //   );
+  // };
 
   return (
     <div className={`flex flex-col h-full ${className}`}>

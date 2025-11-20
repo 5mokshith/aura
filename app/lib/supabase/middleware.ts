@@ -34,9 +34,13 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Check for custom OAuth session cookies as fallback
+  const customUserId = request.cookies.get('aura_user_id')?.value;
+  const isAuthenticated = user || customUserId;
+
   // Protected routes - redirect to auth if not authenticated
   if (
-    !user &&
+    !isAuthenticated &&
     !request.nextUrl.pathname.startsWith('/auth') &&
     !request.nextUrl.pathname.startsWith('/api/auth')
   ) {

@@ -5,7 +5,6 @@
 
 import { getEnvErrors, isEnvConfigured } from './env';
 import { createClient } from './supabase/client';
-import { createOAuth2Client } from './google/auth';
 
 export interface ValidationResult {
   isValid: boolean;
@@ -65,12 +64,8 @@ function validateGoogleOAuth(): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
   
   try {
-    const oauth2Client = createOAuth2Client();
-    
-    // Check if client was created successfully
-    if (!oauth2Client) {
-      errors.push('Failed to create Google OAuth client');
-    }
+    // Just validate environment variables since getOAuth2Client requires userId
+    // We can't test the actual client creation without a user context
     
     // Validate required environment variables
     if (!process.env.GOOGLE_CLIENT_ID) {

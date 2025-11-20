@@ -34,9 +34,9 @@ export class DocsWorker extends BaseWorker {
   }
 
   private async createDocument(step: PlanStep, docs: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['title']);
+    this.validateParameters(step.parameters || {}, ['title']);
 
-    const { title, content } = step.parameters;
+    const { title, content } = step.parameters || {};
 
     // Create document
     const createResult = await docs.documents.create({
@@ -73,9 +73,9 @@ export class DocsWorker extends BaseWorker {
   }
 
   private async updateDocument(step: PlanStep, docs: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['documentId', 'operations']);
+    this.validateParameters(step.parameters || {}, ['documentId', 'operations']);
 
-    const { documentId, operations } = step.parameters;
+    const { documentId, operations } = step.parameters || {};
 
     const requests = [];
 
@@ -133,9 +133,9 @@ export class DocsWorker extends BaseWorker {
   }
 
   private async readDocument(step: PlanStep, docs: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['documentId']);
+    this.validateParameters(step.parameters || {}, ['documentId']);
 
-    const { documentId } = step.parameters;
+    const { documentId } = step.parameters || {};
 
     const result = await docs.documents.get({
       documentId,

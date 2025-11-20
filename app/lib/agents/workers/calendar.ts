@@ -34,8 +34,9 @@ export class CalendarWorker extends BaseWorker {
   }
 
   private async createEvent(step: PlanStep, calendar: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['summary', 'startTime', 'endTime']);
+    this.validateParameters(step.parameters || {}, ['summary', 'startTime', 'endTime']);
 
+    const params = step.parameters || {};
     const {
       summary,
       description,
@@ -44,7 +45,7 @@ export class CalendarWorker extends BaseWorker {
       attendees,
       location,
       timeZone = 'UTC',
-    } = step.parameters;
+    } = params;
 
     const event = {
       summary,
@@ -88,7 +89,7 @@ export class CalendarWorker extends BaseWorker {
       timeMax,
       maxResults = 10,
       orderBy = 'startTime',
-    } = step.parameters;
+    } = step.parameters || {};
 
     const params: any = {
       calendarId: 'primary',
@@ -126,9 +127,9 @@ export class CalendarWorker extends BaseWorker {
   }
 
   private async deleteEvent(step: PlanStep, calendar: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['eventId']);
+    this.validateParameters(step.parameters || {}, ['eventId']);
 
-    const { eventId } = step.parameters;
+    const { eventId } = step.parameters || {};
 
     await calendar.events.delete({
       calendarId: 'primary',

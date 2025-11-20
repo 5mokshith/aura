@@ -34,9 +34,9 @@ export class SheetsWorker extends BaseWorker {
   }
 
   private async readSheet(step: PlanStep, sheets: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['spreadsheetId']);
+    this.validateParameters(step.parameters || {}, ['spreadsheetId']);
 
-    const { spreadsheetId, range = 'Sheet1' } = step.parameters;
+    const { spreadsheetId, range = 'Sheet1' } = step.parameters || {};
 
     const result = await sheets.spreadsheets.values.get({
       spreadsheetId,
@@ -61,9 +61,9 @@ export class SheetsWorker extends BaseWorker {
   }
 
   private async writeSheet(step: PlanStep, sheets: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['spreadsheetId', 'range', 'values']);
+    this.validateParameters(step.parameters || {}, ['spreadsheetId', 'range', 'values']);
 
-    const { spreadsheetId, range, values } = step.parameters;
+    const { spreadsheetId, range, values } = step.parameters || {};
 
     const result = await sheets.spreadsheets.values.append({
       spreadsheetId,
@@ -90,9 +90,9 @@ export class SheetsWorker extends BaseWorker {
   }
 
   private async updateSheet(step: PlanStep, sheets: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['spreadsheetId', 'updates']);
+    this.validateParameters(step.parameters || {}, ['spreadsheetId', 'updates']);
 
-    const { spreadsheetId, updates } = step.parameters;
+    const { spreadsheetId, updates } = step.parameters || {};
 
     const data = updates.map((update: any) => ({
       range: update.range,

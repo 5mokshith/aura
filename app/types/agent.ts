@@ -1,4 +1,4 @@
-import { GoogleService, TaskStep } from './chat';
+import { GoogleService } from './chat';
 
 export type AgentType = 'planner' | 'worker' | 'evaluator';
 

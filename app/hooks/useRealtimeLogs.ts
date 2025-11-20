@@ -41,14 +41,7 @@ export function useRealtimeLogs({
 
     const setupRealtimeSubscription = async () => {
       try {
-        // Build filter based on provided options
-        let filter = 'execution_logs';
-        if (taskId) {
-          filter = `execution_logs:task_id=eq.${taskId}`;
-        } else if (userId) {
-          filter = `execution_logs:user_id=eq.${userId}`;
-        }
-
+        // Set up Realtime subscription
         channel = supabase
           .channel('execution_logs_channel')
           .on(

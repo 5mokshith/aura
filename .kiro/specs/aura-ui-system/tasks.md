@@ -559,256 +559,375 @@ ets/write route
     - Handle connection status
     - _Requirements: 17.1, 17.2, 17.3, 17.4, 17.5_
 
-- [ ] 8. Task visualization components
+- [x] 8. Task visualization components
 
 
-  - [ ] 8.1 Create TaskVisualizer component
+
+
+  - [x] 8.1 Create TaskVisualizer component
+
+
     - Implement right sidebar layout
     - Display active task information
     - Show subtask list with timeline
     - Make collapsible on mobile
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5_
   
-  - [ ] 8.2 Create TaskCard component
+  - [x] 8.2 Create TaskCard component
+
+
     - Display task title and status
     - Show Google service icons
     - Display agent badges
     - Implement glassmorphism styling
     - _Requirements: 2.2, 2.3, 2.4, 4.2, 4.3_
   
-  - [ ] 8.3 Create StatusBadge component
+  - [x] 8.3 Create StatusBadge component
+
+
     - Render status indicators (pending, running, completed, failed)
     - Apply appropriate colors and animations
     - Show progress for running tasks
     - _Requirements: 1.5, 2.5, 4.2_
 
-- [ ] 9. Quick actions and navigation
-  - [ ] 9.1 Create QuickActionsPanel component
+- [x] 9. Quick actions and navigation
+
+
+
+  - [x] 9.1 Create QuickActionsPanel component
+
+
     - Implement horizontal layout (desktop) / vertical drawer (mobile)
     - Display action buttons with icons
     - Handle action clicks
     - _Requirements: 3.1, 3.2, 3.4, 3.5_
   
-  - [ ] 9.2 Create QuickActionButton component
+  - [x] 9.2 Create QuickActionButton component
+
+
     - Implement glassmorphism button styling
     - Add neon glow hover effects
     - Trigger chat with pre-filled prompts
     - _Requirements: 3.2, 3.3, 3.4, 4.2, 4.3_
 
-- [ ] 10. Main chat page layout
-  - [ ] 10.1 Create home page (/) with chat interface
+- [-] 10. Main chat page layout
+
+
+
+
+
+  - [x] 10.1 Create home page (/) with chat interface
+
     - Integrate ChatInterface component
     - Add TaskVisualizer sidebar
     - Include QuickActionsPanel
     - Implement responsive layout
+    -gemini like voice mode (live mode as gemini calls it)
     - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 2.1, 2.2, 2.3, 2.4, 2.5, 3.1, 3.2, 3.3, 3.4, 3.5, 16.1, 16.2_
 
-- [ ] 11. Task execution timeline page
-  - [ ] 11.1 Create timeline page (/timeline)
+- [x] 11. Task execution timeline page
+
+
+
+
+
+
+  - [x] 11.1 Create timeline page (/timeline)
+
+
     - Display chronological task history
     - Show task cards with status
     - Include filter controls
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 5.5_
   
-  - [ ] 11.2 Create TimelineHeader component
+  - [x] 11.2 Create TimelineHeader component
+
+
     - Display page title
     - Include filter bar (date, status, service)
     - _Requirements: 5.5_
   
-  - [ ] 11.3 Create TaskCard component for timeline
+  - [x] 11.3 Create TaskCard component for timeline
+
+
     - Show task title and status
     - Display outputs with links
     - Show execution time
     - Add retry button for failed tasks
     - _Requirements: 5.2, 5.3, 5.4, 18.4_
   
-  - [ ] 11.4 Create FilterBar component
+  - [x] 11.4 Create FilterBar component
+
+
     - Implement date range picker
     - Add status filter dropdown
     - Add Google service filter
     - _Requirements: 5.5_
   
-  - [ ] 11.5 Implement data fetching from task_history table
+  - [x] 11.5 Implement data fetching from task_history table
+
+
     - Query Supabase with filters
     - Implement pagination
     - Cache results
     - _Requirements: 5.1, 5.2, 5.3, 5.4, 19.5_
 
-- [ ] 12. Google OAuth setup page
-  - [ ] 12.1 Create OAuth setup page (/auth/setup)
+- [x] 12. Google OAuth setup page
+
+
+  - [x] 12.1 Create OAuth setup page (/auth/setup)
+
+
     - Display AURA logo
     - Show "Connect Google Workspace" heading
     - List requested permissions
     - _Requirements: 6.1, 6.2, 6.3_
   
-  - [ ] 12.2 Create ScopesList component
+  - [x] 12.2 Create ScopesList component
+
+
     - Display all OAuth scopes with descriptions
     - Show checkmarks for each permission
     - _Requirements: 6.3_
   
-  - [ ] 12.3 Create ConnectButton component
+  - [x] 12.3 Create ConnectButton component
+
+
     - Implement glassmorphism button
     - Trigger OAuth redirect on click
     - Show loading state
     - _Requirements: 6.2, 6.4_
   
-  - [ ] 12.4 Implement OAuth flow integration
+  - [x] 12.4 Implement OAuth flow integration
+
+
     - Call /api/auth/google/redirect
     - Handle callback redirect
     - Store tokens and redirect to chat
     - _Requirements: 6.2, 6.4, 6.5_
 
-- [ ] 13. User dashboard page
-  - [ ] 13.1 Create dashboard page (/dashboard)
+- [x] 13. User dashboard page
+
+
+
+
+  - [x] 13.1 Create dashboard page (/dashboard)
+
+
     - Display connected apps status
     - Show token validity
     - Display recent activity
     - Show storage usage
     - _Requirements: 7.1, 7.2, 7.3, 7.4_
   
-  - [ ] 13.2 Create ConnectedApps component
+  - [x] 13.2 Create ConnectedApps component
+
+
     - Display Google service icons in grid
     - Show active status indicators
     - _Requirements: 7.1_
   
-  - [ ] 13.3 Create TokenStatus component
+  - [x] 13.3 Create TokenStatus component
+
+
     - Display access token expiration
     - Show refresh token status
     - Add reconnect button
     - _Requirements: 7.2, 7.5_
   
-  - [ ] 13.4 Create RecentActivity component
+  - [x] 13.4 Create RecentActivity component
+
+
     - Fetch last 10 tasks from task_history
     - Display task summaries with timestamps
     - _Requirements: 7.3_
   
-  - [ ] 13.5 Create StorageUsage component
+  - [x] 13.5 Create StorageUsage component
+
+
     - Query Supabase for storage metrics
     - Display logs size and entry count
     - _Requirements: 7.4_
 
-- [ ] 14. Settings page
-  - [ ] 14.1 Create settings page (/settings)
+- [x] 14. Settings page
+
+
+
+
+  - [x] 14.1 Create settings page (/settings)
+
+
     - Display profile information
     - Show API key management
     - Include preferences form
     - Add danger zone section
     - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5_
   
-  - [ ] 14.2 Create ProfileSection component
+  - [x] 14.2 Create ProfileSection component
+
+
     - Display user email and account creation date
     - _Requirements: 8.1_
   
-  - [ ] 14.3 Create ApiKeyManager component
+  - [x] 14.3 Create ApiKeyManager component
+
+
     - Display masked API key
     - Implement regenerate functionality
     - Show confirmation dialog
     - _Requirements: 8.2, 8.4_
   
-  - [ ] 14.4 Create PreferencesForm component
+  - [x] 14.4 Create PreferencesForm component
+
+
     - Add theme selector
     - Add notification toggle
     - _Requirements: 8.3_
   
-  - [ ] 14.5 Create DangerZone component
+  - [x] 14.5 Create DangerZone component
+
+
     - Add disconnect Google account button
     - Add delete logs button
     - Add delete account button
     - Implement confirmation dialogs for all actions
     - _Requirements: 8.3, 8.4, 8.5_
 
-- [ ] 15. Logs viewer page
-  - [ ] 15.1 Create logs page (/logs)
+- [x] 15. Logs viewer page
+
+
+
+
+
+  - [x] 15.1 Create logs page (/logs)
+
+
     - Display execution logs
     - Include filter controls
     - Add export functionality
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
   
-  - [ ] 15.2 Create LogsHeader component
+  - [x] 15.2 Create LogsHeader component
+
+
     - Display page title
     - Include filter inputs (task ID, date range, agent type)
     - Add export button
     - _Requirements: 9.4, 9.5_
   
-  - [ ] 15.3 Create LogViewer component
+  - [x] 15.3 Create LogViewer component
+
+
     - Display scrollable log entries
     - Implement syntax highlighting
     - Show timestamps and agent types
     - _Requirements: 9.2, 9.3_
   
-  - [ ] 15.4 Create LogEntry component
+  - [x] 15.4 Create LogEntry component
+
+
     - Format individual log lines
     - Color-code by log level
     - Display metadata
     - _Requirements: 9.2, 9.3_
   
-  - [ ] 15.5 Implement log fetching and filtering
+  - [x] 15.5 Implement log fetching and filtering
+
+
     - Query execution_logs table
     - Apply filters
     - Implement pagination
     - Add JSON export functionality
     - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5_
+-
 
-- [ ] 16. Files browser page
-  - [ ] 16.1 Create files page (/files)
+- [x] 16. Files browser page
+
+
+
+
+  - [x] 16.1 Create files page (/files)
+
+
     - Display Google Drive files
     - Include search and filters
     - Implement grid layout
     - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5_
   
-  - [ ] 16.2 Create FilesHeader component
+  - [x] 16.2 Create FilesHeader component
+
+
     - Add search bar
     - Include file type filters
     - _Requirements: 10.3_
   
-  - [ ] 16.3 Create FileGrid component
+  - [x] 16.3 Create FileGrid component
+
+
     - Display files in responsive grid
     - Implement infinite scroll
     - _Requirements: 10.1, 10.5_
   
-  - [ ] 16.4 Create FileCard component
+  - [x] 16.4 Create FileCard component
+
+
     - Show file thumbnail
     - Display file name and metadata
     - Add action menu (summarize, share, download)
     - _Requirements: 10.2, 10.4_
   
-  - [ ] 16.5 Integrate with /api/drive/search
+  - [x] 16.5 Integrate with /api/drive/search
+
+
     - Fetch files with search query
     - Apply filters
     - Cache results
     - _Requirements: 10.2, 10.3, 19.5_
 
-- [ ] 17. Error handling and user feedback
-  - [ ] 17.1 Create error handling utilities
+- [-] 17. Error handling and user feedback
+
+
+
+  - [x] 17.1 Create error handling utilities
+
+
     - Implement AuraError class
     - Create error categorization logic
     - Map error codes to user messages
     - _Requirements: 18.1, 18.5_
   
-  - [ ] 17.2 Implement API error responses
+  - [x] 17.2 Implement API error responses
+
+
     - Create standardized error response format
     - Log errors to Supabase
     - Return user-friendly messages
     - _Requirements: 18.1, 18.5_
   
-  - [ ] 17.3 Create error display components
+  - [x] 17.3 Create error display components
+
+
     - Implement toast notifications
     - Create error modal for critical errors
     - Add inline error messages
     - _Requirements: 18.1, 18.2, 18.3_
   
-  - [ ] 17.4 Implement retry mechanisms
+  - [x] 17.4 Implement retry mechanisms
+
+
     - Add retry buttons for failed tasks
     - Implement automatic retry with exponential backoff
     - _Requirements: 18.3, 18.4_
   
-  - [ ] 17.5 Handle OAuth token expiration
+  - [-] 17.5 Handle OAuth token expiration
+
     - Detect expired tokens
     - Show reconnect prompt
     - Redirect to OAuth setup
     - _Requirements: 18.2_
 
 - [ ] 18. Performance optimizations
+
   - [ ] 18.1 Implement code splitting and lazy loading
     - Configure route-based code splitting
     - Lazy load heavy components

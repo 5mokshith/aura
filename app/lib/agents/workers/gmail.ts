@@ -34,9 +34,9 @@ export class GmailWorker extends BaseWorker {
   }
 
   private async sendEmail(step: PlanStep, gmail: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['to', 'subject', 'body']);
+    this.validateParameters(step.parameters || {}, ['to', 'subject', 'body']);
 
-    const { to, subject, body, cc, bcc } = step.parameters;
+    const { to, subject, body, cc, bcc } = step.parameters || {};
 
     // Create email message
     const messageParts = [
@@ -77,9 +77,9 @@ export class GmailWorker extends BaseWorker {
   }
 
   private async searchEmails(step: PlanStep, gmail: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['query']);
+    this.validateParameters(step.parameters || {}, ['query']);
 
-    const { query, maxResults = 10 } = step.parameters;
+    const { query, maxResults = 10 } = step.parameters || {};
 
     const result = await gmail.users.messages.list({
       userId: 'me',
@@ -123,9 +123,9 @@ export class GmailWorker extends BaseWorker {
   }
 
   private async readEmail(step: PlanStep, gmail: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['messageId']);
+    this.validateParameters(step.parameters || {}, ['messageId']);
 
-    const { messageId } = step.parameters;
+    const { messageId } = step.parameters || {};
 
     const result = await gmail.users.messages.get({
       userId: 'me',

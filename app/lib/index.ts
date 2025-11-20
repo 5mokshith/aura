@@ -21,12 +21,11 @@ export {
 
 // Google OAuth
 export {
-  createOAuth2Client,
-  generateAuthUrl,
-  getTokensFromCode,
-  refreshAccessToken,
-  setCredentials,
-  GOOGLE_SCOPES,
+  getOAuth2Client,
+  getValidTokens,
+  hasValidTokens,
+  revokeTokens,
+  type TokenData,
 } from './google/auth';
 
 // Encryption utilities

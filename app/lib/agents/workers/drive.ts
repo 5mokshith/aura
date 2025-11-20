@@ -34,9 +34,9 @@ export class DriveWorker extends BaseWorker {
   }
 
   private async searchFiles(step: PlanStep, drive: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['query']);
+    this.validateParameters(step.parameters || {}, ['query']);
 
-    const { query, fileType, limit = 20 } = step.parameters;
+    const { query, fileType, limit = 20 } = step.parameters || {};
 
     let q = `name contains '${query}' and trashed=false`;
     if (fileType) {
@@ -72,9 +72,9 @@ export class DriveWorker extends BaseWorker {
   }
 
   private async downloadFile(step: PlanStep, drive: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['fileId']);
+    this.validateParameters(step.parameters || {}, ['fileId']);
 
-    const { fileId } = step.parameters;
+    const { fileId } = step.parameters || {};
 
     // Get file metadata
     const metadata = await drive.files.get({
@@ -109,9 +109,9 @@ export class DriveWorker extends BaseWorker {
   }
 
   private async uploadFile(step: PlanStep, drive: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters, ['filename', 'content']);
+    this.validateParameters(step.parameters || {}, ['filename', 'content']);
 
-    const { filename, content, mimeType = 'text/plain', folderId } = step.parameters;
+    const { filename, content, mimeType = 'text/plain', folderId } = step.parameters || {};
 
     const fileMetadata: any = {
       name: filename,

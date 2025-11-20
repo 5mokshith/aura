@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Message as MessageType, ExecutionUpdate } from '@/app/types/chat';
 import { ChatInterface } from './ChatInterface';
 import { useRealtimeLogs, ExecutionLog } from '@/app/hooks/useRealtimeLogs';
@@ -23,7 +23,7 @@ export function ChatInterfaceWithRealtime({
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
 
   // Subscribe to Realtime logs
-  const { logs, isConnected, error } = useRealtimeLogs({
+  const { isConnected, error } = useRealtimeLogs({
     taskId: currentTaskId || undefined,
     userId,
     enabled: !!currentTaskId,
