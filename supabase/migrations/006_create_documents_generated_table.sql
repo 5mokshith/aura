@@ -223,15 +223,12 @@ CREATE OR REPLACE FUNCTION public.delete_generated_document(
     p_document_id UUID
 )
 RETURNS BOOLEAN AS $$
-DECLARE
-    v_deleted BOOLEAN;
 BEGIN
     DELETE FROM public.documents_generated
     WHERE user_id = p_user_id
     AND id = p_document_id;
     
-    GET DIAGNOSTICS v_deleted = FOUND;
-    RETURN v_deleted;
+    RETURN FOUND;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

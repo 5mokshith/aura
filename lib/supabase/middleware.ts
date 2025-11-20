@@ -34,19 +34,26 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  // Check for custom OAuth session (aura_user_id cookie)
+  const hasCustomAuth = request.cookies.has('aura_user_id');
+  
   // Protected routes - redirect to auth if not authenticated
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/api/auth')
-  ) {
-    // Allow public routes
-    const publicRoutes = ['/'];
-    if (!publicRoutes.includes(request.nextUrl.pathname)) {
-      const url = request.nextUrl.clone();
-      url.pathname = '/auth/setup';
-      return NextResponse.redirect(url);
-    }
+  const isAuthRoute = request.nextUrl.pathname.startsWith('/auth');
+  const isApiAuthRoute = request.nextUrl.pathname.startsWith('/api/auth');
+  const isAuthenticated = user || hasCustomAuth;
+  
+  if (!isAuthenticated && !isAuthRoute && !isApiAuthRoute) {
+    // Redirect to OAuth setup page
+    const url = request.nextUrl.clone();
+    url.pathname = '/auth/setup';
+    return NextResponse.redirect(url);
+  }
+  
+  // If authenticated and trying to access auth setup, redirect to home
+  if (isAuthenticated && request.nextUrl.pathname === '/auth/setup') {
+    const url = request.nextUrl.clone();
+    url.pathname = '/';
+    return NextResponse.redirect(url);
   }
 
   return supabaseResponse;

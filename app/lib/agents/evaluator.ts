@@ -1,14 +1,16 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { EvaluationResult, WorkerResult, TaskPlan } from '@/app/types/agent';
+import { getEnv } from '@/app/lib/env';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const envConfig = getEnv();
+const genAI = new GoogleGenerativeAI(envConfig.llm.geminiApiKey!);
 
 export class EvaluatorAgent {
   private model;
 
   constructor() {
     this.model = genAI.getGenerativeModel({
-      model: 'gemini-2.0-flash-exp',
+      model: envConfig.llm.geminiModel || 'gemini-2.0-flash-exp',
       generationConfig: {
         temperature: 0.3, // Lower temperature for more consistent evaluation
         topP: 0.95,

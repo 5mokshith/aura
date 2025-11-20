@@ -111,8 +111,6 @@ CREATE OR REPLACE FUNCTION public.update_task_history_status(
     p_completed_at TIMESTAMPTZ DEFAULT NOW()
 )
 RETURNS BOOLEAN AS $$
-DECLARE
-    v_updated BOOLEAN;
 BEGIN
     UPDATE public.task_history
     SET 
@@ -124,8 +122,7 @@ BEGIN
     WHERE user_id = p_user_id
     AND task_id = p_task_id;
     
-    GET DIAGNOSTICS v_updated = FOUND;
-    RETURN v_updated;
+    RETURN FOUND;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -257,15 +254,12 @@ CREATE OR REPLACE FUNCTION public.delete_task_history(
     p_task_id TEXT
 )
 RETURNS BOOLEAN AS $$
-DECLARE
-    v_deleted BOOLEAN;
 BEGIN
     DELETE FROM public.task_history
     WHERE user_id = p_user_id
     AND task_id = p_task_id;
     
-    GET DIAGNOSTICS v_deleted = FOUND;
-    RETURN v_deleted;
+    RETURN FOUND;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 

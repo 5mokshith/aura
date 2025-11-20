@@ -1,6 +1,6 @@
 import { google } from 'googleapis';
 import { NextResponse } from 'next/server';
-import { rateLimit, RateLimitPresets } from '@/lib/rate-limit';
+import { rateLimit, RateLimitPresets } from '@/app/lib/rate-limit';
 
 /**
  * POST /api/auth/google/redirect
@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   const rateLimitResponse = await rateLimit(request, RateLimitPresets.AUTH);
   if (rateLimitResponse) return rateLimitResponse;
   try {
-    const { generateCsrfToken, generateOAuthState } = await import('@/lib/csrf');
+    const { generateCsrfToken, generateOAuthState } = await import('@/app/lib/csrf');
     
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,

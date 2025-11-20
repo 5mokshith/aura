@@ -99,6 +99,10 @@ export function ChatInterfaceWithRealtime({
         if (onSendMessage) {
           await onSendMessage(content);
         } else {
+          if (!userId) {
+            throw new Error('User not authenticated. Please connect Google Workspace and refresh the page.');
+          }
+
           // Default: Call the agent API
           const response = await fetch('/api/agent/plan', {
             method: 'POST',
@@ -110,10 +114,17 @@ export function ChatInterfaceWithRealtime({
             throw new Error('Failed to plan task');
           }
 
-          const data = await response.json();
-          
+          // The API returns an ApiResponse<AgentPlanResponse>
+          const planResult = await response.json();
+
+          if (!planResult.success || !planResult.data) {
+            throw new Error(planResult.error?.message || 'Failed to plan task');
+          }
+
+          const { taskId, steps } = planResult.data;
+
           // Set current task ID for Realtime subscription
-          setCurrentTaskId(data.taskId);
+          setCurrentTaskId(taskId);
 
           // Create assistant message with task decomposition
           const assistantMessage: MessageType = {
@@ -122,13 +133,13 @@ export function ChatInterfaceWithRealtime({
             content: 'I\'ve analyzed your request and created a plan. Executing now...',
             timestamp: new Date(),
             taskDecomposition: {
-              taskId: data.taskId,
-              steps: data.steps.map((step: any) => ({
+              taskId,
+              steps: steps.map((step: any) => ({
                 id: step.id,
                 description: step.description,
-                status: 'pending',
+                status: step.status ?? 'pending',
                 agent: step.agent || 'worker',
-                googleService: step.service,
+                googleService: step.googleService,
               })),
             },
             executionFeed: [],
@@ -140,7 +151,7 @@ export function ChatInterfaceWithRealtime({
           fetch('/api/agent/execute', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ taskId: data.taskId, userId }),
+            body: JSON.stringify({ taskId, userId }),
           }).catch((err) => {
             console.error('Execution error:', err);
           });

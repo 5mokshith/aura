@@ -10,7 +10,7 @@ import { encrypt } from '@/app/lib/crypto';
  */
 export async function GET(request: NextRequest) {
   try {
-    const { verifyOAuthState } = await import('@/lib/csrf');
+    const { verifyOAuthState } = await import('@/app/lib/csrf');
     
     const searchParams = request.nextUrl.searchParams;
     const code = searchParams.get('code');
@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
     
     // Set a simple session cookie with user info
     response.cookies.set('aura_user_id', userId, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30, // 30 days
@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
     });
 
     response.cookies.set('aura_user_email', userInfo.email, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 30, // 30 days

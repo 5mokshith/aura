@@ -1,15 +1,17 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { TaskPlan, PlanStep } from '@/app/types/agent';
 import { GoogleService } from '@/app/types/chat';
+import { getEnv } from '@/app/lib/env';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+const envConfig = getEnv();
+const genAI = new GoogleGenerativeAI(envConfig.llm.geminiApiKey!);
 
 export class PlannerAgent {
   private model;
 
   constructor() {
     this.model = genAI.getGenerativeModel({ 
-      model: 'gemini-2.0-flash-exp',
+      model: envConfig.llm.geminiModel || 'gemini-2.0-flash-exp',
       generationConfig: {
         temperature: 0.7,
         topP: 0.95,

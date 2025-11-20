@@ -38,6 +38,7 @@ export function FloatingInput({
       <form onSubmit={handleSubmit} className="flex items-end gap-3">
         <div className="flex-1">
           <textarea
+            name="chat-input"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
