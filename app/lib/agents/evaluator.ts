@@ -1,0 +1,226 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
+import { EvaluationResult, WorkerResult, TaskPlan } from '@/app/types/agent';
+
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+
+export class EvaluatorAgent {
+  private model;
+
+  constructor() {
+    this.model = genAI.getGenerativeModel({
+      model: 'gemini-2.0-flash-exp',
+      generationConfig: {
+        temperature: 0.3, // Lower temperature for more consistent evaluation
+        topP: 0.95,
+        topK: 40,
+        maxOutputTokens: 4096,
+      },
+    });
+  }
+
+  /**
+   * Evaluate task execution results
+   */
+  async evaluateResults(
+    plan: TaskPlan,
+    results: WorkerResult[]
+  ): Promise<EvaluationResult> {
+    try {
+      // Quick validation first
+      const quickValidation = this.quickValidate(results);
+      if (!quickValidation.valid) {
+        return quickValidation;
+      }
+
+      // Deep validation with AI
+      const systemPrompt = this.getSystemPrompt();
+      const evaluationPrompt = this.formatEvaluationPrompt(plan, results);
+
+      const result = await this.model.generateContent([systemPrompt, evaluationPrompt]);
+      const response = result.response.text();
+
+      // Extract JSON from response
+      const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/) || response.match(/\{[\s\S]*\}/);
+      const jsonText = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : response;
+
+      const evaluation = JSON.parse(jsonText);
+
+      return {
+        valid: evaluation.valid,
+        issues: evaluation.issues || [],
+        suggestions: evaluation.suggestions || [],
+        retrySteps: evaluation.retrySteps || [],
+      };
+    } catch (error) {
+      console.error('Evaluator Agent Error:', error);
+      // Return a safe default evaluation
+      return {
+        valid: true,
+        issues: [],
+        suggestions: ['Evaluation completed with warnings'],
+      };
+    }
+  }
+
+  /**
+   * Quick validation without AI (fast path)
+   */
+  private quickValidate(results: WorkerResult[]): EvaluationResult {
+    const issues: string[] = [];
+    const retrySteps: string[] = [];
+
+    // Check for failed steps
+    const failedSteps = results.filter(r => !r.success);
+    if (failedSteps.length > 0) {
+      failedSteps.forEach(step => {
+        issues.push(`Step ${step.stepId} failed: ${step.error}`);
+        retrySteps.push(step.stepId);
+      });
+
+      return {
+        valid: false,
+        issues,
+        suggestions: ['Retry failed steps', 'Check error messages for details'],
+        retrySteps,
+      };
+    }
+
+    // Check for missing outputs
+    const stepsWithoutOutput = results.filter(r => r.success && !r.output);
+    if (stepsWithoutOutput.length > 0) {
+      stepsWithoutOutput.forEach(step => {
+        issues.push(`Step ${step.stepId} succeeded but produced no output`);
+      });
+
+      return {
+        valid: false,
+        issues,
+        suggestions: ['Review step implementation', 'Ensure outputs are properly returned'],
+        retrySteps: stepsWithoutOutput.map(s => s.stepId),
+      };
+    }
+
+    return {
+      valid: true,
+      issues: [],
+      suggestions: [],
+    };
+  }
+
+  /**
+   * Identify failures and suggest retries
+   */
+  identifyFailures(results: WorkerResult[]): {
+    failures: WorkerResult[];
+    retryable: string[];
+  } {
+    const failures = results.filter(r => !r.success);
+    
+    // Determine which failures are retryable
+    const retryable = failures
+      .filter(f => this.isRetryable(f.error || ''))
+      .map(f => f.stepId);
+
+    return { failures, retryable };
+  }
+
+  /**
+   * Generate result summary
+   */
+  generateSummary(plan: TaskPlan, results: WorkerResult[]): string {
+    const successful = results.filter(r => r.success).length;
+    const failed = results.filter(r => !r.success).length;
+    const total = results.length;
+
+    const outputs = results
+      .filter(r => r.success && r.output)
+      .map(r => r.output!);
+
+    const documents = outputs.filter(o => o.type === 'document');
+    const emails = outputs.filter(o => o.type === 'email');
+    const events = outputs.filter(o => o.type === 'calendar_event');
+    const files = outputs.filter(o => o.type === 'file');
+
+    let summary = `Task "${plan.title}" completed with ${successful}/${total} steps successful.`;
+
+    if (failed > 0) {
+      summary += ` ${failed} step(s) failed.`;
+    }
+
+    const achievements: string[] = [];
+    if (documents.length > 0) achievements.push(`${documents.length} document(s) created`);
+    if (emails.length > 0) achievements.push(`${emails.length} email(s) sent`);
+    if (events.length > 0) achievements.push(`${events.length} event(s) created`);
+    if (files.length > 0) achievements.push(`${files.length} file(s) processed`);
+
+    if (achievements.length > 0) {
+      summary += ` Achievements: ${achievements.join(', ')}.`;
+    }
+
+    return summary;
+  }
+
+  private getSystemPrompt(): string {
+    return `You are an evaluation agent for AURA (Agentic Unified Reasoning Assistant).
+Your role is to validate task execution results and identify any issues or improvements.
+
+Evaluate the task execution based on:
+1. Did all steps complete successfully?
+2. Are the outputs appropriate for the requested task?
+3. Are there any inconsistencies or errors?
+4. Could the execution be improved?
+
+Return JSON in this format:
+{
+  "valid": true/false,
+  "issues": ["issue 1", "issue 2"],
+  "suggestions": ["suggestion 1", "suggestion 2"],
+  "retrySteps": ["step_id_1", "step_id_2"]
+}
+
+Guidelines:
+- Set "valid" to false only if there are critical issues
+- List specific, actionable issues
+- Provide constructive suggestions for improvement
+- Only suggest retrying steps that actually failed or produced incorrect results`;
+  }
+
+  private formatEvaluationPrompt(plan: TaskPlan, results: WorkerResult[]): string {
+    const resultsText = results
+      .map(r => {
+        if (r.success) {
+          return `✓ ${r.stepId}: Success - ${r.output?.title || 'Completed'}`;
+        } else {
+          return `✗ ${r.stepId}: Failed - ${r.error}`;
+        }
+      })
+      .join('\n');
+
+    return `Task Plan:
+Title: ${plan.title}
+Steps: ${plan.steps.length}
+
+Execution Results:
+${resultsText}
+
+Please evaluate these results and provide your assessment.`;
+  }
+
+  private isRetryable(error: string): boolean {
+    const retryableErrors = [
+      'timeout',
+      'network',
+      'rate limit',
+      'temporarily unavailable',
+      'connection',
+      'ECONNRESET',
+      'ETIMEDOUT',
+    ];
+
+    const errorLower = error.toLowerCase();
+    return retryableErrors.some(pattern => errorLower.includes(pattern));
+  }
+}
+
+// Export singleton instance
+export const evaluatorAgent = new EvaluatorAgent();

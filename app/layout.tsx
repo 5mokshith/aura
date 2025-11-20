@@ -1,36 +1,22 @@
-﻿import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { SupabaseAuthProvider } from "@/contexts/SupabaseAuthContext";
-import { WorkflowProvider } from "@/contexts/WorkflowContext";
-import {
-  ErrorBoundary,
-  ToastProvider,
-  SwrProvider,
-  ServiceWorkerRegistration,
-  WebVitalsReporter,
-} from "@/components/shared";
+import type { Metadata } from 'next';
+import { Inter, Space_Grotesk } from 'next/font/google';
+import './styles/globals.css';
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const spaceGrotesk = Space_Grotesk({
+  subsets: ['latin'],
+  variable: '--font-space-grotesk',
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
-  title: "AURA - Agentic Unified Reasoning Assistant",
-  description: "AI-powered workflow automation for Google Workspace",
-  manifest: "/manifest.json",
-  themeColor: "#000000",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "AURA",
-  },
+  title: 'AURA - Agentic Unified Reasoning Assistant',
+  description: 'AI-powered conversational interface for Google Workspace automation',
 };
 
 export default function RootLayout({
@@ -39,19 +25,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ServiceWorkerRegistration />
-        <WebVitalsReporter />
-        <ErrorBoundary>
-          <SwrProvider>
-            <SupabaseAuthProvider>
-              <ToastProvider>
-                <WorkflowProvider>{children}</WorkflowProvider>
-              </ToastProvider>
-            </SupabaseAuthProvider>
-          </SwrProvider>
-        </ErrorBoundary>
+    <html lang="en" className="dark">
+      <body
+        className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 min-h-screen`}
+      >
+        {children}
       </body>
     </html>
   );
