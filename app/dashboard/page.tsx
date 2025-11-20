@@ -1,9 +1,13 @@
 'use client';
 
-import { ConnectedApps } from '@/app/components/dashboard/ConnectedApps';
-import { TokenStatus } from '@/app/components/dashboard/TokenStatus';
-import { RecentActivity } from '@/app/components/dashboard/RecentActivity';
-import { StorageUsage } from '@/app/components/dashboard/StorageUsage';
+import { lazy, Suspense } from 'react';
+import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner';
+
+// Lazy load dashboard components
+const ConnectedApps = lazy(() => import('@/app/components/dashboard/ConnectedApps').then(mod => ({ default: mod.ConnectedApps })));
+const TokenStatus = lazy(() => import('@/app/components/dashboard/TokenStatus').then(mod => ({ default: mod.TokenStatus })));
+const RecentActivity = lazy(() => import('@/app/components/dashboard/RecentActivity').then(mod => ({ default: mod.RecentActivity })));
+const StorageUsage = lazy(() => import('@/app/components/dashboard/StorageUsage').then(mod => ({ default: mod.StorageUsage })));
 
 /**
  * Dashboard Page
@@ -28,16 +32,40 @@ export default function DashboardPage() {
         {/* Dashboard Grid */}
         <div className="space-y-6">
           {/* Connected Apps */}
-          <ConnectedApps />
+          <Suspense fallback={
+            <div className="glass-panel rounded-xl p-6 h-48 flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          }>
+            <ConnectedApps />
+          </Suspense>
 
           {/* Token Status */}
-          <TokenStatus />
+          <Suspense fallback={
+            <div className="glass-panel rounded-xl p-6 h-32 flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          }>
+            <TokenStatus />
+          </Suspense>
 
           {/* Recent Activity */}
-          <RecentActivity />
+          <Suspense fallback={
+            <div className="glass-panel rounded-xl p-6 h-64 flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          }>
+            <RecentActivity />
+          </Suspense>
 
           {/* Storage Usage */}
-          <StorageUsage />
+          <Suspense fallback={
+            <div className="glass-panel rounded-xl p-6 h-32 flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          }>
+            <StorageUsage />
+          </Suspense>
         </div>
       </div>
     </div>

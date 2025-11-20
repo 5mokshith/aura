@@ -1,7 +1,6 @@
 'use client';
 
-import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { DebouncedSearchInput } from '@/app/components/ui/DebouncedSearchInput';
 
 interface FilesHeaderProps {
   onSearchChange: (query: string) => void;
@@ -24,7 +23,7 @@ const FILE_TYPES = [
  * FilesHeader Component
  * 
  * Displays search bar and file type filters for the files browser
- * Requirements: 10.3
+ * With 300ms debounce to reduce API calls (Requirements: 10.3, 19.7)
  */
 export function FilesHeader({
   onSearchChange,
@@ -32,29 +31,18 @@ export function FilesHeader({
   searchQuery,
   selectedFileType,
 }: FilesHeaderProps) {
-  const [localQuery, setLocalQuery] = useState(searchQuery);
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearchChange(localQuery);
-  };
-
   return (
     <div className="glass-panel-strong rounded-xl p-6 mb-6">
       <div className="flex flex-col md:flex-row gap-4">
-        {/* Search Bar */}
-        <form onSubmit={handleSearchSubmit} className="flex-1">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-white/50" />
-            <input
-              type="text"
-              value={localQuery}
-              onChange={(e) => setLocalQuery(e.target.value)}
-              placeholder="Search files..."
-              className="glass-input w-full pl-10 pr-4 py-3 rounded-lg text-white placeholder:text-white/50 focus:outline-none"
-            />
-          </div>
-        </form>
+        {/* Debounced Search Bar */}
+        <div className="flex-1">
+          <DebouncedSearchInput
+            placeholder="Search files..."
+            onSearch={onSearchChange}
+            delay={300}
+            showClearButton={true}
+          />
+        </div>
 
         {/* File Type Filter */}
         <div className="md:w-64">

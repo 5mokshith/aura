@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter, Space_Grotesk } from 'next/font/google';
 import './styles/globals.css';
+import { QueryProvider } from './components/providers/QueryProvider';
+import { SkipLink } from './components/ui/SkipLink';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -29,7 +31,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 min-h-screen`}
       >
-        {children}
+        <SkipLink />
+        <QueryProvider>
+          {children}
+        </QueryProvider>
       </body>
     </html>
   );

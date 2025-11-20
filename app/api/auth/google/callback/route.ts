@@ -10,8 +10,11 @@ import { encrypt } from '@/app/lib/crypto';
  */
 export async function GET(request: NextRequest) {
   try {
+    const { verifyOAuthState } = await import('@/lib/csrf');
+    
     const searchParams = request.nextUrl.searchParams;
     const code = searchParams.get('code');
+    const state = searchParams.get('state');
     const error = searchParams.get('error');
 
     // Handle OAuth errors
@@ -25,6 +28,34 @@ export async function GET(request: NextRequest) {
     if (!code) {
       return NextResponse.redirect(
         new URL('/auth/setup?error=missing_code', request.url)
+      );
+    }
+
+    // Verify CSRF token via state parameter
+    if (!state) {
+      console.error('Missing state parameter in OAuth callback');
+      return NextResponse.redirect(
+        new URL('/auth/setup?error=csrf_missing', request.url)
+      );
+    }
+
+    // Get stored CSRF token from cookie
+    const storedCsrfToken = request.cookies.get('oauth_csrf_token')?.value;
+    
+    if (!storedCsrfToken) {
+      console.error('Missing CSRF token cookie');
+      return NextResponse.redirect(
+        new URL('/auth/setup?error=csrf_cookie_missing', request.url)
+      );
+    }
+
+    // Verify state parameter
+    const verifiedState = verifyOAuthState(state, storedCsrfToken);
+    
+    if (!verifiedState) {
+      console.error('Invalid or expired state parameter');
+      return NextResponse.redirect(
+        new URL('/auth/setup?error=csrf_invalid', request.url)
       );
     }
 
@@ -86,7 +117,13 @@ export async function GET(request: NextRequest) {
 
     // Create a session cookie or token for the user
     // This is a simplified version - in production, use proper session management
-    const response = NextResponse.redirect(new URL('/', request.url));
+    
+    // Use redirect URL from state if provided, otherwise go to home
+    const redirectPath = verifiedState.redirect || '/';
+    const response = NextResponse.redirect(new URL(redirectPath, request.url));
+    
+    // Clear the OAuth CSRF token cookie
+    response.cookies.delete('oauth_csrf_token');
     
     // Set a simple session cookie with user info
     response.cookies.set('aura_user_id', userId, {

@@ -1,10 +1,14 @@
 'use client';
 
-import { ProfileSection } from '@/app/components/settings/ProfileSection';
-import { ApiKeyManager } from '@/app/components/settings/ApiKeyManager';
-import { PreferencesForm } from '@/app/components/settings/PreferencesForm';
-import { DangerZone } from '@/app/components/settings/DangerZone';
+import { lazy, Suspense } from 'react';
 import { Settings as SettingsIcon } from 'lucide-react';
+import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner';
+
+// Lazy load settings components
+const ProfileSection = lazy(() => import('@/app/components/settings/ProfileSection').then(mod => ({ default: mod.ProfileSection })));
+const ApiKeyManager = lazy(() => import('@/app/components/settings/ApiKeyManager').then(mod => ({ default: mod.ApiKeyManager })));
+const PreferencesForm = lazy(() => import('@/app/components/settings/PreferencesForm').then(mod => ({ default: mod.PreferencesForm })));
+const DangerZone = lazy(() => import('@/app/components/settings/DangerZone').then(mod => ({ default: mod.DangerZone })));
 
 /**
  * Settings Page
@@ -32,16 +36,40 @@ export default function SettingsPage() {
         {/* Settings Sections */}
         <div className="space-y-6">
           {/* Profile Section */}
-          <ProfileSection />
+          <Suspense fallback={
+            <div className="glass-panel rounded-xl p-6 h-32 flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          }>
+            <ProfileSection />
+          </Suspense>
 
           {/* API Key Manager */}
-          <ApiKeyManager />
+          <Suspense fallback={
+            <div className="glass-panel rounded-xl p-6 h-32 flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          }>
+            <ApiKeyManager />
+          </Suspense>
 
           {/* Preferences Form */}
-          <PreferencesForm />
+          <Suspense fallback={
+            <div className="glass-panel rounded-xl p-6 h-48 flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          }>
+            <PreferencesForm />
+          </Suspense>
 
           {/* Danger Zone */}
-          <DangerZone />
+          <Suspense fallback={
+            <div className="glass-panel rounded-xl p-6 h-48 flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          }>
+            <DangerZone />
+          </Suspense>
         </div>
       </div>
     </div>

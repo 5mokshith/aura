@@ -1,10 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { ChatInterface } from './components/chat/ChatInterface';
-import { TaskVisualizer } from './components/task/TaskVisualizer';
-import { QuickActionsPanel } from './components/actions/QuickActionsPanel';
+import { useState, lazy, Suspense } from 'react';
 import { Message, TaskStep } from './types/chat';
+import { LoadingSpinner } from './components/ui/LoadingSpinner';
+import { MainContent } from './components/ui/SkipLink';
+
+// Lazy load heavy components for better performance
+const ChatInterface = lazy(() => import('./components/chat/ChatInterface').then(mod => ({ default: mod.ChatInterface })));
+const TaskVisualizer = lazy(() => import('./components/task/TaskVisualizer').then(mod => ({ default: mod.TaskVisualizer })));
+const QuickActionsPanel = lazy(() => import('./components/actions/QuickActionsPanel').then(mod => ({ default: mod.QuickActionsPanel })));
 
 export default function HomePage() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -119,30 +123,46 @@ export default function HomePage() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col relative">
+    <MainContent className="flex min-h-screen flex-col relative">
       {/* Quick Actions Panel - Top on desktop, drawer on mobile */}
-      <div className="hidden md:flex justify-center pt-6 px-6">
-        <QuickActionsPanel onActionClick={handleQuickAction} />
-      </div>
+      <Suspense fallback={<div className="h-24 flex items-center justify-center"><LoadingSpinner /></div>}>
+        <div className="hidden md:flex justify-center pt-6 px-6">
+          <QuickActionsPanel onActionClick={handleQuickAction} />
+        </div>
 
-      {/* Mobile Quick Actions - Drawer */}
-      <div className="md:hidden">
-        <QuickActionsPanel onActionClick={handleQuickAction} />
-      </div>
+        {/* Mobile Quick Actions - Drawer */}
+        <div className="md:hidden">
+          <QuickActionsPanel onActionClick={handleQuickAction} />
+        </div>
+      </Suspense>
 
       {/* Main Content Area */}
       <div className="flex-1 flex relative">
         {/* Chat Interface - Takes full width on mobile, leaves space for sidebar on desktop */}
         <div className="flex-1 md:mr-80 lg:mr-96">
-          <ChatInterface
-            initialMessages={messages}
-            onSendMessage={handleSendMessage}
-            className="h-[calc(100vh-5rem)] md:h-[calc(100vh-8rem)]"
-          />
+          <Suspense fallback={
+            <div className="h-[calc(100vh-5rem)] md:h-[calc(100vh-8rem)] flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          }>
+            <ChatInterface
+              initialMessages={messages}
+              onSendMessage={handleSendMessage}
+              className="h-[calc(100vh-5rem)] md:h-[calc(100vh-8rem)]"
+            />
+          </Suspense>
         </div>
 
         {/* Task Visualizer - Right sidebar on desktop, bottom drawer on mobile */}
-        <TaskVisualizer activeTask={activeTask} />
+        <Suspense fallback={
+          <div className="hidden md:block fixed right-0 top-0 w-80 lg:w-96 h-screen p-6">
+            <div className="glass-panel rounded-xl h-full flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          </div>
+        }>
+          <TaskVisualizer activeTask={activeTask} />
+        </Suspense>
       </div>
 
       {/* TODO: Implement Gemini-like voice mode (live mode)
@@ -151,6 +171,6 @@ export default function HomePage() {
           - Add audio visualization during voice input
           - Support real-time voice-to-text streaming
       */}
-    </main>
+    </MainContent>
   );
 }

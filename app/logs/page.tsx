@@ -1,9 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { LogsHeader } from '@/app/components/logs/LogsHeader';
-import { LogViewer } from '@/app/components/logs/LogViewer';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner';
+
+// Lazy load logs components
+const LogsHeader = lazy(() => import('@/app/components/logs/LogsHeader').then(mod => ({ default: mod.LogsHeader })));
+const LogViewer = lazy(() => import('@/app/components/logs/LogViewer').then(mod => ({ default: mod.LogViewer })));
 
 interface LogEntry {
   id: string;
@@ -140,12 +143,18 @@ export default function LogsPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
-        <LogsHeader
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onExport={handleExport}
-          totalCount={totalCount}
-        />
+        <Suspense fallback={
+          <div className="glass-panel rounded-xl p-6 flex items-center justify-center">
+            <LoadingSpinner />
+          </div>
+        }>
+          <LogsHeader
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onExport={handleExport}
+            totalCount={totalCount}
+          />
+        </Suspense>
 
         {error && (
           <div className="glass-panel border-red-500/50 p-4 rounded-lg">
@@ -153,11 +162,17 @@ export default function LogsPage() {
           </div>
         )}
 
-        <LogViewer
-          logs={logs}
-          loading={loading}
-          onRefresh={() => fetchLogs(currentPage)}
-        />
+        <Suspense fallback={
+          <div className="glass-panel rounded-xl p-6 h-96 flex items-center justify-center">
+            <LoadingSpinner />
+          </div>
+        }>
+          <LogViewer
+            logs={logs}
+            loading={loading}
+            onRefresh={() => fetchLogs(currentPage)}
+          />
+        </Suspense>
 
         {/* Pagination Controls */}
         {totalPages > 1 && (

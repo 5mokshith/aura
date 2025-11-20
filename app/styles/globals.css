@@ -132,4 +132,129 @@
   .animate-fade-in {
     animation: fade-in 0.2s ease-out;
   }
+
+  /* Screen reader only utility - WCAG 2.1 compliant */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Focus visible utility for keyboard navigation - WCAG 2.1 2.4.7 */
+  .focus-visible-ring {
+    outline: 2px solid var(--neon-cyan);
+    outline-offset: 2px;
+  }
+
+  /* Skip to main content link - WCAG 2.1 2.4.1 */
+  .skip-to-main {
+    position: absolute;
+    left: -9999px;
+    z-index: 999;
+    padding: 1rem 1.5rem;
+    background-color: var(--glass-strong);
+    backdrop-filter: blur(var(--blur-glass));
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    border: 2px solid var(--neon-cyan);
+  }
+
+  .skip-to-main:focus {
+    left: 1rem;
+    top: 1rem;
+  }
+
+  /* High contrast mode support - WCAG 2.1 1.4.11 */
+  @media (prefers-contrast: high) {
+    .glass-panel,
+    .glass-panel-sm,
+    .glass-panel-md,
+    .glass-panel-strong,
+    .glass-panel-xl {
+      border-width: 2px;
+      border-color: currentColor;
+    }
+
+    .glass-button,
+    .glass-button-cyan,
+    .glass-button-purple,
+    .glass-button-pink,
+    .glass-button-blue {
+      border-width: 2px;
+      border-color: currentColor;
+    }
+  }
+
+  /* Reduced motion support - WCAG 2.1 2.3.3 */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    .animate-glow-pulse,
+    .animate-glow-pulse-cyan,
+    .animate-glow-pulse-purple,
+    .animate-glow-pulse-pink {
+      animation: none !important;
+    }
+  }
+
+  /* Focus indicators for all interactive elements - WCAG 2.1 2.4.7 */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid var(--neon-cyan);
+    outline-offset: 2px;
+  }
+
+  /* Ensure minimum text size - WCAG 2.1 1.4.4 */
+  body {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* Ensure sufficient line height - WCAG 2.1 1.4.12 */
+  p,
+  li,
+  td,
+  th {
+    line-height: 1.5;
+  }
+
+  /* Ensure sufficient spacing - WCAG 2.1 1.4.12 */
+  p {
+    margin-bottom: 1em;
+  }
+
+  /* Error state styling - WCAG 2.1 3.3.1 */
+  [aria-invalid="true"] {
+    border-color: #ef4444;
+    border-width: 2px;
+  }
+
+  [aria-invalid="true"]:focus {
+    outline-color: #ef4444;
+  }
+
+  /* Required field indicator - WCAG 2.1 3.3.2 */
+  [aria-required="true"]::after,
+  [required]::after {
+    content: " *";
+    color: #ef4444;
+  }
 }

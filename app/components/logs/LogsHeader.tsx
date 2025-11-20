@@ -1,6 +1,35 @@
 'use client';
 
 import { Download, Filter, RefreshCw } from 'lucide-react';
+import { useDebouncedInput } from '@/app/hooks/useDebounce';
+import { useEffect } from 'react';
+
+/**
+ * Debounced Task ID Input Component
+ */
+function DebouncedTaskIdInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const { value: localValue, debouncedValue, setValue } = useDebouncedInput(value, 300);
+
+  useEffect(() => {
+    onChange(debouncedValue);
+  }, [debouncedValue, onChange]);
+
+  return (
+    <input
+      type="text"
+      value={localValue}
+      onChange={(e) => setValue(e.target.value)}
+      placeholder="Enter task ID..."
+      className="glass-input w-full px-4 py-2 rounded-lg text-white text-sm placeholder:text-white/40"
+    />
+  );
+}
 
 interface LogFilters {
   taskId: string;
@@ -47,18 +76,15 @@ export function LogsHeader({
 
       {/* Filter Controls */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Task ID Filter */}
+        {/* Task ID Filter - Debounced */}
         <div className="space-y-2">
           <label className="text-white/80 text-sm font-medium flex items-center gap-2">
             <Filter className="w-4 h-4" />
             Task ID
           </label>
-          <input
-            type="text"
+          <DebouncedTaskIdInput
             value={filters.taskId}
-            onChange={(e) => onFilterChange({ taskId: e.target.value })}
-            placeholder="Enter task ID..."
-            className="glass-input w-full px-4 py-2 rounded-lg text-white text-sm placeholder:text-white/40"
+            onChange={(value) => onFilterChange({ taskId: value })}
           />
         </div>
 

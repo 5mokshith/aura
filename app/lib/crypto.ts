@@ -11,7 +11,7 @@ const KEY_LENGTH = 32;
 
 /**
  * Get encryption key from environment variable
- * The key should be a 32-byte (256-bit) hex string
+ * The key should be a 32-byte (256-bit) base64-encoded string
  */
 function getEncryptionKey(): Buffer {
   const key = process.env.ENCRYPTION_KEY;
@@ -20,11 +20,11 @@ function getEncryptionKey(): Buffer {
     throw new Error('ENCRYPTION_KEY environment variable is not set');
   }
   
-  // Convert hex string to buffer
-  const keyBuffer = Buffer.from(key, 'hex');
+  // Convert base64 string to buffer
+  const keyBuffer = Buffer.from(key, 'base64');
   
   if (keyBuffer.length !== KEY_LENGTH) {
-    throw new Error(`ENCRYPTION_KEY must be ${KEY_LENGTH} bytes (${KEY_LENGTH * 2} hex characters)`);
+    throw new Error(`ENCRYPTION_KEY must be ${KEY_LENGTH} bytes when base64 decoded. Generate with: openssl rand -base64 32`);
   }
   
   return keyBuffer;
@@ -88,8 +88,8 @@ export function decrypt(encryptedText: string): string {
 /**
  * Generate a new encryption key
  * This should be run once and the result stored in ENCRYPTION_KEY env var
- * @returns 32-byte hex string suitable for use as ENCRYPTION_KEY
+ * @returns 32-byte base64 string suitable for use as ENCRYPTION_KEY
  */
 export function generateEncryptionKey(): string {
-  return randomBytes(KEY_LENGTH).toString('hex');
+  return randomBytes(KEY_LENGTH).toString('base64');
 }

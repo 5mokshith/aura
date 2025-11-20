@@ -1,9 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
-import { FilesHeader, FileGrid } from '@/app/components/files';
+import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { DriveFile, ApiResponse } from '@/app/types/api';
 import { useRouter } from 'next/navigation';
+import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner';
+
+// Lazy load file components
+const FilesHeader = lazy(() => import('@/app/components/files').then(mod => ({ default: mod.FilesHeader })));
+const FileGrid = lazy(() => import('@/app/components/files').then(mod => ({ default: mod.FileGrid })));
 
 interface ExtendedDriveFile extends DriveFile {
   size?: string;
@@ -178,12 +182,18 @@ export default function FilesPage() {
         </div>
 
         {/* Search and Filters */}
-        <FilesHeader
-          searchQuery={searchQuery}
-          selectedFileType={fileType}
-          onSearchChange={handleSearchChange}
-          onFileTypeChange={handleFileTypeChange}
-        />
+        <Suspense fallback={
+          <div className="glass-panel rounded-xl p-6 mb-6 flex items-center justify-center">
+            <LoadingSpinner />
+          </div>
+        }>
+          <FilesHeader
+            searchQuery={searchQuery}
+            selectedFileType={fileType}
+            onSearchChange={handleSearchChange}
+            onFileTypeChange={handleFileTypeChange}
+          />
+        </Suspense>
 
         {/* Error Message */}
         {error && (
@@ -193,13 +203,19 @@ export default function FilesPage() {
         )}
 
         {/* File Grid */}
-        <FileGrid
-          files={files}
-          loading={loading}
-          hasMore={hasMore}
-          onLoadMore={handleLoadMore}
-          onFileAction={handleFileAction}
-        />
+        <Suspense fallback={
+          <div className="glass-panel rounded-xl p-6 h-96 flex items-center justify-center">
+            <LoadingSpinner />
+          </div>
+        }>
+          <FileGrid
+            files={files}
+            loading={loading}
+            hasMore={hasMore}
+            onLoadMore={handleLoadMore}
+            onFileAction={handleFileAction}
+          />
+        </Suspense>
       </div>
     </div>
   );
