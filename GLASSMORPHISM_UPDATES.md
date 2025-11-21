@@ -10,7 +10,7 @@ Transformed the entire UI with a stunning glassmorphism design featuring:
 
 ## Key Changes
 
-### 1. Global Styles (app/globals.css)
+### 1. Global S  tyles (app/globals.css)
 - Added animated gradient background with color shifting
 - Created glassmorphism utility classes:
   - `.glass` - Basic glass effect
