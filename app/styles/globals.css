@@ -1,8 +1,8 @@
+@import './glassmorphism.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import './glassmorphism.css';
 
 @layer base {
   :root {
@@ -30,18 +30,18 @@
     --warning: 38 92% 50%;
     --warning-foreground: 222.2 47.4% 11.2%;
     --radius: 0.5rem;
-    
+
     --font-inter: 'Inter', system-ui, sans-serif;
     --font-space-grotesk: 'Space Grotesk', 'Inter', sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
-    
+
     /* Glassmorphism colors */
     --glass-light: rgba(255, 255, 255, 0.1);
     --glass-medium: rgba(255, 255, 255, 0.15);
     --glass-strong: rgba(255, 255, 255, 0.2);
     --glass-dark: rgba(0, 0, 0, 0.2);
     --glass-darker: rgba(0, 0, 0, 0.3);
-    
+
     /* Neon colors */
     --neon-cyan: #00f0ff;
     --neon-cyan-rgb: 0, 240, 255;
@@ -51,11 +51,11 @@
     --neon-pink-rgb: 236, 72, 153;
     --neon-blue: #3b82f6;
     --neon-blue-rgb: 59, 130, 246;
-    
+
     /* Glass blur values */
     --blur-glass: 20px;
     --blur-glass-strong: 40px;
-    
+
     /* Transition durations */
     --transition-fast: 200ms;
     --transition-normal: 300ms;
@@ -67,6 +67,7 @@
   * {
     border-color: hsl(var(--border));
   }
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -74,12 +75,14 @@
 }
 
 @layer utilities {
+
   /* Toast animations */
   @keyframes slide-in-right {
     from {
       transform: translateX(100%);
       opacity: 0;
     }
+
     to {
       transform: translateX(0);
       opacity: 1;
@@ -91,6 +94,7 @@
       transform: translateX(0);
       opacity: 1;
     }
+
     to {
       transform: translateX(100%);
       opacity: 0;
@@ -102,6 +106,7 @@
       transform: scale(0.95);
       opacity: 0;
     }
+
     to {
       transform: scale(1);
       opacity: 1;
@@ -112,6 +117,7 @@
     from {
       opacity: 0;
     }
+
     to {
       opacity: 1;
     }
@@ -173,6 +179,7 @@
 
   /* High contrast mode support - WCAG 2.1 1.4.11 */
   @media (prefers-contrast: high) {
+
     .glass-panel,
     .glass-panel-sm,
     .glass-panel-md,
@@ -194,6 +201,7 @@
 
   /* Reduced motion support - WCAG 2.1 2.3.3 */
   @media (prefers-reduced-motion: reduce) {
+
     *,
     *::before,
     *::after {

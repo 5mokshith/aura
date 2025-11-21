@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { TaskCard, TaskHistoryItem } from './TaskCard';
 import { TimelineFilters } from './TimelineHeader';
-import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 
 interface TimelineContentProps {
@@ -33,25 +33,25 @@ export function TimelineContent({ filters = {} }: TimelineContentProps) {
       });
 
       const response = await fetch(`/api/timeline/tasks?${params}`);
-      
+
       if (!response.ok) {
         throw new Error(`Failed to fetch tasks: ${response.statusText}`);
       }
 
       const data = await response.json();
-      
+
       if (!data.success) {
         throw new Error(data.error?.message || 'Failed to fetch tasks');
       }
 
       const newTasks = data.data.tasks || [];
-      
+
       if (reset || pageNum === 0) {
         setTasks(newTasks);
       } else {
         setTasks(prev => [...prev, ...newTasks]);
       }
-      
+
       setHasMore(newTasks.length === 20); // If we got a full page, there might be more
       setPage(pageNum);
     } catch (err) {
@@ -76,7 +76,7 @@ export function TimelineContent({ filters = {} }: TimelineContentProps) {
   const handleRetry = async (taskId: string) => {
     try {
       setRetrying(taskId);
-      
+
       const response = await fetch('/api/agent/retry', {
         method: 'POST',
         headers: {
@@ -90,7 +90,7 @@ export function TimelineContent({ filters = {} }: TimelineContentProps) {
       }
 
       const data = await response.json();
-      
+
       if (data.success) {
         // Refresh the task list to show the new retry
         fetchTasks(0, true);
@@ -146,7 +146,7 @@ export function TimelineContent({ filters = {} }: TimelineContentProps) {
           No Tasks Found
         </h3>
         <p className="text-white/60 mb-4">
-          {Object.keys(filters).length > 0 
+          {Object.keys(filters).length > 0
             ? 'No tasks match your current filters. Try adjusting your search criteria.'
             : 'You haven\'t executed any tasks yet. Start a conversation to see your task history here.'
           }

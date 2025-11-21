@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { DriveFile, ApiResponse } from '@/app/types/api';
 import { useRouter } from 'next/navigation';
 import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner';
+import { PageLayout } from '@/app/components/layout/PageLayout';
 
 // Lazy load file components
 const FilesHeader = lazy(() => import('@/app/components/files').then(mod => ({ default: mod.FilesHeader })));
@@ -59,7 +60,7 @@ export default function FilesPage() {
       // Check cache first
       const cacheKey = getCacheKey(query, type, pageNum);
       const cachedData = getCachedData(cacheKey);
-      
+
       if (cachedData) {
         if (append) {
           setFiles(prev => [...prev, ...cachedData]);
@@ -93,7 +94,7 @@ export default function FilesPage() {
       }
 
       const newFiles = result.data.files;
-      
+
       // Cache the results
       setCachedData(cacheKey, newFiles);
 
@@ -107,7 +108,7 @@ export default function FilesPage() {
     } catch (err: any) {
       console.error('Error fetching files:', err);
       setError(err.message || 'Failed to load files');
-      
+
       // If OAuth token expired, redirect to setup
       if (err.message?.includes('token') || err.message?.includes('auth')) {
         router.push('/auth/setup');
@@ -150,7 +151,7 @@ export default function FilesPage() {
   // Handle file actions
   const handleFileAction = (action: 'summarize' | 'share' | 'download', file: DriveFile) => {
     console.log(`Action: ${action}`, file);
-    
+
     switch (action) {
       case 'summarize':
         // TODO: Implement summarize functionality
@@ -169,54 +170,56 @@ export default function FilesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 p-6">
-      <div className="max-w-7xl mx-auto">
-        {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-display font-bold text-white mb-2">
-            Google Drive Files
-          </h1>
-          <p className="text-white/60">
-            Browse and manage your Google Drive files
-          </p>
+    <PageLayout>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 p-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Page Header */}
+          <div className="mb-8">
+            <h1 className="text-4xl font-display font-bold text-white mb-2">
+              Google Drive Files
+            </h1>
+            <p className="text-white/60">
+              Browse and manage your Google Drive files
+            </p>
+          </div>
+
+          {/* Search and Filters */}
+          <Suspense fallback={
+            <div className="glass-panel rounded-xl p-6 mb-6 flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          }>
+            <FilesHeader
+              searchQuery={searchQuery}
+              selectedFileType={fileType}
+              onSearchChange={handleSearchChange}
+              onFileTypeChange={handleFileTypeChange}
+            />
+          </Suspense>
+
+          {/* Error Message */}
+          {error && (
+            <div className="glass-panel rounded-xl p-4 mb-6 border-l-4 border-red-500">
+              <p className="text-red-400">{error}</p>
+            </div>
+          )}
+
+          {/* File Grid */}
+          <Suspense fallback={
+            <div className="glass-panel rounded-xl p-6 h-96 flex items-center justify-center">
+              <LoadingSpinner />
+            </div>
+          }>
+            <FileGrid
+              files={files}
+              loading={loading}
+              hasMore={hasMore}
+              onLoadMore={handleLoadMore}
+              onFileAction={handleFileAction}
+            />
+          </Suspense>
         </div>
-
-        {/* Search and Filters */}
-        <Suspense fallback={
-          <div className="glass-panel rounded-xl p-6 mb-6 flex items-center justify-center">
-            <LoadingSpinner />
-          </div>
-        }>
-          <FilesHeader
-            searchQuery={searchQuery}
-            selectedFileType={fileType}
-            onSearchChange={handleSearchChange}
-            onFileTypeChange={handleFileTypeChange}
-          />
-        </Suspense>
-
-        {/* Error Message */}
-        {error && (
-          <div className="glass-panel rounded-xl p-4 mb-6 border-l-4 border-red-500">
-            <p className="text-red-400">{error}</p>
-          </div>
-        )}
-
-        {/* File Grid */}
-        <Suspense fallback={
-          <div className="glass-panel rounded-xl p-6 h-96 flex items-center justify-center">
-            <LoadingSpinner />
-          </div>
-        }>
-          <FileGrid
-            files={files}
-            loading={loading}
-            hasMore={hasMore}
-            onLoadMore={handleLoadMore}
-            onFileAction={handleFileAction}
-          />
-        </Suspense>
       </div>
-    </div>
+    </PageLayout>
   );
 }

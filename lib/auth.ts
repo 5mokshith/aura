@@ -36,3 +36,14 @@ export function getUserSessionClient(): UserSession | null {
     isAuthenticated: true,
   };
 }
+
+/**
+ * Logout user by clearing cookies
+ */
+export function logoutUser() {
+  if (typeof window === 'undefined') return;
+
+  document.cookie = 'aura_user_id=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  document.cookie = 'aura_user_email=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+  document.cookie = 'aura_auth_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}

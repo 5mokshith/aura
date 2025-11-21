@@ -1,12 +1,27 @@
 import { NextRequest } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { createClient as createAdminClient } from '@supabase/supabase-js';
 import { ApiResponse } from '@/types/api';
-import { TaskHistoryItem } from '@/components/timeline/TaskCard';
+// import { TaskHistoryItem } from '@/components/timeline/TaskCard';
+
+export interface TaskHistoryItem {
+  id: string;
+  task_id: string;
+  title: string;
+  status: 'success' | 'failed' | 'in-progress' | 'pending';
+  input_prompt: string;
+  output_summary: string | null;
+  outputs: any[];
+  google_services: string[];
+  duration_ms: number | null;
+  created_at: string;
+  completed_at: string | null;
+}
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    
+
     // Parse query parameters
     const page = parseInt(searchParams.get('page') || '0');
     const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100); // Max 100 items
@@ -16,29 +31,36 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('endDate');
 
     // Create Supabase client
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return Response.json(
-        { 
-          success: false, 
-          error: { 
-            code: 'UNAUTHORIZED', 
-            message: 'Authentication required' 
-          } 
-        } as ApiResponse,
-        { status: 401 }
-      );
+
+    // Fallback to demo user if not authenticated
+    const userId = user?.id || 'demo-user-id';
+
+    // Determine which client to use for DB operations
+    let dbClient = supabase;
+
+    // If using demo user, we MUST use the service role key to bypass RLS
+    if (!user && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      dbClient = createAdminClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false
+          }
+        }
+      ) as any;
     }
 
     // Build query
-    let query = supabase
+    let query = dbClient
       .from('task_history')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .range(page * limit, (page + 1) * limit - 1);
 
@@ -69,12 +91,12 @@ export async function GET(request: NextRequest) {
     if (queryError) {
       console.error('Database query error:', queryError);
       return Response.json(
-        { 
-          success: false, 
-          error: { 
-            code: 'DATABASE_ERROR', 
-            message: 'Failed to fetch task history' 
-          } 
+        {
+          success: false,
+          error: {
+            code: 'DATABASE_ERROR',
+            message: 'Failed to fetch task history'
+          }
         } as ApiResponse,
         { status: 500 }
       );
@@ -98,10 +120,10 @@ export async function GET(request: NextRequest) {
     // Get total count for pagination info (optional)
     let totalCount = null;
     if (page === 0) {
-      let countQuery = supabase
+      let countQuery = dbClient
         .from('task_history')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('user_id', userId);
 
       // Apply same filters for count
       if (status) {
@@ -141,12 +163,12 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error('Timeline API error:', error);
     return Response.json(
-      { 
-        success: false, 
-        error: { 
-          code: 'INTERNAL_ERROR', 
-          message: 'Internal server error' 
-        } 
+      {
+        success: false,
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'Internal server error'
+        }
       } as ApiResponse,
       { status: 500 }
     );

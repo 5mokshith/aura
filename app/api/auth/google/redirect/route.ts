@@ -13,7 +13,7 @@ export async function POST(request: Request) {
   if (rateLimitResponse) return rateLimitResponse;
   try {
     const { generateCsrfToken, generateOAuthState } = await import('@/app/lib/csrf');
-    
+
     const oauth2Client = new google.auth.OAuth2(
       process.env.GOOGLE_CLIENT_ID,
       process.env.GOOGLE_CLIENT_SECRET,
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
 
     // Generate CSRF token for OAuth flow
     const csrfToken = generateCsrfToken();
-    
+
     // Parse request body for optional redirect URL
     let redirectUrl: string | undefined;
     try {
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     } catch {
       // No body or invalid JSON, use default redirect
     }
-    
+
     // Generate state parameter with CSRF token
     const state = generateOAuthState(csrfToken, redirectUrl);
 
@@ -78,7 +78,7 @@ export async function POST(request: Request) {
     return response;
   } catch (error) {
     console.error('Error generating OAuth URL:', error);
-    
+
     return NextResponse.json(
       {
         success: false,
@@ -89,5 +89,66 @@ export async function POST(request: Request) {
       },
       { status: 500 }
     );
+  }
+}
+
+/**
+ * GET /api/auth/google/redirect
+ * Initiates Google OAuth flow by redirecting the user
+ * Used for direct links/buttons
+ */
+export async function GET(request: Request) {
+  // Apply rate limiting
+  const rateLimitResponse = await rateLimit(request, RateLimitPresets.AUTH);
+  if (rateLimitResponse) return rateLimitResponse;
+
+  try {
+    const { generateCsrfToken, generateOAuthState } = await import('@/app/lib/csrf');
+
+    const oauth2Client = new google.auth.OAuth2(
+      process.env.GOOGLE_CLIENT_ID,
+      process.env.GOOGLE_CLIENT_SECRET,
+      `${process.env.NEXTAUTH_URL}/api/auth/google/callback`
+    );
+
+    const scopes = [
+      'https://www.googleapis.com/auth/userinfo.email',
+      'https://www.googleapis.com/auth/userinfo.profile',
+      'https://www.googleapis.com/auth/gmail.send',
+      'https://www.googleapis.com/auth/gmail.readonly',
+      'https://www.googleapis.com/auth/gmail.modify',
+      'https://www.googleapis.com/auth/drive',
+      'https://www.googleapis.com/auth/drive.file',
+      'https://www.googleapis.com/auth/documents',
+      'https://www.googleapis.com/auth/spreadsheets',
+      'https://www.googleapis.com/auth/calendar',
+      'https://www.googleapis.com/auth/calendar.events',
+    ];
+
+    const csrfToken = generateCsrfToken();
+    const state = generateOAuthState(csrfToken, undefined);
+
+    const authUrl = oauth2Client.generateAuthUrl({
+      access_type: 'offline',
+      scope: scopes,
+      prompt: 'consent',
+      include_granted_scopes: true,
+      state,
+    });
+
+    const response = NextResponse.redirect(authUrl);
+
+    response.cookies.set('oauth_csrf_token', csrfToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 10 * 60, // 10 minutes
+      path: '/',
+    });
+
+    return response;
+  } catch (error) {
+    console.error('Error initiating OAuth flow:', error);
+    return NextResponse.redirect(new URL('/auth/setup?error=init_failed', request.url));
   }
 }
