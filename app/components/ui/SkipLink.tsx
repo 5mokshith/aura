@@ -17,7 +17,7 @@ export function SkipLink({ href = '#main-content', children = 'Skip to main cont
   return (
     <a
       href={href}
-      className="skip-to-main"
+      className="sr-only focus:not-sr-only focus:absolute focus:z-[100] focus:p-4 focus:bg-background focus:text-foreground focus:top-0 focus:left-0"
     >
       {children}
     </a>

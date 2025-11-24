@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { TaskCard } from './TaskCard';
 import { TaskStep } from '@/app/types/chat';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { AnimatedList } from '../ui/AnimatedList';
 
 interface ActiveTask {
   id: string;
@@ -107,33 +108,27 @@ export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerPro
               </div>
 
               {/* Subtasks Timeline */}
-              <div className="flex-1 overflow-y-auto glass-scrollbar">
-                <h3 className="text-sm font-medium text-white/70 mb-4 uppercase tracking-wide">
+              <div className="flex-1 overflow-hidden">
+                <h3 className="text-sm font-medium text-white/70 mb-4 uppercase tracking-wide px-1">
                   Subtasks ({activeTask.subtasks.length})
                 </h3>
-                
-                <div className="space-y-3 relative">
-                  {/* Timeline line */}
-                  <div className="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-neon-cyan/50 via-neon-purple/30 to-transparent" />
-                  
-                  {activeTask.subtasks.map((subtask, index) => (
-                    <div
-                      key={subtask.id}
-                      className="relative pl-10 animate-slide-up"
-                      style={{ animationDelay: `${index * 50}ms` }}
-                    >
+
+                <AnimatedList
+                  items={activeTask.subtasks}
+                  renderItem={(subtask, index, isSelected) => (
+                    <div className="relative pl-10">
                       {/* Timeline dot */}
                       <div
                         className={`
                           absolute left-2.5 top-3 w-3 h-3 rounded-full
-                          border-2 border-background
+                          border-2 border-background z-10
                           ${subtask.status === 'completed' ? 'bg-green-500' : ''}
                           ${subtask.status === 'running' ? 'bg-neon-cyan animate-glow-pulse-cyan' : ''}
                           ${subtask.status === 'failed' ? 'bg-red-500' : ''}
                           ${subtask.status === 'pending' ? 'bg-gray-500/50' : ''}
                         `}
                       />
-                      
+
                       {/* Subtask content */}
                       <div
                         className={`
@@ -144,6 +139,7 @@ export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerPro
                           ${subtask.status === 'failed' ? 'border-red-500/50' : ''}
                           ${subtask.status === 'pending' ? 'border-gray-500/30' : ''}
                           transition-all duration-300
+                          ${isSelected ? 'bg-white/10 border-white/30' : ''}
                         `}
                       >
                         <div className="flex items-start justify-between gap-2 mb-2">
@@ -154,7 +150,7 @@ export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerPro
                             <GoogleServiceIcon service={subtask.googleService} />
                           )}
                         </div>
-                        
+
                         <div className="flex items-center gap-2 text-xs">
                           <AgentBadge agent={subtask.agent} />
                           {subtask.error && (
@@ -165,8 +161,11 @@ export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerPro
                         </div>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  )}
+                >
+                  {/* Timeline line */}
+                  <div className="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-neon-cyan/50 via-neon-purple/30 to-transparent" />
+                </AnimatedList>
               </div>
             </div>
           )}
@@ -227,7 +226,7 @@ export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerPro
               <h3 className="text-sm font-medium text-white/70 mb-3 uppercase tracking-wide">
                 Subtasks ({activeTask.subtasks.length})
               </h3>
-              
+
               <div className="space-y-2">
                 {activeTask.subtasks.map((subtask) => (
                   <div
@@ -249,7 +248,7 @@ export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerPro
                         <GoogleServiceIcon service={subtask.googleService} />
                       )}
                     </div>
-                    
+
                     <div className="flex items-center gap-2 text-xs">
                       <AgentBadge agent={subtask.agent} />
                     </div>

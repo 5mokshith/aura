@@ -35,12 +35,12 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass-panel-sm border-b border-white/10">
+    <header className="fixed top-0 left-0 right-0 z-[60] glass-panel-sm border-b border-white/10 bg-black/20 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 rounded-full glass-panel-md flex items-center justify-center shadow-neon-cyan">
+            <div className="w-8 h-8 rounded-full glass-panel-md bg-white/10 flex items-center justify-center shadow-neon-cyan">
               <span className="text-lg font-bold text-neon-cyan font-display">A</span>
             </div>
             <span className="text-white font-display font-semibold text-lg hidden sm:inline">AURA</span>
@@ -66,9 +66,9 @@ export function Header() {
                   className="fixed inset-0 z-40"
                   onClick={() => setShowMenu(false)}
                 />
-                
+
                 {/* Menu */}
-                <div className="absolute right-0 mt-2 w-56 glass-panel-md rounded-lg shadow-xl border border-white/10 z-50 animate-slide-up">
+                <div className="absolute right-0 mt-2 w-56 glass-panel-md bg-gray-900/95 rounded-lg shadow-xl border border-white/10 z-50 animate-slide-up">
                   <div className="p-2">
                     <div className="px-3 py-2 border-b border-white/10 mb-2">
                       <p className="text-xs text-gray-400">Signed in as</p>

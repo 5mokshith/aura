@@ -209,6 +209,7 @@ const config: Config = {
         'scale-in': 'scaleIn 0.3s ease-out',
         'bounce-subtle': 'bounceSubtle 0.6s ease-in-out',
         'shimmer': 'shimmer 2s linear infinite',
+        'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
       },
       keyframes: {
         fadeIn: {
@@ -259,6 +260,11 @@ const config: Config = {
           '0%': { backgroundPosition: '-200% 0' },
           '100%': { backgroundPosition: '200% 0' },
         },
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '10%, 30%, 50%, 70%, 90%': { transform: 'translateX(-4px)' },
+          '20%, 40%, 60%, 80%': { transform: 'translateX(4px)' },
+        },
       },
       spacing: {
         "18": "4.5rem",
@@ -272,7 +278,7 @@ const config: Config = {
         touch: "44px",
       },
       fontSize: {
-        "2xs": ["0.625rem",{lineHeight:"0.875rem"}],
+        "2xs": ["0.625rem", { lineHeight: "0.875rem" }],
       },
       transitionDuration: {
         '400': '400ms',

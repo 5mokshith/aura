@@ -5,6 +5,7 @@ import { Message as MessageType, ExecutionUpdate } from '@/app/types/chat';
 import { ChatInterface } from './ChatInterface';
 import { useRealtimeLogs, ExecutionLog } from '@/app/hooks/useRealtimeLogs';
 import { AlertCircle, Wifi, WifiOff } from 'lucide-react';
+import { TaskVisualizer } from '../task/TaskVisualizer';
 
 interface ChatInterfaceWithRealtimeProps {
   userId?: string;
@@ -172,52 +173,73 @@ export function ChatInterfaceWithRealtime({
     [userId, onSendMessage]
   );
 
-  return (
-    <div className="relative h-full">
-      {/* Connection Status Indicator */}
-      {currentTaskId && (
-        <div className="absolute top-4 right-4 z-10">
-          <div
-            className={`glass-panel-sm px-3 py-2 rounded-full flex items-center gap-2 text-xs ${
-              isConnected ? 'text-green-400' : 'text-red-400'
-            }`}
-          >
-            {isConnected ? (
-              <>
-                <Wifi className="w-3 h-3" />
-                <span>Live</span>
-              </>
-            ) : (
-              <>
-                <WifiOff className="w-3 h-3" />
-                <span>Disconnected</span>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+  // Derive active task from messages
+  const activeTask = messages
+    .filter((m) => m.role === 'assistant' && m.taskDecomposition)
+    .map((m) => ({
+      id: m.taskDecomposition!.taskId,
+      title: m.taskDecomposition!.steps[0]?.description || 'Untitled Task', // Use first step as title for now
+      subtasks: m.taskDecomposition!.steps,
+      overallStatus: m.taskDecomposition!.steps.every((s) => s.status === 'completed')
+        ? 'completed'
+        : m.taskDecomposition!.steps.some((s) => s.status === 'failed')
+          ? 'failed'
+          : 'running',
+    }))
+    .pop() as any; // Cast to any to match TaskVisualizer props for now, or refine type
 
-      {/* Error Display */}
-      {error && (
-        <div className="absolute top-16 right-4 z-10 max-w-xs">
-          <div className="glass-panel-md p-3 rounded-lg border-l-4 border-red-500">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm text-red-300 font-medium">Connection Error</p>
-                <p className="text-xs text-white/60 mt-1">{error.message}</p>
+  return (
+    <div className="flex h-full gap-6">
+      <div className="flex-1 min-w-0 relative h-full">
+        {/* Connection Status Indicator */}
+        {currentTaskId && (
+          <div className="absolute top-4 right-4 z-10">
+            <div
+              className={`glass-panel-sm px-3 py-2 rounded-full flex items-center gap-2 text-xs ${isConnected ? 'text-green-400' : 'text-red-400'
+                }`}
+            >
+              {isConnected ? (
+                <>
+                  <Wifi className="w-3 h-3" />
+                  <span>Live</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff className="w-3 h-3" />
+                  <span>Disconnected</span>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Error Display */}
+        {error && (
+          <div className="absolute top-16 right-4 z-10 max-w-xs">
+            <div className="glass-panel-md p-3 rounded-lg border-l-4 border-red-500">
+              <div className="flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm text-red-300 font-medium">Connection Error</p>
+                  <p className="text-xs text-white/60 mt-1">{error.message}</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Chat Interface */}
-      <ChatInterface
-        initialMessages={messages}
-        onSendMessage={handleSendMessage}
-        className={className}
-      />
+        {/* Chat Interface */}
+        <ChatInterface
+          initialMessages={messages}
+          onSendMessage={handleSendMessage}
+          className={className}
+        />
+      </div>
+
+      {/* Task Visualizer - Desktop Sidebar */}
+      <div className="hidden xl:block w-96 shrink-0 h-full">
+        <TaskVisualizer activeTask={activeTask} />
+      </div>
     </div>
   );
 }
