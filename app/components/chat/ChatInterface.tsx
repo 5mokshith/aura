@@ -144,7 +144,7 @@ export function ChatInterface({
               transition={{ duration: 0.4, ease: "easeOut" }}
               className="flex flex-col items-center justify-center h-full text-center p-4"
             >
-              <div className="max-w-2xl w-full space-y-8">
+              <div className="max-w-3xl w-full space-y-10">
                 {/* Logo/Icon */}
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
@@ -163,19 +163,52 @@ export function ChatInterface({
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="space-y-3"
+                  className="space-y-4"
                 >
-                  <h2 className="text-4xl md:text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/60">
+                  <p className="text-[11px] md:text-xs font-semibold tracking-[0.28em] text-yellow-300/80 uppercase">
+                    Intelligent workspace assistant
+                  </p>
+                  <h2 className="text-3xl md:text-5xl font-display font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-white to-white/60">
                     Welcome to AURA
                   </h2>
-                  <p className="text-lg text-white/60 max-w-lg mx-auto leading-relaxed">
-                    Your intelligent workspace assistant. Ready to help you manage emails, documents, and calendar with ease.
+                  <p className="text-sm md:text-lg text-white/70 max-w-xl mx-auto leading-relaxed">
+                    Ready to orchestrate Gmail, Drive, Docs, Sheets, and Calendar so you can stay focused on the work that matters.
                   </p>
+                  <div className="flex flex-wrap justify-center gap-2 pt-1">
+                    <span className="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[11px] md:text-xs text-white/70">
+                      Automate email follow-ups
+                    </span>
+                    <span className="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[11px] md:text-xs text-white/70">
+                      Search and summarize documents
+                    </span>
+                    <span className="px-3 py-1 rounded-full border border-white/10 bg-white/5 text-[11px] md:text-xs text-white/70">
+                      Plan and schedule with Calendar
+                    </span>
+                  </div>
                 </motion.div>
 
                 {/* Suggestions Grid */}
-                <div className="w-full max-w-4xl mx-auto mt-8">
-                  <QuickActionsPanel onActionClick={handleSendMessage} />
+                <div className="w-full max-w-4xl mx-auto mt-4 md:mt-6">
+                  <div className="relative glass-panel-strong rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 via-white/0 to-neon-purple/10 p-4 sm:p-5 lg:p-6 overflow-hidden">
+                    <div className="pointer-events-none absolute -top-24 -left-24 h-48 w-48 rounded-full bg-neon-cyan/20 blur-3xl opacity-40" />
+                    <div className="pointer-events-none absolute -bottom-20 -right-20 h-40 w-40 rounded-full bg-neon-purple/25 blur-3xl opacity-50" />
+
+                    <div className="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 mb-4">
+                      <div className="text-left">
+                        <p className="text-xs font-medium tracking-wide text-white/70 uppercase">
+                          Quick start actions
+                        </p>
+                        <p className="text-[11px] text-white/50">
+                          Pick a card to jump straight into a workspace task.
+                        </p>
+                      </div>
+                      <span className="hidden sm:inline-flex px-2.5 py-1 rounded-full bg-black/40 border border-white/10 text-[11px] text-white/60">
+                        No setup required
+                      </span>
+                    </div>
+
+                    <QuickActionsPanel onActionClick={handleSendMessage} />
+                  </div>
                 </div>
               </div>
             </motion.div>

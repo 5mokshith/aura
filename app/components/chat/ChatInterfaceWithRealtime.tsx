@@ -34,19 +34,28 @@ function buildExecutionSummary(outputs: any[]): string | null {
     }
 
     const header = `Here are your latest ${messages.length} emails:`;
-    const lines = messages.map((m) => {
+    const lines = messages.map((m, index) => {
       const from = m.from || 'Unknown sender';
       const subject = m.subject && m.subject.trim() !== '' ? m.subject : '(no subject)';
       const date = m.date || '';
-      const headerLine = `- ${subject} — from ${from}${date ? ` (${date})` : ''}`;
-      const snippet = typeof m.snippet === 'string' && m.snippet.trim() !== ''
-        ? m.snippet.trim().replace(/\s+/g, ' ')
+
+      // First line: numbered subject + sender (and date if available)
+      const titleLine = `${index + 1}. ${subject} — ${from}${date ? ` (${date})` : ''}`;
+
+      // Optional second line: a short snippet, trimmed and collapsed
+      const rawSnippet = typeof m.snippet === 'string' ? m.snippet.trim().replace(/\s+/g, ' ') : '';
+      const maxSnippetLength = 160;
+      const snippet = rawSnippet
+        ? rawSnippet.length > maxSnippetLength
+          ? `${rawSnippet.slice(0, maxSnippetLength).trim()}...`
+          : rawSnippet
         : '';
-      const snippetLine = snippet ? `  ${snippet}` : '';
-      return snippetLine ? `${headerLine}\n${snippetLine}` : headerLine;
+
+      const snippetLine = snippet ? `   ${snippet}` : '';
+      return snippetLine ? `${titleLine}\n${snippetLine}` : titleLine;
     });
 
-    return [header, '', ...lines].join('\n');
+    return [header, '', ...lines].join('\n\n');
   }
 
   // Handle single Gmail read response where data.body contains the email content
@@ -325,12 +334,7 @@ export function ChatInterfaceWithRealtime({
     .pop() as any; // Cast to any to match TaskVisualizer props for now, or refine type
 
   return (
-    <div className="flex h-full gap-6">
-      {/* Task Visualizer - Desktop Sidebar */}
-      <div className="hidden xl:block w-96 shrink-0 h-full">
-        <TaskVisualizer activeTask={activeTask} />
-      </div>
-
+    <div className="flex h-full gap-4 lg:gap-6 bg-[#050712]/90 rounded-2xl border border-white/5 shadow-glass-lg p-3 sm:p-4 lg:p-5">
       <div className="flex-1 min-w-0 relative h-full">
         {/* Connection Status Indicator */}
         {currentTaskId && (
@@ -375,6 +379,11 @@ export function ChatInterfaceWithRealtime({
           onSendMessage={handleSendMessage}
           className={className}
         />
+      </div>
+
+      {/* Task Visualizer - Desktop Sidebar */}
+      <div className="hidden lg:flex w-80 xl:w-96 shrink-0 h-full">
+        <TaskVisualizer activeTask={activeTask} className="w-full" />
       </div>
     </div>
   );

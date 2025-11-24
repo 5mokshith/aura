@@ -44,6 +44,12 @@ export async function POST(request: NextRequest) {
 
     if (insertError) {
       console.error('Failed to save task plan:', insertError);
+      console.error('Supabase task_history insert error details:', {
+        code: (insertError as any).code,
+        message: (insertError as any).message,
+        details: (insertError as any).details,
+        hint: (insertError as any).hint,
+      });
       throw new Error('Failed to save task plan to database');
     }
 
