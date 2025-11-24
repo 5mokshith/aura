@@ -40,11 +40,11 @@ export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerPro
 
   return (
     <>
-      {/* Desktop: Right sidebar */}
+      {/* Desktop: Sidebar (used on the left of the editor layout) */}
       <div
         className={`
           hidden md:flex flex-col
-          fixed right-0 top-0 h-screen
+          h-full
           transition-all duration-300 ease-glass
           ${isCollapsed ? 'w-12' : 'w-80 lg:w-96'}
           ${className}
@@ -54,7 +54,7 @@ export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerPro
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="
-            absolute -left-4 top-20 z-50
+            absolute -right-4 top-20 z-50
             w-8 h-8 rounded-full
             bg-glass-medium backdrop-blur-glass
             border border-white/20

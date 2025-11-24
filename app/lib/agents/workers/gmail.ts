@@ -89,24 +89,46 @@ export class GmailWorker extends BaseWorker {
 
     const messages = result.data.messages || [];
     
-    // Fetch details for each message
+    // Fetch details (headers, snippet, and truncated body) for each message
     const detailedMessages = await Promise.all(
       messages.slice(0, 5).map(async (msg: any) => {
         const details = await gmail.users.messages.get({
           userId: 'me',
           id: msg.id,
-          format: 'metadata',
-          metadataHeaders: ['From', 'Subject', 'Date'],
+          format: 'full',
         });
 
-        const headers = details.data.payload.headers;
+        const payload = details.data.payload;
+        const headers = payload?.headers || [];
+        const getHeader = (name: string) =>
+          headers.find((h: any) => h.name === name)?.value;
+
+        // Extract body similar to readEmail, but truncate to keep payload reasonable
+        let body = '';
+        if (payload?.body?.data) {
+          body = Buffer.from(payload.body.data, 'base64').toString();
+        } else if (payload?.parts) {
+          const textPart = payload.parts.find(
+            (part: any) => part.mimeType === 'text/plain' || part.mimeType === 'text/html'
+          );
+          if (textPart?.body?.data) {
+            body = Buffer.from(textPart.body.data, 'base64').toString();
+          }
+        }
+
+        const maxChars = 4000;
+        const textBody = typeof body === 'string' ? body.trim() : '';
+        const truncatedBody =
+          textBody.length > maxChars ? textBody.slice(0, maxChars) : textBody;
+
         return {
           id: msg.id,
           threadId: msg.threadId,
-          from: headers.find((h: any) => h.name === 'From')?.value,
-          subject: headers.find((h: any) => h.name === 'Subject')?.value,
-          date: headers.find((h: any) => h.name === 'Date')?.value,
+          from: getHeader('From'),
+          subject: getHeader('Subject'),
+          date: getHeader('Date'),
           snippet: details.data.snippet,
+          body: truncatedBody,
         };
       })
     );
