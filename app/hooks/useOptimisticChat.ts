@@ -8,13 +8,7 @@
 import { useState, useCallback } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Message, TaskStep } from '@/app/types/chat';
-import {
-  addOptimisticMessage,
-  replaceOptimisticMessage,
-  removeOptimisticMessage,
-  optimisticChatManager,
-  optimisticTaskManager,
-} from '@/app/lib/optimisticUpdates';
+import { optimisticChatManager } from '@/app/lib/optimisticUpdates';
 import { queryKeys } from '@/app/lib/queryClient';
 
 interface UseOptimisticChatOptions {
@@ -30,6 +24,7 @@ export function useOptimisticChat(options: UseOptimisticChatOptions = {}) {
     subtasks: TaskStep[];
     overallStatus: 'pending' | 'running' | 'completed' | 'failed';
   } | undefined>(undefined);
+  const [suggestedTask, setSuggestedTask] = useState<{ description: string; prompt: string } | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -38,23 +33,22 @@ export function useOptimisticChat(options: UseOptimisticChatOptions = {}) {
    */
   const sendMessageMutation = useMutation({
     mutationFn: async (content: string) => {
-      // Call agent API to plan and execute task
-      const planResponse = await fetch('/api/agent/plan', {
+      const history = messages.map((m) => ({ role: m.role, content: m.content }));
+      const chatResponse = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          prompt: content,
+          message: content,
           userId: 'current-user-id', // TODO: Get from auth
+          conversationHistory: history,
         }),
       });
 
-      const planResult = await planResponse.json();
-
-      if (!planResult.success) {
-        throw new Error(planResult.error?.message || 'Failed to plan task');
+      const chatResult = await chatResponse.json();
+      if (!chatResult.success) {
+        throw new Error(chatResult.error?.message || 'Chat service failed');
       }
-
-      return planResult.data;
+      return chatResult.data;
     },
 
     onMutate: async (content: string) => {
@@ -77,23 +71,17 @@ export function useOptimisticChat(options: UseOptimisticChatOptions = {}) {
       return { optimisticId, assistantMessageId: assistantMessage.id };
     },
 
-    onSuccess: (data, content, context) => {
-      // Confirm user message
+    onSuccess: (data, _content, context) => {
+      // Confirm user message (no task id in chat response, keep confirmation simple)
       if (context?.optimisticId) {
-        optimisticChatManager.confirmMessage(context.optimisticId, data.taskId);
+        optimisticChatManager.confirmMessage(context.optimisticId, context.optimisticId);
       }
 
-      // Update assistant message with actual response
       const assistantMessage: Message = {
         id: `msg_${Date.now()}`,
         role: 'assistant',
-        content: `I'm working on your request: "${content}". I've broken it down into ${data.steps.length} steps.`,
+        content: String(data.message || ''),
         timestamp: new Date(),
-        taskDecomposition: {
-          taskId: data.taskId,
-          steps: data.steps,
-        },
-        executionFeed: [],
       };
 
       setMessages((prev) =>
@@ -102,21 +90,19 @@ export function useOptimisticChat(options: UseOptimisticChatOptions = {}) {
         )
       );
 
-      // Set active task
-      setActiveTask({
-        id: data.taskId,
-        title: content,
-        subtasks: data.steps,
-        overallStatus: 'running',
-      });
-
-      // Start task execution
-      executeTask(data.taskId);
+      if (data.suggestedTask?.prompt) {
+        setSuggestedTask({
+          description: String(data.suggestedTask.description || 'Suggested task'),
+          prompt: String(data.suggestedTask.prompt),
+        });
+      } else {
+        setSuggestedTask(null);
+      }
 
       options.onSuccess?.(data);
     },
 
-    onError: (error: Error, content, context) => {
+    onError: (error: Error, _content, context) => {
       // Rollback optimistic updates
       if (context?.optimisticId) {
         optimisticChatManager.rollbackMessage(context.optimisticId);
@@ -231,6 +217,8 @@ export function useOptimisticChat(options: UseOptimisticChatOptions = {}) {
     messages,
     activeTask,
     sendMessage,
+    suggestedTask,
+    executeSuggestedTask,
     retryTask,
     isLoading: sendMessageMutation.isPending,
     error: sendMessageMutation.error,
@@ -249,7 +237,7 @@ export function useOptimisticList<T extends { id: string }>(
   return useMutation({
     mutationFn,
 
-    onMutate: async (newItem: Omit<T, 'id'>) => {
+    onMutate: async (_newItem: Omit<T, 'id'>) => {
       // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey });
 
@@ -259,7 +247,7 @@ export function useOptimisticList<T extends { id: string }>(
       // Optimistically update
       if (previousData) {
         const optimisticItem = {
-          ...newItem,
+          ..._newItem,
           id: `optimistic_${Date.now()}`,
         } as T;
 
@@ -269,7 +257,7 @@ export function useOptimisticList<T extends { id: string }>(
       return { previousData };
     },
 
-    onError: (err, newItem, context) => {
+    onError: (_err, _newItem, context) => {
       // Rollback on error
       if (context?.previousData) {
         queryClient.setQueryData(queryKey, context.previousData);
@@ -313,7 +301,7 @@ export function useOptimisticDelete<T extends { id: string }>(
       return { previousData };
     },
 
-    onError: (err, itemId, context) => {
+    onError: (_err, _itemId, context) => {
       // Rollback on error
       if (context?.previousData) {
         queryClient.setQueryData(queryKey, context.previousData);

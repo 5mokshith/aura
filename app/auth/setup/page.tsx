@@ -1,6 +1,7 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useState } from 'react';
+
 import { Bot, Mail, FileText, FolderOpen, Sheet, Calendar, CheckCircle2 } from 'lucide-react';
 import { OAuthSetup as OAuthSetupComponent } from '@/app/components/auth/OAuthSetup';
 
@@ -19,42 +20,6 @@ function LoadingSpinner({ size = "md" }) {
   );
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 function OAuthSetupWrapper() {
   return (
     <Suspense fallback={<LoadingSpinner size="lg" />}>
@@ -64,21 +29,39 @@ function OAuthSetupWrapper() {
 }
 
 export default function AuthSetupPage() {
-  const integrations = [
-    { icon: Mail, name: "Gmail", description: "Send and search emails" },
-    { icon: FolderOpen, name: "Drive", description: "Search and manage files" },
-    { icon: FileText, name: "Docs", description: "Create and edit documents" },
-    { icon: Sheet, name: "Sheets", description: "Analyze spreadsheet data" },
-    { icon: Calendar, name: "Calendar", description: "Schedule and manage events" }
-  ];
+  type SetupContent = {
+    headline: string;
+    tagline: string;
+    description: string;
+    integrations: { name: 'Gmail' | 'Drive' | 'Docs' | 'Sheets' | 'Calendar'; description: string }[];
+    features: string[];
+  };
 
-  const features = [
-    "Natural language instructions",
-    "Automatic task planning",
-    "Multi-step workflow execution",
-    "Automatic verification & correction",
-    "Cross-app integrations"
-  ];
+  const [content, setContent] = useState<SetupContent | null>(null);
+  const iconMap = {
+    Gmail: Mail,
+    Drive: FolderOpen,
+    Docs: FileText,
+    Sheets: Sheet,
+    Calendar: Calendar,
+  } as const;
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch('/api/auth/setup-content');
+        const json = await res.json();
+        if (!cancelled && json?.data) {
+          setContent(json.data as SetupContent);
+        }
+      } catch {}
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="min-h-screen w-full flex bg-[#0f0f14] text-gray-100">
@@ -93,12 +76,10 @@ export default function AuthSetupPage() {
               </div>
               <div>
                 <h1 className="text-2xl font-semibold text-white">AURA</h1>
-                <p className="text-xs text-gray-400">Agentic Unified Reasoning Assistant</p>
+                <p className="text-xs text-gray-400">{content?.tagline || 'Agentic Unified Reasoning Assistant'}</p>
               </div>
             </div>
-            <p className="text-gray-400 text-lg leading-relaxed max-w-lg">
-              An AI-powered agent system that integrates with Google Workspace to automate real-world workflows through natural language.
-            </p>
+            <p className="text-gray-400 text-lg leading-relaxed max-w-lg">{content?.description || ''}</p>
           </div>
 
           {/* What AURA Does */}
@@ -132,71 +113,6 @@ export default function AuthSetupPage() {
               <div className="flex items-start gap-3 text-sm">
                 <div className="w-6 h-6 rounded-full bg-blue-600/10 border border-blue-600/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                   <span className="text-blue-400 text-xs font-medium">4</span>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 </div>
                 <p className="text-gray-400">
                   <span className="text-gray-300 font-medium">Get results:</span> Validated, verified outcomes delivered to you
@@ -209,18 +125,21 @@ export default function AuthSetupPage() {
           <div className="space-y-4">
             <h2 className="text-sm font-medium text-gray-300 uppercase tracking-wide">Workspace Integrations</h2>
             <div className="grid grid-cols-2 gap-3">
-              {integrations.map((integration, index) => (
-                <div 
-                  key={index}
-                  className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-3 hover:border-gray-600/50 transition-colors"
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <integration.icon className="w-4 h-4 text-blue-400" />
-                    <span className="text-sm font-medium text-gray-200">{integration.name}</span>
+              {(content?.integrations || []).map((integration, index) => {
+                const Icon = iconMap[integration.name as keyof typeof iconMap] || FolderOpen;
+                return (
+                  <div
+                    key={index}
+                    className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-3 hover:border-gray-600/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Icon className="w-4 h-4 text-blue-400" />
+                      <span className="text-sm font-medium text-gray-200">{integration.name}</span>
+                    </div>
+                    <p className="text-xs text-gray-500">{integration.description}</p>
                   </div>
-                  <p className="text-xs text-gray-500">{integration.description}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 
@@ -228,7 +147,7 @@ export default function AuthSetupPage() {
           <div className="space-y-4">
             <h2 className="text-sm font-medium text-gray-300 uppercase tracking-wide">Key Capabilities</h2>
             <ul className="space-y-2">
-              {features.map((feature, index) => (
+              {(content?.features || []).map((feature, index) => (
                 <li key={index} className="flex items-center gap-2 text-sm text-gray-400">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
                   {feature}
@@ -241,7 +160,7 @@ export default function AuthSetupPage() {
         {/* Footer */}
         <div className="text-xs text-gray-500 space-y-1">
           <p>Built with Next.js, Node.js, and Supabase</p>
-          <p>© 2024 AURA. All rights reserved.</p>
+          <p>&copy; 2024 AURA. All rights reserved.</p>
         </div>
       </div>
 
@@ -255,7 +174,7 @@ export default function AuthSetupPage() {
             </div>
             <div>
               <h1 className="text-2xl font-semibold text-white">AURA</h1>
-              <p className="text-xs text-gray-400">Agentic Unified Reasoning Assistant</p>
+              <p className="text-xs text-gray-400">{content?.tagline || 'Agentic Unified Reasoning Assistant'}</p>
             </div>
           </div>
 
@@ -264,29 +183,11 @@ export default function AuthSetupPage() {
             <OAuthSetupWrapper />
           </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
           {/* Mobile Features Summary */}
           <div className="lg:hidden mt-8 p-6 bg-gray-900/30 border border-gray-800 rounded-xl">
             <h3 className="text-sm font-medium text-gray-300 mb-4">What you can do with AURA</h3>
             <ul className="space-y-2 text-sm text-gray-400">
-              {features.map((feature, index) => (
+              {(content?.features || []).map((feature, index) => (
                 <li key={index} className="flex items-center gap-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
                   {feature}

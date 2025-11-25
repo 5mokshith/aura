@@ -5,6 +5,10 @@ export interface Message {
   timestamp: Date;
   taskDecomposition?: TaskDecomposition;
   executionFeed?: ExecutionUpdate[];
+  suggestedTask?: {
+    description: string;
+    prompt: string;
+  };
 }
 
 export interface TaskDecomposition {
