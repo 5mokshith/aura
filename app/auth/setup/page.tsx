@@ -1,200 +1,110 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { FcGoogle } from 'react-icons/fc';
+import { FaRobot } from 'react-icons/fa6';
+import { useState } from 'react';
 
-import { Bot, Mail, FileText, FolderOpen, Sheet, Calendar, CheckCircle2 } from 'lucide-react';
-import { OAuthSetup as OAuthSetupComponent } from '@/app/components/auth/OAuthSetup';
+export default function Page() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
-// Mock components - replace with your actual components
-function LoadingSpinner({ size = "md" }) {
-  const sizeClasses = {
-    sm: "w-4 h-4",
-    md: "w-8 h-8",
-    lg: "w-12 h-12"
-  };
-  
-  return (
-    <div className="flex items-center justify-center">
-      <div className={`${sizeClasses[size]} border-4 border-gray-700 border-t-blue-500 rounded-full animate-spin`}></div>
-    </div>
-  );
-}
+  const handleGoogleSignIn = async () => {
+    try {
+      setIsLoading(true);
 
-function OAuthSetupWrapper() {
-  return (
-    <Suspense fallback={<LoadingSpinner size="lg" />}>
-      <OAuthSetupComponent />
-    </Suspense>
-  );
-}
+      // Call the OAuth redirect endpoint
+      const response = await fetch('/api/auth/google/redirect', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
-export default function AuthSetupPage() {
-  type SetupContent = {
-    headline: string;
-    tagline: string;
-    description: string;
-    integrations: { name: 'Gmail' | 'Drive' | 'Docs' | 'Sheets' | 'Calendar'; description: string }[];
-    features: string[];
-  };
+      const data = await response.json();
 
-  const [content, setContent] = useState<SetupContent | null>(null);
-  const iconMap = {
-    Gmail: Mail,
-    Drive: FolderOpen,
-    Docs: FileText,
-    Sheets: Sheet,
-    Calendar: Calendar,
-  } as const;
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/api/auth/setup-content');
-        const json = await res.json();
-        if (!cancelled && json?.data) {
-          setContent(json.data as SetupContent);
+      if (data.success && data.redirectUrl) {
+        // Store CSRF token in sessionStorage for verification
+        if (data.csrfToken) {
+          sessionStorage.setItem('oauth_csrf_token', data.csrfToken);
         }
-      } catch {}
-    })();
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+        // Redirect to Google OAuth
+        window.location.href = data.redirectUrl;
+      } else {
+        console.error('Failed to initiate OAuth:', data.error);
+        alert('Failed to connect with Google. Please try again.');
+        setIsLoading(false);
+      }
+    } catch (error) {
+      console.error('Error initiating Google sign-in:', error);
+      alert('An error occurred. Please try again.');
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <div className="min-h-screen w-full flex bg-[#0f0f14] text-gray-100">
-      {/* Left Side - About AURA */}
-      <div className="hidden lg:flex lg:w-1/2 relative p-12 flex-col justify-between border-r border-gray-800">
-        <div className="space-y-10">
-          {/* Logo & Brand */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                <Bot className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-semibold text-white">AURA</h1>
-                <p className="text-xs text-gray-400">{content?.tagline || 'Agentic Unified Reasoning Assistant'}</p>
-              </div>
-            </div>
-            <p className="text-gray-400 text-lg leading-relaxed max-w-lg">{content?.description || ''}</p>
-          </div>
-
-          {/* What AURA Does */}
-          <div className="space-y-4">
-            <h2 className="text-sm font-medium text-gray-300 uppercase tracking-wide">How it works</h2>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3 text-sm">
-                <div className="w-6 h-6 rounded-full bg-blue-600/10 border border-blue-600/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-400 text-xs font-medium">1</span>
-                </div>
-                <p className="text-gray-400">
-                  <span className="text-gray-300 font-medium">Describe your task:</span> Tell AURA what you need in plain English
-                </p>
-              </div>
-              <div className="flex items-start gap-3 text-sm">
-                <div className="w-6 h-6 rounded-full bg-blue-600/10 border border-blue-600/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-400 text-xs font-medium">2</span>
-                </div>
-                <p className="text-gray-400">
-                  <span className="text-gray-300 font-medium">AI plans the workflow:</span> Breaks down your request into steps
-                </p>
-              </div>
-              <div className="flex items-start gap-3 text-sm">
-                <div className="w-6 h-6 rounded-full bg-blue-600/10 border border-blue-600/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-400 text-xs font-medium">3</span>
-                </div>
-                <p className="text-gray-400">
-                  <span className="text-gray-300 font-medium">Execute across apps:</span> AURA handles Gmail, Drive, Docs, Sheets, and Calendar
-                </p>
-              </div>
-              <div className="flex items-start gap-3 text-sm">
-                <div className="w-6 h-6 rounded-full bg-blue-600/10 border border-blue-600/20 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-blue-400 text-xs font-medium">4</span>
-                </div>
-                <p className="text-gray-400">
-                  <span className="text-gray-300 font-medium">Get results:</span> Validated, verified outcomes delivered to you
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Integrations */}
-          <div className="space-y-4">
-            <h2 className="text-sm font-medium text-gray-300 uppercase tracking-wide">Workspace Integrations</h2>
-            <div className="grid grid-cols-2 gap-3">
-              {(content?.integrations || []).map((integration, index) => {
-                const Icon = iconMap[integration.name as keyof typeof iconMap] || FolderOpen;
-                return (
-                  <div
-                    key={index}
-                    className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-3 hover:border-gray-600/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <Icon className="w-4 h-4 text-blue-400" />
-                      <span className="text-sm font-medium text-gray-200">{integration.name}</span>
-                    </div>
-                    <p className="text-xs text-gray-500">{integration.description}</p>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Key Features */}
-          <div className="space-y-4">
-            <h2 className="text-sm font-medium text-gray-300 uppercase tracking-wide">Key Capabilities</h2>
-            <ul className="space-y-2">
-              {(content?.features || []).map((feature, index) => (
-                <li key={index} className="flex items-center gap-2 text-sm text-gray-400">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
+    <div className="flex h-screen">
+      {/* Left side - Login */}
+      <div className="w-1/2 bg-gray-900 text-white flex flex-col justify-center items-center p-10">
+        <div className="mb-6 text-center">
+          <div className="text-4xl font-bold mb-2"></div>
+          <h1 className="text-3xl font-semibold mb-2">Log in</h1>
+          <p className="text-gray-400">Welcome back! Please login to continue.</p>
         </div>
 
-        {/* Footer */}
-        <div className="text-xs text-gray-500 space-y-1">
-          <p>Built with Next.js, Node.js, and Supabase</p>
-          <p>&copy; 2024 AURA. All rights reserved.</p>
+        <button
+          onClick={handleGoogleSignIn}
+          disabled={isLoading || !termsAccepted}
+          className="flex items-center justify-center w-full bg-gray-800 hover:bg-gray-700 py-3 mb-3 rounded border border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+        >
+          {isLoading ? (
+            <>
+              <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              Connecting...
+            </>
+          ) : (
+            <>
+              <FcGoogle className="mr-2" /> Continue with Google
+            </>
+          )}
+        </button>
+
+        <div className="flex items-center my-4">
+          <input
+            type="checkbox"
+            id="terms"
+            checked={termsAccepted}
+            onChange={(e) => setTermsAccepted(e.target.checked)}
+            className="w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded focus:ring-blue-500 focus:ring-2 cursor-pointer"
+          />
+          <label htmlFor="terms" className="ml-2 text-sm text-gray-400 cursor-pointer">
+            I agree to the Terms & Conditions
+          </label>
         </div>
       </div>
 
-      {/* Right Side - Authentication */}
-      <div className="flex-1 lg:w-1/2 flex items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-md">
-          {/* Mobile Logo */}
-          <div className="lg:hidden flex items-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Bot className="w-6 h-6 text-white" />
+      {/* Right side - Gradient background */}
+      <div className="w-1/2 relative flex justify-center items-center" style={{
+        background: 'linear-gradient(180deg, #1a2a6c, #b21f1f, #fdbb2d)'
+      }}>
+        <div className="absolute w-3/4">
+          <div className="flex items-center mb-6">
+            <div className="bg-blue-600 p-3 rounded-xl mr-4 shadow-lg flex items-center justify-center">
+              <FaRobot className="text-white text-3xl" />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold text-white">AURA</h1>
-              <p className="text-xs text-gray-400">{content?.tagline || 'Agentic Unified Reasoning Assistant'}</p>
+              <h2 className="text-5xl font-bold text-white tracking-tight drop-shadow-md">AURA</h2>
+              <p className="text-blue-100 text-sm font-medium tracking-wide drop-shadow-sm">Agentic Unified Reasoning Assistant</p>
             </div>
           </div>
-
-          {/* Auth Card */}
-          <div className="bg-gray-900/50 border border-gray-800 rounded-xl p-8">
-            <OAuthSetupWrapper />
-          </div>
-
-          {/* Mobile Features Summary */}
-          <div className="lg:hidden mt-8 p-6 bg-gray-900/30 border border-gray-800 rounded-xl">
-            <h3 className="text-sm font-medium text-gray-300 mb-4">What you can do with AURA</h3>
-            <ul className="space-y-2 text-sm text-gray-400">
-              {(content?.features || []).map((feature, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                  {feature}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <input
+            type="text"
+            placeholder="Ask AURA to make your work easier."
+            className="w-full py-4 px-6 rounded-2xl text-white text-lg focus:outline-none shadow-lg bg-white/10 backdrop-blur-md placeholder:text-white/70 placeholder:font-bold"
+          />
         </div>
       </div>
     </div>
