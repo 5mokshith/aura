@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body: AgentExecuteRequest = await request.json();
-    const { taskId, userId } = body;
+    const { taskId, userId, conversationId } = body;
 
     // Validate input
     if (!taskId || !userId) {
@@ -48,7 +48,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await logExecution(supabase, userId, taskId, null, 'planner', 'info', 'Starting task execution');
+    // Resolve conversation id from request or DB
+    const { data: taskRow } = await supabase
+      .from('tasks_v2')
+      .select('conversation_id')
+      .eq('task_id', taskId)
+      .single();
+    const resolvedConversationId = conversationId || taskRow?.conversation_id || null;
+
+    await logExecution(supabase, userId, taskId, null, 'planner', 'info', 'Starting task execution', undefined, resolvedConversationId || undefined);
 
     // Update task status to running
     await updateTaskStatus(taskId, 'running');
@@ -75,7 +83,8 @@ export async function POST(request: NextRequest) {
             'worker',
             'error',
             'Step skipped: dependencies not met',
-            { status: 'failed', reason: 'dependencies_not_met' }
+            { status: 'failed', reason: 'dependencies_not_met' },
+            resolvedConversationId || undefined
           );
 
           results.push({
@@ -88,7 +97,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Execute step
-      const result = await executeStep(step, userId, supabase, taskId);
+      const result = await executeStep(step, userId, supabase, taskId, 0, resolvedConversationId || undefined);
       results.push(result);
 
       if (result.success && result.output) {
@@ -117,14 +126,16 @@ export async function POST(request: NextRequest) {
           null,
           'worker',
           'error',
-          'Execution stopped due to critical step failure'
+          'Execution stopped due to critical step failure',
+          undefined,
+          resolvedConversationId || undefined
         );
         break;
       }
     }
 
     // Evaluate results
-    await logExecution(supabase, userId, taskId, null, 'evaluator', 'info', 'Evaluating results');
+    await logExecution(supabase, userId, taskId, null, 'evaluator', 'info', 'Evaluating results', undefined, resolvedConversationId || undefined);
 
     const evaluation = await evaluatorAgent.evaluateResults(plan, results);
     const summary = evaluatorAgent.generateSummary(plan, results);
@@ -136,7 +147,9 @@ export async function POST(request: NextRequest) {
       null,
       'evaluator',
       evaluation.valid ? 'success' : 'error',
-      summary
+      summary,
+      undefined,
+      resolvedConversationId || undefined
     );
 
     // Update task status
@@ -201,7 +214,8 @@ async function executeStep(
   userId: string,
   supabase: any,
   taskId: string,
-  retryCount = 0
+  retryCount = 0,
+  conversationId?: string
 ): Promise<WorkerResult> {
   const maxRetries = 2;
 
@@ -215,7 +229,8 @@ async function executeStep(
       'worker',
       'info',
       `Executing step: ${step.description}`,
-      { status: 'running' }
+      { status: 'running' },
+      conversationId
     );
 
     const worker = getWorker(step.service);
@@ -231,7 +246,8 @@ async function executeStep(
         'worker',
         'success',
         `Step completed: ${step.description}`,
-        { status: 'completed' }
+        { status: 'completed' },
+        conversationId
       );
     } else {
       await updateStepStatus(taskId, step.id, 'failed', result.error || undefined);
@@ -243,7 +259,8 @@ async function executeStep(
         'worker',
         'error',
         `Step failed: ${result.error}`,
-        { status: 'failed' }
+        { status: 'failed' },
+        conversationId
       );
 
       // Retry if applicable
@@ -255,13 +272,15 @@ async function executeStep(
           step.id,
           'worker',
           'info',
-          `Retrying step (attempt ${retryCount + 1}/${maxRetries})`
+          `Retrying step (attempt ${retryCount + 1}/${maxRetries})`,
+          undefined,
+          conversationId
         );
 
         // Wait before retry (exponential backoff)
         await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
 
-        return executeStep(step, userId, supabase, taskId, retryCount + 1);
+        return executeStep(step, userId, supabase, taskId, retryCount + 1, conversationId);
       }
     }
 
@@ -278,7 +297,8 @@ async function executeStep(
       'worker',
       'error',
       `Step error: ${errorMessage}`,
-      { status: 'failed' }
+      { status: 'failed' },
+      conversationId
     );
 
     return {
@@ -300,13 +320,15 @@ async function logExecution(
   agentType: string,
   logLevel: string,
   message: string,
-  metadata?: any
+  metadata?: any,
+  conversationId?: string
 ): Promise<void> {
   try {
     await supabase.from('execution_logs').insert({
       user_id: userId,
       task_id: taskId,
       step_id: stepId,
+      conversation_id: conversationId || null,
       agent_type: agentType,
       message,
       log_level: logLevel,

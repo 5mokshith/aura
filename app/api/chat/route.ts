@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getEnv } from '@/app/lib/env';
 import { ApiResponse } from '@/app/types/api';
+import { createServiceClient } from '@/app/lib/supabase/server';
 
 const env = getEnv();
 const genAI = new GoogleGenerativeAI(env.llm.geminiApiKey!);
@@ -18,7 +19,7 @@ const model = genAI.getGenerativeModel({
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { message, userId, conversationHistory } = body || {};
+    const { message, userId, conversationHistory, conversationId: existingConversationId } = body || {};
 
     if (!message || !userId) {
       return NextResponse.json<ApiResponse>(
@@ -71,6 +72,30 @@ Notes:
 
     const userTurn = `User: ${message}`;
 
+    // Ensure conversation exists and persist the user message
+    const supabase = createServiceClient();
+    let conversationId = existingConversationId as string | undefined;
+    if (!conversationId) {
+      const { data: conv } = await supabase
+        .from('conversations')
+        .insert({ user_id: userId, title: (message as string).slice(0, 80) })
+        .select('id')
+        .single();
+      conversationId = conv?.id as string | undefined;
+    }
+
+    // Insert user message
+    if (conversationId) {
+      await supabase.from('messages').insert({
+        conversation_id: conversationId,
+        user_id: userId,
+        role: 'user',
+        type: 'chat',
+        content: String(message),
+        created_at: new Date().toISOString(),
+      });
+    }
+
     const contents = [
       { role: 'user', parts: [{ text: systemPrompt }] },
       ...(historyText ? [{ role: 'user', parts: [{ text: historyText }] }] : []),
@@ -89,6 +114,18 @@ Notes:
         ? [payload.suggestedTask]
         : [];
 
+    // Insert assistant message
+    if (conversationId) {
+      await supabase.from('messages').insert({
+        conversation_id: conversationId,
+        role: 'assistant',
+        type: 'chat',
+        content: String(payload.message || ''),
+        suggested_tasks: suggestedTasks.length ? suggestedTasks : null,
+        created_at: new Date().toISOString(),
+      });
+    }
+
     return NextResponse.json<ApiResponse>(
       {
         success: true,
@@ -106,6 +143,7 @@ Notes:
             description: String(t.description || ''),
             prompt: String(t.prompt || ''),
           })),
+          conversationId,
         },
       },
       { status: 200 }

@@ -103,6 +103,7 @@ export function ChatInterfaceWithRealtime({
   const [messages, setMessages] = useState<MessageType[]>(initialMessages);
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [suggestedTasks, setSuggestedTasks] = useState<Array<{ description: string; prompt: string }>>([]);
+  const [conversationId, setConversationId] = useState<string | undefined>(undefined);
 
   // Subscribe to Realtime logs
   const { isConnected, error } = useRealtimeLogs({
@@ -193,7 +194,7 @@ export function ChatInterfaceWithRealtime({
         const response = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: content, userId, conversationHistory: history }),
+          body: JSON.stringify({ message: content, userId, conversationHistory: history, conversationId }),
         });
 
         if (!response.ok) {
@@ -205,7 +206,7 @@ export function ChatInterfaceWithRealtime({
           throw new Error(chatResult.error?.message || 'Chat service error');
         }
 
-        const { message: assistantText, suggestedTask: suggestion, suggestedTasks: multi } = chatResult.data;
+        const { message: assistantText, suggestedTask: suggestion, suggestedTasks: multi, conversationId: newConversationId } = chatResult.data;
 
         const assistantMessage: MessageType = {
           id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -214,6 +215,10 @@ export function ChatInterfaceWithRealtime({
           timestamp: new Date(),
         };
         setMessages((prev) => [...prev, assistantMessage]);
+
+        if (newConversationId) {
+          setConversationId(newConversationId);
+        }
 
         if (Array.isArray(multi) && multi.length > 0) {
           setSuggestedTasks(multi);
@@ -243,7 +248,7 @@ export function ChatInterfaceWithRealtime({
         const planRes = await fetch('/api/agent/plan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, userId }),
+          body: JSON.stringify({ prompt, userId, conversationId }),
         });
 
         if (!planRes.ok) throw new Error('Failed to plan task');
@@ -277,7 +282,7 @@ export function ChatInterfaceWithRealtime({
         const execRes = await fetch('/api/agent/execute', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ taskId, userId }),
+          body: JSON.stringify({ taskId, userId, conversationId }),
         });
         if (!execRes.ok) throw new Error('Failed to execute task');
         const execJson = await execRes.json();

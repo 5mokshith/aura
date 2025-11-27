@@ -91,10 +91,18 @@ export async function POST(request: NextRequest) {
     const evaluation = await evaluatorAgent.evaluateResults(plan, results);
     const summary = evaluatorAgent.generateSummary(plan, results);
 
+    // Resolve conversation_id for logging
+    const { data: convRow } = await supabase
+      .from('tasks_v2')
+      .select('conversation_id')
+      .eq('task_id', taskId)
+      .single();
+
     // Log evaluation
     await supabase.from('execution_logs').insert({
       user_id: userId,
       task_id: taskId,
+      conversation_id: convRow?.conversation_id || null,
       agent_type: 'evaluator',
       message: `Evaluation: ${evaluation.valid ? 'Valid' : 'Invalid'}`,
       log_level: evaluation.valid ? 'success' : 'error',

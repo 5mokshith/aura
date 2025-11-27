@@ -11,7 +11,7 @@ import { ApiResponse, AgentPlanRequest, AgentPlanResponse } from '@/app/types/ap
 export async function POST(request: NextRequest) {
   try {
     const body: AgentPlanRequest = await request.json();
-    const { prompt, userId } = body;
+    const { prompt, userId, conversationId } = body;
 
     // Validate input
     if (!prompt || !userId) {
@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
     const { error: insertError } = await supabase.from('tasks_v2').insert({
       task_id: plan.taskId,
       user_id: userId,
+      conversation_id: conversationId || null,
       title: plan.title,
       status: 'pending',
       input_prompt: prompt,
@@ -60,6 +61,7 @@ export async function POST(request: NextRequest) {
     await supabase.from('execution_logs').insert({
       user_id: userId,
       task_id: plan.taskId,
+      conversation_id: conversationId || null,
       agent_type: 'planner',
       message: `Task planned: ${plan.title} with ${plan.steps.length} steps`,
       log_level: 'info',
@@ -83,6 +85,7 @@ export async function POST(request: NextRequest) {
       taskId: plan.taskId,
       steps: responseSteps,
       title: plan.title,
+      conversationId,
     };
 
     return NextResponse.json<ApiResponse<AgentPlanResponse>>(

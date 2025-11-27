@@ -59,9 +59,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate new task ID for the retry
-    const newTaskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
     // Create a new task plan using the original prompt
     const planResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/agent/plan`, {
       method: 'POST',

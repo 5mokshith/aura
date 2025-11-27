@@ -22,7 +22,7 @@ export interface TaskHistoryItem {
   id: string;
   task_id: string;
   title: string;
-  status: 'success' | 'failed' | 'rerun' | 'cancelled';
+  status: 'success' | 'failed' | 'rerun' | 'cancelled' | 'pending' | 'running';
   input_prompt: string;
   output_summary?: string;
   outputs?: TaskOutput[];
@@ -73,6 +73,20 @@ const statusConfig = {
     bgColor: 'bg-gray-500/20',
     borderColor: 'border-gray-500/30',
     label: 'Cancelled'
+  },
+  pending: {
+    icon: Clock,
+    color: 'text-white/60',
+    bgColor: 'bg-white/10',
+    borderColor: 'border-white/10',
+    label: 'Pending'
+  },
+  running: {
+    icon: Clock,
+    color: 'text-blue-300',
+    bgColor: 'bg-blue-500/20',
+    borderColor: 'border-blue-500/30',
+    label: 'Running'
   }
 };
 
