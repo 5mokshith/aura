@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getEnv } from '@/app/lib/env';
 import { ApiResponse } from '@/app/types/api';
-import { createServiceClient } from '@/app/lib/supabase/server';
+import { createServiceClient, createClient } from '@/app/lib/supabase/server';
 
 const env = getEnv();
 const genAI = new GoogleGenerativeAI(env.llm.geminiApiKey!);
@@ -72,23 +72,30 @@ Notes:
 
     const userTurn = `User: ${message}`;
 
-    // Ensure conversation exists and persist the user message
+    // Ensure conversation exists and persist the user message (only with valid UUID user)
     const supabase = createServiceClient();
+    const cookieClient = await createClient();
+    const { data: { user: authUser } } = await cookieClient.auth.getUser();
+    const isUuid = (v?: string) => !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+    const usedUserId = isUuid(userId) ? userId : (authUser?.id || '');
+
     let conversationId = existingConversationId as string | undefined;
-    if (!conversationId) {
-      const { data: conv } = await supabase
+    if (!conversationId && isUuid(usedUserId)) {
+      const { data: conv, error: convErr } = await supabase
         .from('conversations')
-        .insert({ user_id: userId, title: (message as string).slice(0, 80) })
+        .insert({ user_id: usedUserId, title: (message as string).slice(0, 80) })
         .select('id')
         .single();
-      conversationId = conv?.id as string | undefined;
+      if (!convErr) {
+        conversationId = conv?.id as string | undefined;
+      }
     }
 
-    // Insert user message
-    if (conversationId) {
+    // Insert user message if we have a valid conversation
+    if (conversationId && isUuid(usedUserId)) {
       await supabase.from('messages').insert({
         conversation_id: conversationId,
-        user_id: userId,
+        user_id: usedUserId,
         role: 'user',
         type: 'chat',
         content: String(message),
@@ -115,9 +122,10 @@ Notes:
         : [];
 
     // Insert assistant message
-    if (conversationId) {
+    if (conversationId && isUuid(usedUserId)) {
       await supabase.from('messages').insert({
         conversation_id: conversationId,
+        user_id: usedUserId,
         role: 'assistant',
         type: 'chat',
         content: String(payload.message || ''),

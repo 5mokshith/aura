@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getWorker } from '@/app/lib/agents/workers';
 import { evaluatorAgent } from '@/app/lib/agents/evaluator';
 import { getTaskPlan, updateTaskStatus, updateStepStatus } from '@/app/lib/agents/storage';
-import { createServiceClient } from '@/app/lib/supabase/server';
+import { createServiceClient, createClient } from '@/app/lib/supabase/server';
 import { ApiResponse, AgentExecuteRequest, AgentExecuteResponse } from '@/app/types/api';
 import { WorkerResult, PlanStep } from '@/app/types/agent';
 
@@ -18,8 +18,14 @@ export async function POST(request: NextRequest) {
     const body: AgentExecuteRequest = await request.json();
     const { taskId, userId, conversationId } = body;
 
+    // Resolve authenticated user id to ensure UUID correctness
+    const isUuid = (v?: string) => !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+    const cookieClient = await createClient();
+    const { data: { user: authUser } } = await cookieClient.auth.getUser();
+    const usedUserId = isUuid(userId) ? userId : (authUser?.id || '');
+
     // Validate input
-    if (!taskId || !userId) {
+    if (!taskId || !usedUserId) {
       return NextResponse.json<ApiResponse>(
         {
           success: false,
@@ -56,7 +62,7 @@ export async function POST(request: NextRequest) {
       .single();
     const resolvedConversationId = conversationId || taskRow?.conversation_id || null;
 
-    await logExecution(supabase, userId, taskId, null, 'planner', 'info', 'Starting task execution', undefined, resolvedConversationId || undefined);
+    await logExecution(supabase, usedUserId, taskId, null, 'planner', 'info', 'Starting task execution', undefined, resolvedConversationId || undefined);
 
     // Update task status to running
     await updateTaskStatus(taskId, 'running');
@@ -97,7 +103,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Execute step
-      const result = await executeStep(step, userId, supabase, taskId, 0, resolvedConversationId || undefined);
+      const result = await executeStep(step, usedUserId, supabase, taskId, 0, resolvedConversationId || undefined);
       results.push(result);
 
       if (result.success && result.output) {
@@ -106,7 +112,7 @@ export async function POST(request: NextRequest) {
         // Save document references
         if (result.output.type === 'document' || result.output.type === 'file') {
           await supabase.from('documents_generated').insert({
-            user_id: userId,
+            user_id: usedUserId,
             task_id: taskId,
             document_type: result.output.type,
             google_id: result.output.googleId,
@@ -121,7 +127,7 @@ export async function POST(request: NextRequest) {
       if (!result.success && !step.dependencies) {
         await logExecution(
           supabase,
-          userId,
+          usedUserId,
           taskId,
           null,
           'worker',
@@ -135,14 +141,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Evaluate results
-    await logExecution(supabase, userId, taskId, null, 'evaluator', 'info', 'Evaluating results', undefined, resolvedConversationId || undefined);
+    await logExecution(supabase, usedUserId, taskId, null, 'evaluator', 'info', 'Evaluating results', undefined, resolvedConversationId || undefined);
 
     const evaluation = await evaluatorAgent.evaluateResults(plan, results);
     const summary = evaluatorAgent.generateSummary(plan, results);
 
     await logExecution(
       supabase,
-      userId,
+      usedUserId,
       taskId,
       null,
       'evaluator',

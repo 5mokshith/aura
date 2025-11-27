@@ -59,7 +59,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create a new task plan using the original prompt
     const planResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/agent/plan`, {
       method: 'POST',
       headers: {
@@ -69,6 +68,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         prompt: originalTask.input_prompt,
         userId: user.id,
+        conversationId: originalTask.conversation_id || undefined,
       }),
     });
 
@@ -92,6 +92,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         taskId: planData.data.taskId,
         userId: user.id,
+        conversationId: originalTask.conversation_id || undefined,
       }),
     });
 
