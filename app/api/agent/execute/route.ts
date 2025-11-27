@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getWorker } from '@/app/lib/agents/workers';
 import { evaluatorAgent } from '@/app/lib/agents/evaluator';
-import { getTaskPlan, updateTaskStatus } from '@/app/lib/agents/storage';
+import { getTaskPlan, updateTaskStatus, updateStepStatus } from '@/app/lib/agents/storage';
 import { createServiceClient } from '@/app/lib/supabase/server';
 import { ApiResponse, AgentExecuteRequest, AgentExecuteResponse } from '@/app/types/api';
 import { WorkerResult, PlanStep } from '@/app/types/agent';
@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!dependenciesMet) {
+          await updateStepStatus(taskId, step.id, 'failed', 'Dependencies not met');
           await logExecution(
             supabase,
             userId,
@@ -73,7 +74,8 @@ export async function POST(request: NextRequest) {
             step.id,
             'worker',
             'error',
-            'Step skipped: dependencies not met'
+            'Step skipped: dependencies not met',
+            { status: 'failed', reason: 'dependencies_not_met' }
           );
 
           results.push({
@@ -204,6 +206,7 @@ async function executeStep(
   const maxRetries = 2;
 
   try {
+    await updateStepStatus(taskId, step.id, 'running');
     await logExecution(
       supabase,
       userId,
@@ -211,13 +214,15 @@ async function executeStep(
       step.id,
       'worker',
       'info',
-      `Executing step: ${step.description}`
+      `Executing step: ${step.description}`,
+      { status: 'running' }
     );
 
     const worker = getWorker(step.service);
     const result = await worker.executeStep(step, userId);
 
     if (result.success) {
+      await updateStepStatus(taskId, step.id, 'completed');
       await logExecution(
         supabase,
         userId,
@@ -225,9 +230,11 @@ async function executeStep(
         step.id,
         'worker',
         'success',
-        `Step completed: ${step.description}`
+        `Step completed: ${step.description}`,
+        { status: 'completed' }
       );
     } else {
+      await updateStepStatus(taskId, step.id, 'failed', result.error || undefined);
       await logExecution(
         supabase,
         userId,
@@ -235,7 +242,8 @@ async function executeStep(
         step.id,
         'worker',
         'error',
-        `Step failed: ${result.error}`
+        `Step failed: ${result.error}`,
+        { status: 'failed' }
       );
 
       // Retry if applicable
@@ -261,6 +269,7 @@ async function executeStep(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
+    await updateStepStatus(taskId, step.id, 'failed', errorMessage);
     await logExecution(
       supabase,
       userId,
@@ -268,7 +277,8 @@ async function executeStep(
       step.id,
       'worker',
       'error',
-      `Step error: ${errorMessage}`
+      `Step error: ${errorMessage}`,
+      { status: 'failed' }
     );
 
     return {

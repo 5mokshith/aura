@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { ApiResponse } from '@/types/api';
+import { createClient } from '@/app/lib/supabase/server';
+import { ApiResponse } from '@/app/types/api';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Supabase client
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -38,9 +38,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the original task from history
+    // Get the original task from V2
     const { data: originalTask, error: fetchError } = await supabase
-      .from('task_history')
+      .from('tasks_v2')
       .select('*')
       .eq('task_id', taskId)
       .eq('user_id', user.id)
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
 
     // Update the original task status to 'rerun'
     await supabase
-      .from('task_history')
+      .from('tasks_v2')
       .update({ 
         status: 'rerun',
         output_summary: `Task retried as ${planData.data.taskId}`,

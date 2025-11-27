@@ -41,9 +41,9 @@ export async function GET(request: NextRequest) {
       console.error('Error counting execution logs:', logsError);
     }
 
-    // Query task history count
+    // Query tasks count (V2)
     const { count: taskHistoryCount, error: taskHistoryError } = await supabase
-      .from('task_history')
+      .from('tasks_v2')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId);
 
@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
 
     // Estimate storage size (rough calculation)
     // Average log entry: ~500 bytes
-    // Average task history entry: ~1KB
+    // Average task entry: ~1KB
     // Average document entry: ~200 bytes
     const logsSize = (logsCount || 0) * 500;
     const taskHistorySize = (taskHistoryCount || 0) * 1024;

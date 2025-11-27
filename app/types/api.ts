@@ -18,6 +18,7 @@ export interface AgentPlanRequest {
 export interface AgentPlanResponse {
   taskId: string;
   steps: TaskStep[];
+  title?: string;
 }
 
 export interface AgentExecuteRequest {

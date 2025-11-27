@@ -30,9 +30,9 @@ export async function POST(request: NextRequest) {
     // Plan the task using Planner Agent
     const plan = await plannerAgent.planTask(prompt, userId);
 
-    // Save task plan to database
+    // Save task (V2)
     const supabase = createServiceClient();
-    const { error: insertError } = await supabase.from('task_history').insert({
+    const { error: insertError } = await supabase.from('tasks_v2').insert({
       task_id: plan.taskId,
       user_id: userId,
       title: plan.title,
@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to save task plan to database');
     }
 
-    // Save plan steps
+    // Save plan steps (V2)
     await saveTaskPlan(plan);
 
     // Log the planning step
@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
     const response: AgentPlanResponse = {
       taskId: plan.taskId,
       steps: responseSteps,
+      title: plan.title,
     };
 
     return NextResponse.json<ApiResponse<AgentPlanResponse>>(

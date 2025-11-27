@@ -33,42 +33,34 @@ export async function POST(request: NextRequest) {
     const systemPrompt = `You are AURA (Agentic Unified Reasoning Assistant), an AI assistant for Google Workspace.
 
 CAPABILITIES:
-- Gmail: Send/search emails, read messages
+- Gmail: Send/search/read emails
 - Drive: Search/download/upload files
 - Docs: Create/update/read documents
-- Sheets: Read/write spreadsheet data
+- Sheets: Read/write/update spreadsheet data
 - Calendar: Create/list/delete events
 
 CONVERSATION GUIDELINES:
-1. Be friendly, helpful, and concise
-2. For greetings, introduce yourself briefly
-3. For questions, explain what you can do
-4. When you detect an ACTIONABLE TASK, respond with:
-   - A confirmation message
-   - A suggestedTask object with the task details
+1. Be friendly, helpful, and concise.
+2. For greetings or generic questions, reply conversationally about AURA's capabilities.
+3. When the user asks for an ACTIONABLE TASK (i.e., requires Google Workspace APIs), suggest tasks.
+4. If the request is AMBIGUOUS (e.g., "show my drive file"), ask a clarifying question in the message. Do NOT invent details.
+5. For multi-intent requests (e.g., "show my latest sales report, summarize it, and send to X"), propose a single plan with multiple steps OR multiple suggested tasks.
 
-TASK DETECTION:
-An actionable task is a request that requires Google Workspace API calls.
-Examples:
-- "hi" → NO TASK (just greeting)
-- "what can you do?" → NO TASK (just info)
-- "search my drive" → TASK (needs clarification, but still actionable)
-- "search my drive for budget reports" → TASK (complete and actionable)
-- "send email to john@example.com" → TASK (actionable)
-
-RESPONSE FORMAT:
-Return STRICT JSON ONLY. Use one of:
+RESPONSE FORMAT (STRICT JSON ONLY):
+Either:
 {
   "message": string
 }
-OR
+Or:
 {
   "message": string,
-  "suggestedTask": {
-    "description": string,
-    "prompt": string
-  }
-}`;
+  "suggestedTasks": [
+    { "description": string, "prompt": string }
+  ]
+}
+Notes:
+- "message" should include any clarifying questions as needed.
+- If only one task is suggested, you may still use "suggestedTasks" with a single element.`;
 
     const historyText = Array.isArray(conversationHistory)
       ? conversationHistory
@@ -79,27 +71,41 @@ OR
 
     const userTurn = `User: ${message}`;
 
-    const content = [
+    const contents = [
       { role: 'user', parts: [{ text: systemPrompt }] },
-      { role: 'user', parts: [{ text: historyText }] },
+      ...(historyText ? [{ role: 'user', parts: [{ text: historyText }] }] : []),
       { role: 'user', parts: [{ text: userTurn }] },
     ];
 
-    const result = await model.generateContent(content as any);
+    const result = await model.generateContent({ contents } as any);
     const text = result.response.text();
     const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/\{[\s\S]*\}/);
     const jsonText = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : text;
     const payload = JSON.parse(jsonText);
+
+    const suggestedTasks = Array.isArray(payload.suggestedTasks)
+      ? payload.suggestedTasks
+      : payload.suggestedTask
+        ? [payload.suggestedTask]
+        : [];
 
     return NextResponse.json<ApiResponse>(
       {
         success: true,
         data: {
           message: String(payload.message || ''),
-          suggestedTask: payload.suggestedTask ? {
-            description: String(payload.suggestedTask.description || ''),
-            prompt: String(payload.suggestedTask.prompt || ''),
-          } : undefined,
+          // Backward-compatible single suggestion
+          suggestedTask: suggestedTasks[0]
+            ? {
+                description: String(suggestedTasks[0].description || ''),
+                prompt: String(suggestedTasks[0].prompt || ''),
+              }
+            : undefined,
+          // New multi-suggestion field (front-end may optionally use this)
+          suggestedTasks: suggestedTasks.map((t: any) => ({
+            description: String(t.description || ''),
+            prompt: String(t.prompt || ''),
+          })),
         },
       },
       { status: 200 }

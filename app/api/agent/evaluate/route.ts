@@ -58,10 +58,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Retrieve execution results from database
+    // Retrieve execution results from database (V2)
     const supabase = createServiceClient();
     const { data: taskData } = await supabase
-      .from('task_history')
+      .from('tasks_v2')
       .select('*')
       .eq('task_id', taskId)
       .single();
@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     // In a real implementation, you'd store individual step results
     const results: WorkerResult[] = plan.steps.map((step, index) => ({
       stepId: step.id,
-      success: taskData.status === 'completed',
+      success: taskData.status === 'success',
       output: outputs?.[index],
     }));
 

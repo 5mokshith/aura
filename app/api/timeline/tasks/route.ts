@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { ApiResponse } from '@/types/api';
-import { TaskHistoryItem } from '@/components/timeline/TaskCard';
+import { createClient } from '@/app/lib/supabase/server';
+import { ApiResponse } from '@/app/types/api';
+import type { TaskHistoryItem } from '@/app/components/timeline/TaskCard';
 
 export async function GET(request: NextRequest) {
   try {
@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const endDate = searchParams.get('endDate');
 
     // Create Supabase client
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -34,9 +34,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Build query
+    // Build query (V2)
     let query = supabase
-      .from('task_history')
+      .from('tasks_v2')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
@@ -81,11 +81,11 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform data to match TaskHistoryItem interface
-    const transformedTasks: TaskHistoryItem[] = (tasks || []).map(task => ({
+    const transformedTasks: TaskHistoryItem[] = ((tasks as any[]) || []).map((task: any) => ({
       id: task.id,
       task_id: task.task_id,
       title: task.title,
-      status: task.status,
+      status: task.status, // 'success' | 'failed' | 'pending' | 'running' | 'cancelled' | 'rerun'
       input_prompt: task.input_prompt,
       output_summary: task.output_summary,
       outputs: task.outputs || [],
@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     let totalCount = null;
     if (page === 0) {
       let countQuery = supabase
-        .from('task_history')
+        .from('tasks_v2')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id);
 
