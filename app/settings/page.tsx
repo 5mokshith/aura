@@ -6,7 +6,6 @@ import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner';
 
 // Lazy load settings components
 const ProfileSection = lazy(() => import('@/app/components/settings/ProfileSection').then(mod => ({ default: mod.ProfileSection })));
-const ApiKeyManager = lazy(() => import('@/app/components/settings/ApiKeyManager').then(mod => ({ default: mod.ApiKeyManager })));
 const PreferencesForm = lazy(() => import('@/app/components/settings/PreferencesForm').then(mod => ({ default: mod.PreferencesForm })));
 const DangerZone = lazy(() => import('@/app/components/settings/DangerZone').then(mod => ({ default: mod.DangerZone })));
 
@@ -42,15 +41,6 @@ export default function SettingsPage() {
             </div>
           }>
             <ProfileSection />
-          </Suspense>
-
-          {/* API Key Manager */}
-          <Suspense fallback={
-            <div className="glass-panel rounded-xl p-6 h-32 flex items-center justify-center">
-              <LoadingSpinner />
-            </div>
-          }>
-            <ApiKeyManager />
           </Suspense>
 
           {/* Preferences Form */}
