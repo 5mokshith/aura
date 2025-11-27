@@ -180,6 +180,35 @@ export function useOptimisticChat(options: UseOptimisticChatOptions = {}) {
     }
   };
 
+  // Plan and execute the currently suggested task
+  const executeSuggestedTask = useCallback(async () => {
+    if (!suggestedTask) return;
+    try {
+      const planResponse = await fetch('/api/agent/plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt: suggestedTask.prompt, userId: 'current-user-id' }),
+      });
+      const planResult = await planResponse.json();
+      if (!planResult.success) throw new Error(planResult.error?.message || 'Failed to plan task');
+
+      const { taskId, steps } = planResult.data;
+
+      setActiveTask({
+        id: taskId,
+        title: suggestedTask.description,
+        subtasks: steps,
+        overallStatus: 'running',
+      });
+
+      await executeTask(taskId);
+    } catch (e) {
+      console.error('executeSuggestedTask error', e);
+    } finally {
+      setSuggestedTask(null);
+    }
+  }, [suggestedTask]);
+
   /**
    * Send message with optimistic update
    */

@@ -33,9 +33,9 @@ export async function GET(request: NextRequest) {
     // Create service client for admin operations
     const supabase = createServiceClient();
 
-    // Query recent task history
+    // Query recent tasks (V2)
     const { data: tasks, error } = await supabase
-      .from('task_history')
+      .from('tasks_v2')
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })

@@ -13,16 +13,20 @@ export interface ApiResponse<T = any> {
 export interface AgentPlanRequest {
   prompt: string;
   userId: string;
+  conversationId?: string;
 }
 
 export interface AgentPlanResponse {
   taskId: string;
   steps: TaskStep[];
+  title?: string;
+  conversationId?: string;
 }
 
 export interface AgentExecuteRequest {
   taskId: string;
   userId: string;
+  conversationId?: string;
 }
 
 export interface AgentExecuteResponse {

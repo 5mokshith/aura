@@ -1,23 +1,68 @@
 'use client';
 
-import { lazy, Suspense } from 'react';
-import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner';
-
-// Lazy load dashboard components
-const ConnectedApps = lazy(() => import('@/app/components/dashboard/ConnectedApps').then(mod => ({ default: mod.ConnectedApps })));
-const TokenStatus = lazy(() => import('@/app/components/dashboard/TokenStatus').then(mod => ({ default: mod.TokenStatus })));
-const RecentActivity = lazy(() => import('@/app/components/dashboard/RecentActivity').then(mod => ({ default: mod.RecentActivity })));
-const StorageUsage = lazy(() => import('@/app/components/dashboard/StorageUsage').then(mod => ({ default: mod.StorageUsage })));
+import { Mail, FolderOpen, FileText, Sheet, Calendar } from 'lucide-react';
+import { ServiceMetricsCard } from '@/app/components/dashboard/ServiceMetricsCard';
+import { LiveAnalytics } from '@/app/components/dashboard/LiveAnalytics';
+import { HistoryPanel } from '@/app/components/dashboard/HistoryPanel';
 
 /**
  * Dashboard Page
  * 
- * Display connected apps status, token validity, recent activity, and storage usage
+ * Display Google Workspace metrics, live analytics, and activity history
  * Requirements: 7.1, 7.2, 7.3, 7.4
  */
 export default function DashboardPage() {
+  // Sample metrics data - replace with real API data when available
+  const servicesData = [
+    {
+      name: 'Gmail',
+      icon: Mail,
+      count: 1600,
+      trend: 55,
+      isActive: true,
+      color: 'orange' as const,
+      iconColor: 'text-white',
+    },
+    {
+      name: 'Docs',
+      icon: FileText,
+      count: 357,
+      trend: 12,
+      isActive: false,
+      color: 'dark' as const,
+      iconColor: 'text-white',
+    },
+    {
+      name: 'Drive',
+      icon: FolderOpen,
+      count: 2300,
+      trend: 15,
+      isActive: true,
+      color: 'dark-blue' as const,
+      iconColor: 'text-white',
+    },
+    {
+      name: 'Sheets',
+      icon: Sheet,
+      count: 940,
+      trend: 90,
+      isActive: false,
+      color: 'dark-green' as const,
+      iconColor: 'text-white',
+    },
+    {
+      name: 'Calendar',
+      icon: Calendar,
+      count: 450,
+      trend: 40,
+      isActive: true,
+      color: 'dark-purple' as const,
+      iconColor: 'text-white',
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-black via-transparent to-slate-900">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -25,47 +70,31 @@ export default function DashboardPage() {
             Dashboard
           </h1>
           <p className="text-white/60">
-            Monitor your Google Workspace connections and activity
+            Pages / Dashboard
           </p>
         </div>
 
-        {/* Dashboard Grid */}
-        <div className="space-y-6">
-          {/* Connected Apps */}
-          <Suspense fallback={
-            <div className="glass-panel rounded-xl p-6 h-48 flex items-center justify-center">
-              <LoadingSpinner />
-            </div>
-          }>
-            <ConnectedApps />
-          </Suspense>
+        {/* Service Metrics Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          {servicesData.map((service) => (
+            <ServiceMetricsCard
+              key={service.name}
+              {...service}
+            />
+          ))}
+        </div>
 
-          {/* Token Status */}
-          <Suspense fallback={
-            <div className="glass-panel rounded-xl p-6 h-32 flex items-center justify-center">
-              <LoadingSpinner />
-            </div>
-          }>
-            <TokenStatus />
-          </Suspense>
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Live Analytics - Takes 2/3 width */}
+          <div className="lg:col-span-2">
+            <LiveAnalytics />
+          </div>
 
-          {/* Recent Activity */}
-          <Suspense fallback={
-            <div className="glass-panel rounded-xl p-6 h-64 flex items-center justify-center">
-              <LoadingSpinner />
-            </div>
-          }>
-            <RecentActivity />
-          </Suspense>
-
-          {/* Storage Usage */}
-          <Suspense fallback={
-            <div className="glass-panel rounded-xl p-6 h-32 flex items-center justify-center">
-              <LoadingSpinner />
-            </div>
-          }>
-            <StorageUsage />
-          </Suspense>
+          {/* History Panel - Takes 1/3 width */}
+          <div className="lg:col-span-1">
+            <HistoryPanel />
+          </div>
         </div>
       </div>
     </div>

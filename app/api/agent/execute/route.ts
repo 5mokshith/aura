@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getWorker } from '@/app/lib/agents/workers';
 import { evaluatorAgent } from '@/app/lib/agents/evaluator';
-import { getTaskPlan, updateTaskStatus } from '@/app/lib/agents/storage';
-import { createServiceClient } from '@/app/lib/supabase/server';
+import { getTaskPlan, updateTaskStatus, updateStepStatus } from '@/app/lib/agents/storage';
+import { createServiceClient, createClient } from '@/app/lib/supabase/server';
 import { ApiResponse, AgentExecuteRequest, AgentExecuteResponse } from '@/app/types/api';
 import { WorkerResult, PlanStep } from '@/app/types/agent';
 
@@ -16,10 +16,16 @@ export async function POST(request: NextRequest) {
 
   try {
     const body: AgentExecuteRequest = await request.json();
-    const { taskId, userId } = body;
+    const { taskId, userId, conversationId } = body;
+
+    // Resolve authenticated user id to ensure UUID correctness
+    const isUuid = (v?: string) => !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+    const cookieClient = await createClient();
+    const { data: { user: authUser } } = await cookieClient.auth.getUser();
+    const usedUserId = isUuid(userId) ? userId : (authUser?.id || '');
 
     // Validate input
-    if (!taskId || !userId) {
+    if (!taskId || !usedUserId) {
       return NextResponse.json<ApiResponse>(
         {
           success: false,
@@ -48,7 +54,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await logExecution(supabase, userId, taskId, null, 'planner', 'info', 'Starting task execution');
+    // Resolve conversation id from request or DB
+    const { data: taskRow } = await supabase
+      .from('tasks_v2')
+      .select('conversation_id')
+      .eq('task_id', taskId)
+      .single();
+    const resolvedConversationId = conversationId || taskRow?.conversation_id || null;
+
+    await logExecution(supabase, usedUserId, taskId, null, 'planner', 'info', 'Starting task execution', undefined, resolvedConversationId || undefined);
 
     // Update task status to running
     await updateTaskStatus(taskId, 'running');
@@ -66,6 +80,7 @@ export async function POST(request: NextRequest) {
         });
 
         if (!dependenciesMet) {
+          await updateStepStatus(taskId, step.id, 'failed', 'Dependencies not met');
           await logExecution(
             supabase,
             userId,
@@ -73,7 +88,9 @@ export async function POST(request: NextRequest) {
             step.id,
             'worker',
             'error',
-            'Step skipped: dependencies not met'
+            'Step skipped: dependencies not met',
+            { status: 'failed', reason: 'dependencies_not_met' },
+            resolvedConversationId || undefined
           );
 
           results.push({
@@ -86,7 +103,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Execute step
-      const result = await executeStep(step, userId, supabase, taskId);
+      const result = await executeStep(step, usedUserId, supabase, taskId, 0, resolvedConversationId || undefined);
       results.push(result);
 
       if (result.success && result.output) {
@@ -95,7 +112,7 @@ export async function POST(request: NextRequest) {
         // Save document references
         if (result.output.type === 'document' || result.output.type === 'file') {
           await supabase.from('documents_generated').insert({
-            user_id: userId,
+            user_id: usedUserId,
             task_id: taskId,
             document_type: result.output.type,
             google_id: result.output.googleId,
@@ -110,31 +127,35 @@ export async function POST(request: NextRequest) {
       if (!result.success && !step.dependencies) {
         await logExecution(
           supabase,
-          userId,
+          usedUserId,
           taskId,
           null,
           'worker',
           'error',
-          'Execution stopped due to critical step failure'
+          'Execution stopped due to critical step failure',
+          undefined,
+          resolvedConversationId || undefined
         );
         break;
       }
     }
 
     // Evaluate results
-    await logExecution(supabase, userId, taskId, null, 'evaluator', 'info', 'Evaluating results');
+    await logExecution(supabase, usedUserId, taskId, null, 'evaluator', 'info', 'Evaluating results', undefined, resolvedConversationId || undefined);
 
     const evaluation = await evaluatorAgent.evaluateResults(plan, results);
     const summary = evaluatorAgent.generateSummary(plan, results);
 
     await logExecution(
       supabase,
-      userId,
+      usedUserId,
       taskId,
       null,
       'evaluator',
       evaluation.valid ? 'success' : 'error',
-      summary
+      summary,
+      undefined,
+      resolvedConversationId || undefined
     );
 
     // Update task status
@@ -199,11 +220,13 @@ async function executeStep(
   userId: string,
   supabase: any,
   taskId: string,
-  retryCount = 0
+  retryCount = 0,
+  conversationId?: string
 ): Promise<WorkerResult> {
   const maxRetries = 2;
 
   try {
+    await updateStepStatus(taskId, step.id, 'running');
     await logExecution(
       supabase,
       userId,
@@ -211,13 +234,16 @@ async function executeStep(
       step.id,
       'worker',
       'info',
-      `Executing step: ${step.description}`
+      `Executing step: ${step.description}`,
+      { status: 'running' },
+      conversationId
     );
 
     const worker = getWorker(step.service);
     const result = await worker.executeStep(step, userId);
 
     if (result.success) {
+      await updateStepStatus(taskId, step.id, 'completed');
       await logExecution(
         supabase,
         userId,
@@ -225,9 +251,12 @@ async function executeStep(
         step.id,
         'worker',
         'success',
-        `Step completed: ${step.description}`
+        `Step completed: ${step.description}`,
+        { status: 'completed' },
+        conversationId
       );
     } else {
+      await updateStepStatus(taskId, step.id, 'failed', result.error || undefined);
       await logExecution(
         supabase,
         userId,
@@ -235,7 +264,9 @@ async function executeStep(
         step.id,
         'worker',
         'error',
-        `Step failed: ${result.error}`
+        `Step failed: ${result.error}`,
+        { status: 'failed' },
+        conversationId
       );
 
       // Retry if applicable
@@ -247,13 +278,15 @@ async function executeStep(
           step.id,
           'worker',
           'info',
-          `Retrying step (attempt ${retryCount + 1}/${maxRetries})`
+          `Retrying step (attempt ${retryCount + 1}/${maxRetries})`,
+          undefined,
+          conversationId
         );
 
         // Wait before retry (exponential backoff)
         await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
 
-        return executeStep(step, userId, supabase, taskId, retryCount + 1);
+        return executeStep(step, userId, supabase, taskId, retryCount + 1, conversationId);
       }
     }
 
@@ -261,6 +294,7 @@ async function executeStep(
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 
+    await updateStepStatus(taskId, step.id, 'failed', errorMessage);
     await logExecution(
       supabase,
       userId,
@@ -268,7 +302,9 @@ async function executeStep(
       step.id,
       'worker',
       'error',
-      `Step error: ${errorMessage}`
+      `Step error: ${errorMessage}`,
+      { status: 'failed' },
+      conversationId
     );
 
     return {
@@ -290,13 +326,15 @@ async function logExecution(
   agentType: string,
   logLevel: string,
   message: string,
-  metadata?: any
+  metadata?: any,
+  conversationId?: string
 ): Promise<void> {
   try {
     await supabase.from('execution_logs').insert({
       user_id: userId,
       task_id: taskId,
       step_id: stepId,
+      conversation_id: conversationId || null,
       agent_type: agentType,
       message,
       log_level: logLevel,

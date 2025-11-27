@@ -102,28 +102,8 @@ export function ChatInterfaceWithRealtime({
 }: ChatInterfaceWithRealtimeProps) {
   const [messages, setMessages] = useState<MessageType[]>(initialMessages);
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
-  const [pendingFollowup, setPendingFollowup] = useState<{
-    type:
-      | 'drive_search'
-      | 'gmail_search'
-      | 'calendar_create'
-      | 'docs_create'
-      | 'gmail_send'
-      | 'gmail_read'
-      | 'calendar_list'
-      | 'docs_update'
-      | 'docs_read'
-      | 'drive_upload'
-      | 'drive_download'
-      | 'sheets_read'
-      | 'sheets_write';
-    originalText?: string;
-    gmailSend?: { step: 'to' | 'subject' | 'body'; to?: string; subject?: string; body?: string };
-    docsUpdate?: { step: 'doc' | 'ops'; doc?: string; ops?: string };
-    driveUpload?: { step: 'filename' | 'content'; filename?: string; content?: string };
-    sheetsWrite?: { step: 'sheet' | 'data'; sheet?: string; data?: string };
-  } | null>(null);
-  const [suggestedTask, setSuggestedTask] = useState<{ description: string; prompt: string } | null>(null);
+  const [suggestedTasks, setSuggestedTasks] = useState<Array<{ description: string; prompt: string }>>([]);
+  const [conversationId, setConversationId] = useState<string | undefined>(undefined);
 
   // Subscribe to Realtime logs
   const { isConnected, error } = useRealtimeLogs({
@@ -185,10 +165,9 @@ export function ChatInterfaceWithRealtime({
     }
   }
 
-  // Handle sending messages
+  // Handle sending messages (let Gemini handle clarifications via /api/chat)
   const handleSendMessage = useCallback(
     async (content: string) => {
-      // Create user message
       const userMessage: MessageType = {
         id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         role: 'user',
@@ -196,389 +175,80 @@ export function ChatInterfaceWithRealtime({
         timestamp: new Date(),
       };
 
+      // Optimistically append user message
       setMessages((prev) => [...prev, userMessage]);
-
-      // Pre-handle greetings and missing-parameter intents before planning
-      const text = (content || '').trim();
-      const greetingRe = /^(hi|hello|hey|yo|hola|namaste|sup|good\s+(morning|afternoon|evening)|gm|gn)\b[!. ]*/i;
-      const ambiguousDriveRe = /^(search|find|browse|look up|list)\s+(my\s+)?(drive|google\s+drive|files|documents)\.?$/i;
-      const ambiguousGmailRe = /^(search|find|check|look up|browse|list)\s+(my\s+)?(gmail|inbox|emails?)\.?$/i;
-      const gmailSendRe = /\b(send|compose|draft)\b[\s\S]*\b(mail|email)\b/i;
-      const emailVerbRe = /^(email|mail)\b/i;
-      const calendarCreateRe = /^(schedule|create|add|set\s*up|book|arrange)\b[\s\S]*\b(event|meeting|calendar)\b/i;
-      const dateTimeRe = /(today|tomorrow|tonight|this\s+(morning|afternoon|evening|week|weekend)|next\s+(week|monday|tuesday|wednesday|thursday|friday|saturday|sunday)|monday|tuesday|wednesday|thursday|friday|saturday|sunday|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?|\b\d{4}-\d{2}-\d{2}|\b\d{1,2}:[0-5]\d\s?(a\.?m\.?|p\.?m\.?)?|\b\d{1,2}\s?(am|pm)\b|noon|midnight|\b\d{1,2}(st|nd|rd|th)\b|\b(UTC|GMT|IST|PST|PDT|EST|EDT|CET|CEST|BST|JST)\b| at | on )/i;
-      const docsCreateRe = /^(create|make|start|new)\s+(a\s+)?(doc|document|google\s+doc)s?(?!.*\b(title|named|called)\b)/i;
-      const gmailReadRe = /\b(read|open|show|view)\b[\s\S]*\b(email|mail|message)\b/i;
-      const calendarListRe = /\b(list|show|get)\b[\s\S]*\b(events|meetings|calendar)\b/i;
-      const docsUpdateRe = /\b(update|edit|append|modify)\b[\s\S]*\b(doc|document|google\s+doc)\b/i;
-      const docsReadRe = /\b(open|read|show|view)\b[\s\S]*\b(doc|document|google\s+doc)\b/i;
-      const driveUploadRe = /\b(upload|add|save)\b[\s\S]*\b(file|document)\b[\s\S]*\b(drive|google\s+drive)\b/i;
-      const driveDownloadRe = /\b(download|get|fetch)\b[\s\S]*\b(file|document)\b[\s\S]*\b(drive|google\s+drive)\b/i;
-      const sheetsReadRe = /\b(read|show|get|view)\b[\s\S]*\b(sheet|spreadsheet|google\s+sheets)\b/i;
-      const sheetsWriteRe = /\b(write|append|add|update)\b[\s\S]*\b(sheet|spreadsheet|google\s+sheets)\b/i;
-
-      let promptToPlan = text;
-      if (pendingFollowup) {
-        if (pendingFollowup.type === 'drive_search') {
-          promptToPlan = `Search my drive for "${text}"`;
-          setPendingFollowup(null);
-        } else if (pendingFollowup.type === 'gmail_search') {
-          promptToPlan = `Search my Gmail for "${text}"`;
-          setPendingFollowup(null);
-        } else if (pendingFollowup.type === 'calendar_create') {
-          promptToPlan = `Schedule: ${pendingFollowup.originalText || ''} on ${text}`.trim();
-          setPendingFollowup(null);
-        } else if (pendingFollowup.type === 'docs_create') {
-          promptToPlan = `Create a Google Doc titled "${text}"`;
-          setPendingFollowup(null);
-        } else if (pendingFollowup.type === 'gmail_send') {
-          const gs = pendingFollowup.gmailSend || { step: 'to' as const };
-          if (gs.step === 'to') {
-            const nextGs = { ...gs, to: text, step: 'subject' as const };
-            setPendingFollowup({ type: 'gmail_send', gmailSend: nextGs });
-            const askSubject: MessageType = {
-              id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              role: 'assistant',
-              content: 'What\'s the subject of the email?',
-              timestamp: new Date(),
-            };
-            setMessages((prev) => [...prev, askSubject]);
-            return;
-          } else if (gs.step === 'subject') {
-            const nextGs = { ...gs, subject: text, step: 'body' as const };
-            setPendingFollowup({ type: 'gmail_send', gmailSend: nextGs });
-            const askBody: MessageType = {
-              id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              role: 'assistant',
-              content: 'What should the email say?',
-              timestamp: new Date(),
-            };
-            setMessages((prev) => [...prev, askBody]);
-            return;
-          } else if (gs.step === 'body') {
-            const to = gs.to || 'recipient';
-            const subject = gs.subject || '';
-            const body = text;
-            promptToPlan = `Send an email to ${to} with subject "${subject}" and body "${body}"`;
-            setPendingFollowup(null);
-          }
-        } else if (pendingFollowup.type === 'gmail_read') {
-          promptToPlan = `Read Gmail message related to "${text}"`;
-          setPendingFollowup(null);
-        } else if (pendingFollowup.type === 'calendar_list') {
-          promptToPlan = `List calendar events for ${text}`;
-          setPendingFollowup(null);
-        } else if (pendingFollowup.type === 'docs_update') {
-          const du = pendingFollowup.docsUpdate || { step: 'doc' as const };
-          if (du.step === 'doc') {
-            const next = { ...du, doc: text, step: 'ops' as const };
-            setPendingFollowup({ type: 'docs_update', docsUpdate: next });
-            const askOps: MessageType = {
-              id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              role: 'assistant',
-              content: 'What should I change? For example: append a section, replace text, or add a paragraph.',
-              timestamp: new Date(),
-            };
-            setMessages((prev) => [...prev, askOps]);
-            return;
-          } else {
-            const doc = du.doc || 'the document';
-            const ops = text;
-            promptToPlan = `Update Google Doc "${doc}" with the following changes: ${ops}`;
-            setPendingFollowup(null);
-          }
-        } else if (pendingFollowup.type === 'docs_read') {
-          promptToPlan = `Read Google Doc "${text}"`;
-          setPendingFollowup(null);
-        } else if (pendingFollowup.type === 'drive_upload') {
-          const up = pendingFollowup.driveUpload || { step: 'filename' as const };
-          if (up.step === 'filename') {
-            const next = { ...up, filename: text, step: 'content' as const };
-            setPendingFollowup({ type: 'drive_upload', driveUpload: next });
-            const askContent: MessageType = {
-              id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              role: 'assistant',
-              content: 'Please paste or describe the content for the file.',
-              timestamp: new Date(),
-            };
-            setMessages((prev) => [...prev, askContent]);
-            return;
-          } else {
-            const filename = up.filename || 'untitled.txt';
-            const content = text;
-            promptToPlan = `Upload a file named "${filename}" to Drive with content: ${content}`;
-            setPendingFollowup(null);
-          }
-        } else if (pendingFollowup.type === 'drive_download') {
-          promptToPlan = `Download file from Drive matching "${text}"`;
-          setPendingFollowup(null);
-        } else if (pendingFollowup.type === 'sheets_read') {
-          promptToPlan = `Read from Google Sheets: ${text}`;
-          setPendingFollowup(null);
-        } else if (pendingFollowup.type === 'sheets_write') {
-          const sw = pendingFollowup.sheetsWrite || { step: 'sheet' as const };
-          if (sw.step === 'sheet') {
-            const next = { ...sw, sheet: text, step: 'data' as const };
-            setPendingFollowup({ type: 'sheets_write', sheetsWrite: next });
-            const askData: MessageType = {
-              id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              role: 'assistant',
-              content: 'What data should I write? You can provide comma-separated rows or a brief description.',
-              timestamp: new Date(),
-            };
-            setMessages((prev) => [...prev, askData]);
-            return;
-          } else {
-            const sheet = sw.sheet || 'Sheet1!A1';
-            const data = text;
-            promptToPlan = `Write to Google Sheets at ${sheet}: ${data}`;
-            setPendingFollowup(null);
-          }
-        }
-      } else {
-        // Handle greetings with a friendly intro and suggestions
-        if (greetingRe.test(text)) {
-          const introMessage: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content:
-              'Hi! I\'m AURA — your workspace assistant for Gmail, Drive, Docs, Sheets, and Calendar. Try things like:\n\n• Search Drive for invoices from last month\n• Summarize the latest meeting notes in Docs\n• Schedule a 30‑min sync tomorrow at 3pm\n• Send an email draft to the team',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, introMessage]);
-          return;
-        }
-
-        // Ask a follow-up if Drive search intent lacks a query
-        if (ambiguousDriveRe.test(text)) {
-          const followupMessage: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content:
-              'What would you like me to search for in Drive? You can specify keywords (e.g., "Q4 report"), file types (PDF, Google Docs), or a date range.',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, followupMessage]);
-          setPendingFollowup({ type: 'drive_search' });
-          return;
-        }
-
-        // Start Gmail send mini-flow (collect to, subject, body)
-        if (gmailSendRe.test(text) || emailVerbRe.test(text)) {
-          const askRecipient: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content: 'Who should I send it to? You can provide one or more emails, comma-separated.',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, askRecipient]);
-          setPendingFollowup({ type: 'gmail_send', gmailSend: { step: 'to' } });
-          return;
-        }
-
-        if (ambiguousGmailRe.test(text)) {
-          const followupMessage: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content:
-              'What should I search for in Gmail? You can provide keywords, sender, subject, or a date range.',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, followupMessage]);
-          setPendingFollowup({ type: 'gmail_search' });
-          return;
-        }
-
-        if (calendarCreateRe.test(text) && !dateTimeRe.test(text)) {
-          const followupMessage: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content:
-              'When should I schedule it? Please include the date and time (with timezone), and optionally duration and attendees.',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, followupMessage]);
-          setPendingFollowup({ type: 'calendar_create', originalText: text });
-          return;
-        }
-
-        if (docsCreateRe.test(text)) {
-          const followupMessage: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content:
-              'What title should I use for the Google Doc?',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, followupMessage]);
-          setPendingFollowup({ type: 'docs_create', originalText: text });
-          return;
-        }
-
-        // Gmail read follow-up
-        if (gmailReadRe.test(text)) {
-          const followupMessage: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content: 'Which email should I open? Provide subject, sender, or a timeframe.',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, followupMessage]);
-          setPendingFollowup({ type: 'gmail_read' });
-          return;
-        }
-
-        // Calendar list follow-up
-        if (calendarListRe.test(text) && !dateTimeRe.test(text)) {
-          const followupMessage: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content: 'For what timeframe should I list events? (e.g., today, this week, next 7 days)',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, followupMessage]);
-          setPendingFollowup({ type: 'calendar_list' });
-          return;
-        }
-
-        // Docs update and read follow-ups
-        if (docsUpdateRe.test(text)) {
-          const askDoc: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content: 'Which document should I update? Provide the title or paste the link.',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, askDoc]);
-          setPendingFollowup({ type: 'docs_update', docsUpdate: { step: 'doc' } });
-          return;
-        }
-        if (docsReadRe.test(text)) {
-          const askDoc: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content: 'Which document should I open? Provide the title or paste the link.',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, askDoc]);
-          setPendingFollowup({ type: 'docs_read' });
-          return;
-        }
-
-        // Drive upload/download follow-ups
-        if (driveUploadRe.test(text)) {
-          const askFilename: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content: 'What is the filename (including extension)?',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, askFilename]);
-          setPendingFollowup({ type: 'drive_upload', driveUpload: { step: 'filename' } });
-          return;
-        }
-        if (driveDownloadRe.test(text)) {
-          const askFile: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content: 'Which file should I download from Drive? Provide the name or describe it.',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, askFile]);
-          setPendingFollowup({ type: 'drive_download' });
-          return;
-        }
-
-        // Sheets read/write follow-ups
-        if (sheetsReadRe.test(text)) {
-          const askRange: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content: 'Which spreadsheet and range should I read? (e.g., Budget Q4, Sheet1!A1:C20)',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, askRange]);
-          setPendingFollowup({ type: 'sheets_read' });
-          return;
-        }
-        if (sheetsWriteRe.test(text)) {
-          const askSheet: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content: 'Which spreadsheet and range should I write to? (e.g., Budget Q4, Sheet1!A2)',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, askSheet]);
-          setPendingFollowup({ type: 'sheets_write', sheetsWrite: { step: 'sheet' } });
-          return;
-        }
-      }
 
       try {
         if (onSendMessage) {
-          await onSendMessage(promptToPlan);
+          await onSendMessage(content);
+          return;
+        }
+
+        if (!userId) {
+          throw new Error('User not authenticated. Please connect Google Workspace and refresh the page.');
+        }
+
+        // Include the just-sent user message in history
+        const history = [...messages, userMessage].map((m) => ({ role: m.role, content: m.content }));
+
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: content, userId, conversationHistory: history, conversationId }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Chat service failed');
+        }
+
+        const chatResult = await response.json();
+        if (!chatResult.success || !chatResult.data) {
+          throw new Error(chatResult.error?.message || 'Chat service error');
+        }
+
+        const { message: assistantText, suggestedTask: suggestion, suggestedTasks: multi, conversationId: newConversationId } = chatResult.data;
+
+        const assistantMessage: MessageType = {
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          role: 'assistant',
+          content: assistantText || ' ',
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, assistantMessage]);
+
+        if (newConversationId) {
+          setConversationId(newConversationId);
+        }
+
+        if (Array.isArray(multi) && multi.length > 0) {
+          setSuggestedTasks(multi);
+        } else if (suggestion && suggestion.prompt) {
+          setSuggestedTasks([{ description: suggestion.description || 'Suggested task', prompt: suggestion.prompt }]);
         } else {
-          if (!userId) {
-            throw new Error('User not authenticated. Please connect Google Workspace and refresh the page.');
-          }
-
-          // Conversational API: /api/chat
-          const history = messages.map((m) => ({ role: m.role, content: m.content }));
-          const response = await fetch('/api/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: promptToPlan, userId, conversationHistory: history }),
-          });
-
-          if (!response.ok) {
-            throw new Error('Chat service failed');
-          }
-
-          const chatResult = await response.json();
-          if (!chatResult.success || !chatResult.data) {
-            throw new Error(chatResult.error?.message || 'Chat service error');
-          }
-
-          const { message: assistantText, suggestedTask: suggestion } = chatResult.data;
-
-          // Append assistant reply
-          const assistantMessage: MessageType = {
-            id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-            role: 'assistant',
-            content: assistantText || ' ',
-            timestamp: new Date(),
-          };
-          setMessages((prev) => [...prev, assistantMessage]);
-
-          // Surface suggested task (if any)
-          if (suggestion && suggestion.prompt) {
-            setSuggestedTask({ description: suggestion.description || 'Suggested task', prompt: suggestion.prompt });
-          }
+          setSuggestedTasks([]);
         }
       } catch (error) {
         console.error('Error sending message:', error);
-
         const errorMessage: MessageType = {
           id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           role: 'assistant',
           content: 'Sorry, I encountered an error processing your request. Please try again.',
           timestamp: new Date(),
         };
-
         setMessages((prev) => [...prev, errorMessage]);
       }
     },
-    [userId, onSendMessage, pendingFollowup]
+    [userId, onSendMessage, messages]
   );
 
-  const executeSuggestedTask = useCallback(
-    async () => {
-      if (!suggestedTask || !userId) return;
+  const executeTaskFromPrompt = useCallback(
+    async (prompt: string, description?: string) => {
+      if (!userId) return;
       try {
         const planRes = await fetch('/api/agent/plan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt: suggestedTask.prompt, userId }),
+          body: JSON.stringify({ prompt, userId, conversationId }),
         });
 
         if (!planRes.ok) throw new Error('Failed to plan task');
@@ -591,7 +261,7 @@ export function ChatInterfaceWithRealtime({
         const assistantMessage: MessageType = {
           id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           role: 'assistant',
-          content: 'I\'ve prepared a plan. Executing it now...',
+          content: description ? `Starting: ${description}` : "I've prepared a plan. Executing it now...",
           timestamp: new Date(),
           taskDecomposition: {
             taskId,
@@ -612,7 +282,7 @@ export function ChatInterfaceWithRealtime({
         const execRes = await fetch('/api/agent/execute', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ taskId, userId }),
+          body: JSON.stringify({ taskId, userId, conversationId }),
         });
         if (!execRes.ok) throw new Error('Failed to execute task');
         const execJson = await execRes.json();
@@ -651,12 +321,10 @@ export function ChatInterfaceWithRealtime({
           }
         }
       } catch (err) {
-        console.error('executeSuggestedTask error:', err);
-      } finally {
-        setSuggestedTask(null);
+        console.error('executeTaskFromPrompt error:', err);
       }
     },
-    [suggestedTask, userId]
+    [userId]
   );
 
   // Derive active task from messages
@@ -726,12 +394,15 @@ export function ChatInterfaceWithRealtime({
           className={className}
         />
 
-        {suggestedTask && (
-          <div className="mt-3">
-            <SuggestedTaskButton
-              description={suggestedTask.description}
-              onStart={executeSuggestedTask}
-            />
+        {suggestedTasks && suggestedTasks.length > 0 && (
+          <div className="mt-3 space-y-2">
+            {suggestedTasks.map((s, idx) => (
+              <SuggestedTaskButton
+                key={`${s.description}-${idx}`}
+                description={s.description}
+                onStart={() => executeTaskFromPrompt(s.prompt, s.description)}
+              />
+            ))}
           </div>
         )}
       </div>

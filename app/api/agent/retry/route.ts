@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
-import { ApiResponse } from '@/types/api';
+import { createClient } from '@/app/lib/supabase/server';
+import { ApiResponse } from '@/app/types/api';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create Supabase client
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
@@ -38,9 +38,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get the original task from history
+    // Get the original task from V2
     const { data: originalTask, error: fetchError } = await supabase
-      .from('task_history')
+      .from('tasks_v2')
       .select('*')
       .eq('task_id', taskId)
       .eq('user_id', user.id)
@@ -59,10 +59,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate new task ID for the retry
-    const newTaskId = `task_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-    // Create a new task plan using the original prompt
     const planResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/agent/plan`, {
       method: 'POST',
       headers: {
@@ -72,6 +68,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         prompt: originalTask.input_prompt,
         userId: user.id,
+        conversationId: originalTask.conversation_id || undefined,
       }),
     });
 
@@ -95,6 +92,7 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify({
         taskId: planData.data.taskId,
         userId: user.id,
+        conversationId: originalTask.conversation_id || undefined,
       }),
     });
 
@@ -106,7 +104,7 @@ export async function POST(request: NextRequest) {
 
     // Update the original task status to 'rerun'
     await supabase
-      .from('task_history')
+      .from('tasks_v2')
       .update({ 
         status: 'rerun',
         output_summary: `Task retried as ${planData.data.taskId}`,

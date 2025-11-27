@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { plannerAgent } from '@/app/lib/agents/planner';
 import { saveTaskPlan } from '@/app/lib/agents/storage';
-import { createServiceClient } from '@/app/lib/supabase/server';
+import { createServiceClient, createClient } from '@/app/lib/supabase/server';
 import { ApiResponse, AgentPlanRequest, AgentPlanResponse } from '@/app/types/api';
 
 /**
@@ -11,10 +11,16 @@ import { ApiResponse, AgentPlanRequest, AgentPlanResponse } from '@/app/types/ap
 export async function POST(request: NextRequest) {
   try {
     const body: AgentPlanRequest = await request.json();
-    const { prompt, userId } = body;
+    const { prompt, userId, conversationId } = body;
+
+    const isUuid = (v?: string) => !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+    const cookieClient = await createClient();
+    const { data: { user: authUser } } = await cookieClient.auth.getUser();
+    const usedUserId = isUuid(userId) ? userId : (authUser?.id || '');
+    const usedConversationId = isUuid(conversationId) ? conversationId : null;
 
     // Validate input
-    if (!prompt || !userId) {
+    if (!prompt || !usedUserId) {
       return NextResponse.json<ApiResponse>(
         {
           success: false,
@@ -28,13 +34,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Plan the task using Planner Agent
-    const plan = await plannerAgent.planTask(prompt, userId);
+    const plan = await plannerAgent.planTask(prompt, usedUserId);
 
-    // Save task plan to database
+    // Save task (V2)
     const supabase = createServiceClient();
-    const { error: insertError } = await supabase.from('task_history').insert({
+    const { error: insertError } = await supabase.from('tasks_v2').insert({
       task_id: plan.taskId,
-      user_id: userId,
+      user_id: usedUserId,
+      conversation_id: usedConversationId,
       title: plan.title,
       status: 'pending',
       input_prompt: prompt,
@@ -53,13 +60,14 @@ export async function POST(request: NextRequest) {
       throw new Error('Failed to save task plan to database');
     }
 
-    // Save plan steps
+    // Save plan steps (V2)
     await saveTaskPlan(plan);
 
     // Log the planning step
     await supabase.from('execution_logs').insert({
-      user_id: userId,
+      user_id: usedUserId,
       task_id: plan.taskId,
+      conversation_id: usedConversationId,
       agent_type: 'planner',
       message: `Task planned: ${plan.title} with ${plan.steps.length} steps`,
       log_level: 'info',
@@ -82,6 +90,8 @@ export async function POST(request: NextRequest) {
     const response: AgentPlanResponse = {
       taskId: plan.taskId,
       steps: responseSteps,
+      title: plan.title,
+      conversationId: usedConversationId || undefined,
     };
 
     return NextResponse.json<ApiResponse<AgentPlanResponse>>(

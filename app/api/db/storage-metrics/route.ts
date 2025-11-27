@@ -28,6 +28,21 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Validate userId is a UUID; if not, return empty counts to avoid UUID casting errors
+    const isUuid = (v?: string) => !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
+    if (!isUuid(userId || undefined)) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          logsCount: 0,
+          logsSize: 0,
+          taskHistoryCount: 0,
+          documentsCount: 0,
+          totalSize: 0,
+        },
+      });
+    }
+
     // Create service client for admin operations
     const supabase = createServiceClient();
 
@@ -41,9 +56,9 @@ export async function GET(request: NextRequest) {
       console.error('Error counting execution logs:', logsError);
     }
 
-    // Query task history count
+    // Query tasks count (V2)
     const { count: taskHistoryCount, error: taskHistoryError } = await supabase
-      .from('task_history')
+      .from('tasks_v2')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', userId);
 
@@ -63,7 +78,7 @@ export async function GET(request: NextRequest) {
 
     // Estimate storage size (rough calculation)
     // Average log entry: ~500 bytes
-    // Average task history entry: ~1KB
+    // Average task entry: ~1KB
     // Average document entry: ~200 bytes
     const logsSize = (logsCount || 0) * 500;
     const taskHistorySize = (taskHistoryCount || 0) * 1024;

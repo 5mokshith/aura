@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { User } from 'lucide-react';
+import { getUserSessionClient } from '@/lib/auth';
 
 /**
  * ProfileSection Component
@@ -12,7 +13,8 @@ import { User } from 'lucide-react';
 
 interface UserProfile {
   email: string;
-  createdAt: string;
+  name: string;
+  userId: string;
 }
 
 export function ProfileSection() {
@@ -25,17 +27,23 @@ export function ProfileSection() {
 
   const loadProfile = async () => {
     try {
-      // TODO: Replace with actual auth context/session
-      // For now, using placeholder data
-      const userId = 'current-user-id';
-      
-      // In a real implementation, this would fetch from Supabase auth
-      const mockProfile: UserProfile = {
-        email: 'user@example.com',
-        createdAt: new Date().toISOString(),
-      };
+      // Get user session from cookies
+      const session = getUserSessionClient();
 
-      setProfile(mockProfile);
+      if (!session) {
+        console.log('No active session found');
+        setLoading(false);
+        return;
+      }
+
+      // Extract name from email (before @)
+      const userName = session.email.split('@')[0] || 'User';
+
+      setProfile({
+        email: session.email,
+        name: userName.charAt(0).toUpperCase() + userName.slice(1), // Capitalize first letter
+        userId: session.userId,
+      });
     } catch (error) {
       console.error('Error loading profile:', error);
     } finally {
@@ -43,20 +51,24 @@ export function ProfileSection() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
   if (loading) {
     return (
       <div className="glass-panel-strong rounded-xl p-6">
         <div className="flex items-center justify-center py-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-cyan"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="glass-panel-strong rounded-xl p-6">
+        <h2 className="text-2xl font-display font-bold text-white mb-6">
+          Profile
+        </h2>
+        <div className="text-center py-8">
+          <p className="text-white/60">Please log in to view your profile</p>
         </div>
       </div>
     );
@@ -76,7 +88,7 @@ export function ProfileSection() {
           </div>
           <div>
             <p className="text-sm text-white/60">Account</p>
-            <p className="text-lg font-medium text-white">AURA User</p>
+            <p className="text-lg font-medium text-white">{profile?.name || 'User'}</p>
           </div>
         </div>
 
@@ -84,14 +96,6 @@ export function ProfileSection() {
         <div className="glass-panel rounded-lg p-4">
           <p className="text-sm text-white/60 mb-1">Email</p>
           <p className="text-white font-medium">{profile?.email || 'Not available'}</p>
-        </div>
-
-        {/* Account Created */}
-        <div className="glass-panel rounded-lg p-4">
-          <p className="text-sm text-white/60 mb-1">Account Created</p>
-          <p className="text-white font-medium">
-            {profile?.createdAt ? formatDate(profile.createdAt) : 'Not available'}
-          </p>
         </div>
       </div>
     </div>
