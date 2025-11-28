@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getEnv } from '@/app/lib/env';
 import { ApiResponse } from '@/app/types/api';
-import { createServiceClient, createClient } from '@/app/lib/supabase/server';
+import { createServiceClient } from '@/app/lib/supabase/server';
 
 const env = getEnv();
 const genAI = new GoogleGenerativeAI(env.llm.geminiApiKey!);
@@ -21,7 +21,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { message, userId, conversationHistory, conversationId: existingConversationId } = body || {};
 
-    if (!message || !userId) {
+    const cookieUserId = request.cookies.get('aura_user_id')?.value;
+    const usedUserId = (userId as string | undefined) || cookieUserId || '';
+
+    if (!message || !usedUserId) {
       return NextResponse.json<ApiResponse>(
         {
           success: false,
@@ -42,10 +45,11 @@ CAPABILITIES:
 
 CONVERSATION GUIDELINES:
 1. Be friendly, helpful, and concise.
-2. For greetings or generic questions, reply conversationally about AURA's capabilities.
-3. When the user asks for an ACTIONABLE TASK (i.e., requires Google Workspace APIs), suggest tasks.
-4. If the request is AMBIGUOUS (e.g., "show my drive file"), ask a clarifying question in the message. Do NOT invent details.
-5. For multi-intent requests (e.g., "show my latest sales report, summarize it, and send to X"), propose a single plan with multiple steps OR multiple suggested tasks.
+2. Always respond in natural language in the "message" field (not just JSON keys).
+3. For greetings or generic questions, reply conversationally about AURA's capabilities and how you can help.
+4. When the user asks for an ACTIONABLE TASK (i.e., something that could be done via Google Workspace APIs), you MUST suggest at least one task in "suggestedTasks" with a clear, executable "prompt".
+5. If the request is AMBIGUOUS (e.g., "show my drive file"), include a clarifying question inside "message" and, if reasonable, a best-guess suggested task.
+6. For multi-intent requests (e.g., "show my latest sales report, summarize it, and send to X"), you may suggest a single combined task or multiple suggested tasks.
 
 RESPONSE FORMAT (STRICT JSON ONLY):
 Either:
@@ -60,8 +64,32 @@ Or:
   ]
 }
 Notes:
+- Do NOT wrap the JSON in markdown or code fences.
+- Do NOT add any text before or after the JSON object.
 - "message" should include any clarifying questions as needed.
-- If only one task is suggested, you may still use "suggestedTasks" with a single element.`;
+- If only one task is suggested, you may still use "suggestedTasks" with a single element.
+
+EXAMPLES
+
+Example 1 — Generic question (no task):
+User: "What can you do?"
+Assistant JSON:
+{
+  "message": "I'm AURA, an AI assistant that can read and send Gmail, search your Drive, create Docs, update Sheets, and manage Calendar events. Ask me to do something like 'summarize my latest sales report and email it to my manager.'"
+}
+
+Example 2 — Actionable request with suggested task:
+User: "Send a reminder email to my team about tomorrow's meeting."
+Assistant JSON:
+{
+  "message": "I can draft and send that reminder email for you. I'll use your connected Gmail account.",
+  "suggestedTasks": [
+    {
+      "description": "Send reminder email about tomorrow's meeting to your team",
+      "prompt": "Send a reminder email to my team about tomorrow's meeting using Gmail."
+    }
+  ]
+}`;
 
     const historyText = Array.isArray(conversationHistory)
       ? conversationHistory
@@ -72,15 +100,11 @@ Notes:
 
     const userTurn = `User: ${message}`;
 
-    // Ensure conversation exists and persist the user message (only with valid UUID user)
+    // Ensure conversation exists and persist the user message
     const supabase = createServiceClient();
-    const cookieClient = await createClient();
-    const { data: { user: authUser } } = await cookieClient.auth.getUser();
-    const isUuid = (v?: string) => !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
-    const usedUserId = isUuid(userId) ? userId : (authUser?.id || '');
 
     let conversationId = existingConversationId as string | undefined;
-    if (!conversationId && isUuid(usedUserId)) {
+    if (!conversationId && usedUserId) {
       const { data: conv, error: convErr } = await supabase
         .from('conversations')
         .insert({ user_id: usedUserId, title: (message as string).slice(0, 80) })
@@ -92,7 +116,7 @@ Notes:
     }
 
     // Insert user message if we have a valid conversation
-    if (conversationId && isUuid(usedUserId)) {
+    if (conversationId && usedUserId) {
       await supabase.from('messages').insert({
         conversation_id: conversationId,
         user_id: usedUserId,
@@ -110,10 +134,21 @@ Notes:
     ];
 
     const result = await model.generateContent({ contents } as any);
-    const text = result.response.text();
-    const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/\{[\s\S]*\}/);
-    const jsonText = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : text;
-    const payload = JSON.parse(jsonText);
+    const text = result.response.text() || '';
+
+    let payload: any;
+    try {
+      const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/\{[\s\S]*\}/);
+      const jsonText = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : text;
+      payload = JSON.parse(jsonText);
+    } catch (parseError) {
+      console.error('Failed to parse /api/chat model JSON, using raw text instead:', parseError);
+      payload = {
+        message:
+          text.trim() ||
+          'Sorry, I could not parse the model response. Please try asking your question again.',
+      };
+    }
 
     const suggestedTasks = Array.isArray(payload.suggestedTasks)
       ? payload.suggestedTasks
@@ -122,7 +157,7 @@ Notes:
         : [];
 
     // Insert assistant message
-    if (conversationId && isUuid(usedUserId)) {
+    if (conversationId && usedUserId) {
       await supabase.from('messages').insert({
         conversation_id: conversationId,
         user_id: usedUserId,

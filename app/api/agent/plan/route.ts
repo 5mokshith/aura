@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { plannerAgent } from '@/app/lib/agents/planner';
 import { saveTaskPlan } from '@/app/lib/agents/storage';
-import { createServiceClient, createClient } from '@/app/lib/supabase/server';
+import { createServiceClient } from '@/app/lib/supabase/server';
 import { ApiResponse, AgentPlanRequest, AgentPlanResponse } from '@/app/types/api';
 
 /**
@@ -13,11 +13,9 @@ export async function POST(request: NextRequest) {
     const body: AgentPlanRequest = await request.json();
     const { prompt, userId, conversationId } = body;
 
-    const isUuid = (v?: string) => !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
-    const cookieClient = await createClient();
-    const { data: { user: authUser } } = await cookieClient.auth.getUser();
-    const usedUserId = isUuid(userId) ? userId : (authUser?.id || '');
-    const usedConversationId = isUuid(conversationId) ? conversationId : null;
+    const cookieUserId = request.cookies.get('aura_user_id')?.value;
+    const usedUserId = userId || cookieUserId || '';
+    const usedConversationId = conversationId || null;
 
     // Validate input
     if (!prompt || !usedUserId) {

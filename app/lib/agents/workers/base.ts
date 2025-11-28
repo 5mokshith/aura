@@ -62,7 +62,21 @@ export abstract class BaseWorker {
     parameters: Record<string, any>,
     required: string[]
   ): void {
-    const missing = required.filter(key => !parameters[key]);
+    const missing = required.filter(key => {
+      const value = parameters[key];
+
+      if (value === undefined || value === null) return true;
+
+      if (typeof value === 'string') {
+        return value.trim().length === 0;
+      }
+
+      if (Array.isArray(value)) {
+        return value.length === 0;
+      }
+
+      return false;
+    });
     if (missing.length > 0) {
       throw new Error(`Missing required parameters: ${missing.join(', ')}`);
     }

@@ -1,5 +1,5 @@
 import { NextRequest } from 'next/server';
-import { createClient } from '@/app/lib/supabase/server';
+import { createServiceClient } from '@/app/lib/supabase/server';
 import { ApiResponse } from '@/app/types/api';
 
 export async function POST(request: NextRequest) {
@@ -19,13 +19,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create Supabase client
-    const supabase = await createClient();
+    const cookieUserId = request.cookies.get('aura_user_id')?.value;
 
-    // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
+    if (!cookieUserId) {
       return Response.json(
         { 
           success: false, 
@@ -38,12 +34,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Create Supabase service client
+    const supabase = createServiceClient();
+
     // Get the original task from V2
     const { data: originalTask, error: fetchError } = await supabase
       .from('tasks_v2')
       .select('*')
       .eq('task_id', taskId)
-      .eq('user_id', user.id)
+      .eq('user_id', cookieUserId)
       .single();
 
     if (fetchError || !originalTask) {
@@ -67,7 +66,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         prompt: originalTask.input_prompt,
-        userId: user.id,
+        userId: cookieUserId,
         conversationId: originalTask.conversation_id || undefined,
       }),
     });
@@ -91,7 +90,7 @@ export async function POST(request: NextRequest) {
       },
       body: JSON.stringify({
         taskId: planData.data.taskId,
-        userId: user.id,
+        userId: cookieUserId,
         conversationId: originalTask.conversation_id || undefined,
       }),
     });
@@ -110,7 +109,7 @@ export async function POST(request: NextRequest) {
         output_summary: `Task retried as ${planData.data.taskId}`,
       })
       .eq('task_id', taskId)
-      .eq('user_id', user.id);
+      .eq('user_id', cookieUserId);
 
     return Response.json({
       success: true,

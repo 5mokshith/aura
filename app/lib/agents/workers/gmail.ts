@@ -38,6 +38,12 @@ export class GmailWorker extends BaseWorker {
 
     const { to, subject, body, cc, bcc } = step.parameters || {};
 
+    const rawBody = typeof body === 'string' ? body : String(body ?? '');
+    const trimmedBody = rawBody.trim();
+    const maxBodyChars = 4000;
+    const bodyForOutput =
+      trimmedBody.length > maxBodyChars ? trimmedBody.slice(0, maxBodyChars) : trimmedBody;
+
     // Create email message
     const messageParts = [
       `To: ${Array.isArray(to) ? to.join(', ') : to}`,
@@ -72,6 +78,7 @@ export class GmailWorker extends BaseWorker {
         threadId: result.data.threadId,
         to,
         subject,
+        body: bodyForOutput,
       },
     });
   }

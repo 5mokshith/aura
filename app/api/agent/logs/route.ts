@@ -17,6 +17,11 @@ interface LogsResponse {
   totalCount: number;
 }
 
+function isValidUuid(value: string | null): boolean {
+  if (!value) return false;
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
 /**
  * GET /api/agent/logs
  * Query execution logs by task ID, agent type, and date range
@@ -44,6 +49,20 @@ export async function GET(request: NextRequest) {
           },
         },
         { status: 400 }
+      );
+    }
+
+    // If the userId is not a valid UUID (e.g., "temp-user-id" for anonymous users),
+    // there will be no corresponding execution logs in the database. Avoid querying
+    // Supabase with an invalid UUID to prevent "invalid input syntax for type uuid".
+    if (!isValidUuid(userId)) {
+      const emptyResponse: LogsResponse = { logs: [], totalCount: 0 };
+      return NextResponse.json<ApiResponse<LogsResponse>>(
+        {
+          success: true,
+          data: emptyResponse,
+        },
+        { status: 200 }
       );
     }
 
@@ -145,6 +164,21 @@ export async function DELETE(request: NextRequest) {
           },
         },
         { status: 400 }
+      );
+    }
+
+    // For non-UUID user IDs (e.g., anonymous or temp users), there will be no
+    // execution_logs rows. Treat this as a successful no-op and avoid hitting Supabase
+    // with an invalid UUID that would cause "invalid input syntax for type uuid".
+    if (!isValidUuid(userId)) {
+      return NextResponse.json<ApiResponse>(
+        {
+          success: true,
+          data: {
+            message: 'No logs deleted for non-persistent user id',
+          },
+        },
+        { status: 200 }
       );
     }
 

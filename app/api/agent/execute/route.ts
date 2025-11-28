@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getWorker } from '@/app/lib/agents/workers';
 import { evaluatorAgent } from '@/app/lib/agents/evaluator';
 import { getTaskPlan, updateTaskStatus, updateStepStatus } from '@/app/lib/agents/storage';
-import { createServiceClient, createClient } from '@/app/lib/supabase/server';
+import { createServiceClient } from '@/app/lib/supabase/server';
 import { ApiResponse, AgentExecuteRequest, AgentExecuteResponse } from '@/app/types/api';
 import { WorkerResult, PlanStep } from '@/app/types/agent';
 
@@ -18,11 +18,8 @@ export async function POST(request: NextRequest) {
     const body: AgentExecuteRequest = await request.json();
     const { taskId, userId, conversationId } = body;
 
-    // Resolve authenticated user id to ensure UUID correctness
-    const isUuid = (v?: string) => !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
-    const cookieClient = await createClient();
-    const { data: { user: authUser } } = await cookieClient.auth.getUser();
-    const usedUserId = isUuid(userId) ? userId : (authUser?.id || '');
+    const cookieUserId = request.cookies.get('aura_user_id')?.value;
+    const usedUserId = userId || cookieUserId || '';
 
     // Validate input
     if (!taskId || !usedUserId) {
@@ -39,7 +36,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Retrieve task plan from database
-    const plan = await getTaskPlan(taskId, userId);
+    const plan = await getTaskPlan(taskId, usedUserId);
 
     if (!plan) {
       return NextResponse.json<ApiResponse>(
@@ -83,7 +80,7 @@ export async function POST(request: NextRequest) {
           await updateStepStatus(taskId, step.id, 'failed', 'Dependencies not met');
           await logExecution(
             supabase,
-            userId,
+            usedUserId,
             taskId,
             step.id,
             'worker',

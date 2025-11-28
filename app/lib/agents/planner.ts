@@ -97,24 +97,90 @@ Your response MUST be valid JSON in this exact format:
   ]
 }
 
-Guidelines:
-1. Break complex tasks into simple, atomic steps
-2. Each step should have ONE clear action
-3. Specify dependencies when steps must execute in order
-4. Use realistic parameter values based on the user's request
-5. Keep descriptions concise but clear
-6. Order steps logically (dependencies first)
-7. For email tasks, include recipient, subject, and body structure
-8. For document tasks, specify content structure
-9. For calendar tasks, include time, date, and attendees
-10. For file operations, specify search queries or file names
+Important parameter shapes (you MUST respect these exactly):
+- For Gmail "send" steps:
+  "parameters": {
+    "to": "single email" OR ["list", "of", "emails"],
+    "subject": "email subject line",
+    "body": "FULL email body as HTML or plain text. Never use placeholders like '[content from step 1]'."
+  }
 
-Example actions by service:
-- gmail: "send", "search", "read"
-- drive: "search", "download", "upload"
-- docs: "create", "update", "read"
-- sheets: "read", "write", "update"
-- calendar: "create", "list", "delete"`;
+- For Docs "create" steps:
+  "parameters": {
+    "title": "Document title",
+    "content": [
+      { "type": "heading", "level": 1, "text": "Heading text" },
+      { "type": "paragraph", "text": "Paragraph text" }
+    ]
+  }
+
+Guidelines:
+1. Break complex tasks into simple, atomic steps.
+2. Each step should have ONE clear action.
+3. Specify dependencies when steps must execute in order.
+4. Use realistic parameter values based on the user's request.
+5. Keep descriptions concise but clear.
+6. Order steps logically (dependencies first).
+7. For email tasks, always provide a complete, ready-to-send body (no TODOs or placeholders).
+8. For document tasks, provide the actual content as an ordered list of heading/paragraph blocks.
+9. For calendar tasks, include time, date, and attendees.
+10. For file operations, specify search queries or file names.
+11. When the user asks you to WRITE content (stories, drafts, emails, summaries, etc.), you MUST generate the full text yourself inside the plan parameters.
+12. If a later step needs to email or otherwise share content you generated in an earlier step, REPEAT the same full text in that later step's parameters instead of using phrases like "content from step_1" or "see previous step".
+13. Avoid meta-language or instructions in parameters. Parameters must contain final, user-ready text only.
+14. When the user specifies a word count (e.g., "300-word story"), generate text that is reasonably close to that length (±10–15%).
+15. If the user explicitly asks to send an email with a story or other generated content "in the body" (and does not ask for a separate document), use a single Gmail "send" step whose "body" parameter contains the FULL generated text that satisfies the story/topic and word-count requirements. Do NOT treat the subject line or a short note as the story itself.
+
+Example A (Doc + Email): If the user says, "Write a 300-word story about a boy meeting a girl and then email it to mokshithrao1481@gmail.com.", a good plan is:
+{
+  "title": "Boy Meets Girl Story and Email",
+  "steps": [
+    {
+      "description": "Create a Google Doc with a 300-word story about a boy meeting a girl.",
+      "service": "docs",
+      "action": "create",
+      "parameters": {
+        "title": "Boy Meets Girl Story",
+        "content": [
+          { "type": "heading", "level": 1, "text": "Boy Meets Girl" },
+          { "type": "paragraph", "text": "[WRITE THE FULL ~300-WORD STORY HERE AS NORMAL SENTENCES, NOT A SUMMARY OR PLACEHOLDER.]" }
+        ]
+      },
+      "dependencies": []
+    },
+    {
+      "description": "Send the full story by email to the user.",
+      "service": "gmail",
+      "action": "send",
+      "parameters": {
+        "to": "mokshithrao1481@gmail.com",
+        "subject": "Your requested story: Boy Meets Girl",
+        "body": "Here is the 300-word story you requested about a boy meeting a girl:\n\n[PASTE THE SAME FULL STORY TEXT USED IN THE DOC ABOVE. DO NOT WRITE '[content from step_1]'; INCLUDE THE ACTUAL STORY TEXT HERE.]"
+      },
+      "dependencies": ["step_1"]
+    }
+  ]
+}
+
+Example B (Direct email only): If the user says, "Send an email to mokshithrao1481@gmail.com with a 300-word story of a girl meeting a boy in the body.", a good plan is:
+{
+  "title": "Email 300-word story: Girl meets boy",
+  "steps": [
+    {
+      "description": "Send an email with a ~300-word story about a girl meeting a boy in the body.",
+      "service": "gmail",
+      "action": "send",
+      "parameters": {
+        "to": "mokshithrao1481@gmail.com",
+        "subject": "Your Requested Story: Girl Meets Boy",
+        "body": "[WRITE THE FULL ~300-WORD GIRL-MEETS-BOY STORY HERE AS NORMAL SENTENCES. THIS BODY TEXT MUST BE THE ACTUAL STORY, NOT JUST A SHORT NOTE OR THE EMAIL SUBJECT REPEATED.]"
+      },
+      "dependencies": []
+    }
+  ]
+}
+
+Never return Markdown, code fences, or explanatory text outside of this JSON structure.`;
   }
 
   private formatUserPrompt(prompt: string): string {

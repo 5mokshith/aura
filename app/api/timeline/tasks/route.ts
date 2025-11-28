@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
-import { createClient } from '@/app/lib/supabase/server';
+import { createServiceClient } from '@/app/lib/supabase/server';
 import { ApiResponse } from '@/app/types/api';
+
 import type { TaskHistoryItem } from '@/app/components/timeline/TaskCard';
 
 export async function GET(request: NextRequest) {
@@ -15,13 +16,9 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
-    // Create Supabase client
-    const supabase = await createClient();
+    const cookieUserId = request.cookies.get('aura_user_id')?.value;
 
-    // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
+    if (!cookieUserId) {
       return Response.json(
         { 
           success: false, 
@@ -34,11 +31,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Create Supabase service client
+    const supabase = createServiceClient();
+
     // Build query (V2)
     let query = supabase
       .from('tasks_v2')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', cookieUserId)
       .order('created_at', { ascending: false })
       .range(page * limit, (page + 1) * limit - 1);
 
@@ -101,7 +101,7 @@ export async function GET(request: NextRequest) {
       let countQuery = supabase
         .from('tasks_v2')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
+        .eq('user_id', cookieUserId);
 
       // Apply same filters for count
       if (status) {

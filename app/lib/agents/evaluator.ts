@@ -181,20 +181,45 @@ Return JSON in this format:
 }
 
 Guidelines:
-- Set "valid" to false only if there are critical issues
+- Set "valid" to false only if there are critical issues (for example: core content missing, wrong recipient, or outputs clearly not matching the user's intent)
 - List specific, actionable issues
 - Provide constructive suggestions for improvement
-- Only suggest retrying steps that actually failed or produced incorrect results`;
+- Only suggest retrying steps that actually failed or produced incorrect results
+- When tasks involve writing content (e.g., stories, summaries, emails) or specify a word count, use any available text in the outputs (such as document content or email body previews) to judge whether the content was actually produced.
+- Treat word-count requirements as soft constraints: if there is clearly a substantial, on-topic piece of text (for example, a full paragraph or story) you may still set "valid" to true even if the length is not exactly the requested word count. In that case, note any concerns about length in "issues" or "suggestions" instead of failing the task.
+- Only set "valid" to false for word-count reasons when the available text is extremely short compared to the request (e.g., just a title, a single short sentence, or obvious placeholder text where a long story or report was requested).`;
   }
 
   private formatEvaluationPrompt(plan: TaskPlan, results: WorkerResult[]): string {
     const resultsText = results
       .map(r => {
-        if (r.success) {
-          return `✓ ${r.stepId}: Success - ${r.output?.title || 'Completed'}`;
-        } else {
-          return `✗ ${r.stepId}: Failed - ${r.error}`;
+        if (r.success && r.output) {
+          const output = r.output;
+          let details = '';
+
+          if (output.type === 'email') {
+            const data = output.data || {};
+            const to = Array.isArray((data as any).to)
+              ? (data as any).to.join(', ')
+              : (data as any).to;
+            const bodyPreviewRaw = typeof (data as any).body === 'string' ? (data as any).body : '';
+            const bodyPreview = bodyPreviewRaw.trim().slice(0, 1600);
+            const parts: string[] = [];
+            if (to) parts.push(`to: ${to}`);
+            if (bodyPreview) parts.push(`body preview: "${bodyPreview}"`);
+            if (parts.length > 0) {
+              details = ` (${parts.join(', ')})`;
+            }
+          }
+
+          return `	 ${r.stepId}: Success - ${output.title || 'Completed'}${details}`;
         }
+
+        if (r.success) {
+          return `	 ${r.stepId}: Success - Completed`;
+        }
+
+        return `	 ${r.stepId}: Failed - ${r.error}`;
       })
       .join('\n');
 
