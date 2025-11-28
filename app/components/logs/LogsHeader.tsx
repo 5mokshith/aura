@@ -1,35 +1,7 @@
 'use client';
 
-import { Download, Filter, RefreshCw } from 'lucide-react';
-import { useDebouncedInput } from '@/app/hooks/useDebounce';
-import { useEffect } from 'react';
-
-/**
- * Debounced Task ID Input Component
- */
-function DebouncedTaskIdInput({
-  value,
-  onChange,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const { value: localValue, debouncedValue, setValue } = useDebouncedInput(value, 300);
-
-  useEffect(() => {
-    onChange(debouncedValue);
-  }, [debouncedValue, onChange]);
-
-  return (
-    <input
-      type="text"
-      value={localValue}
-      onChange={(e) => setValue(e.target.value)}
-      placeholder="Enter task ID..."
-      className="glass-input w-full px-4 py-2 rounded-lg text-white text-sm placeholder:text-white/40"
-    />
-  );
-}
+import { Download, Search, Calendar, RefreshCw } from 'lucide-react';
+import { useState } from 'react';
 
 interface LogFilters {
   taskId: string;
@@ -51,106 +23,138 @@ export function LogsHeader({
   onExport,
   totalCount,
 }: LogsHeaderProps) {
+  // Local state for filters to support "Apply Filters" button
+  const [localFilters, setLocalFilters] = useState<LogFilters>(filters);
+
+  const handleApplyFilters = () => {
+    onFilterChange(localFilters);
+  };
+
+  const handleClearFilters = () => {
+    const clearedFilters = {
+      taskId: '',
+      agentType: '',
+      startDate: '',
+      endDate: '',
+    };
+    setLocalFilters(clearedFilters);
+    onFilterChange(clearedFilters);
+  };
+
   return (
-    <div className="glass-panel-strong rounded-xl p-6 space-y-6">
+    <div className="space-y-6">
       {/* Title and Export Button */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-display font-bold text-white">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded bg-purple-600 flex items-center justify-center transform rotate-45">
+            <div className="w-4 h-4 bg-white transform -rotate-45" style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }}></div>
+          </div>
+          <h1 className="text-2xl font-bold text-white">
             Execution Logs
           </h1>
-          <p className="text-white/60 text-sm mt-1">
-            {totalCount} {totalCount === 1 ? 'entry' : 'entries'} found
-          </p>
         </div>
 
         <button
           onClick={onExport}
-          className="glass-button-cyan flex items-center gap-2 text-sm"
-          disabled={totalCount === 0}
+          className="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors"
         >
           <Download className="w-4 h-4" />
-          Export JSON
+          Export Logs
         </button>
       </div>
 
-      {/* Filter Controls */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Task ID Filter - Debounced */}
-        <div className="space-y-2">
-          <label className="text-white/80 text-sm font-medium flex items-center gap-2">
-            <Filter className="w-4 h-4" />
-            Task ID
-          </label>
-          <DebouncedTaskIdInput
-            value={filters.taskId}
-            onChange={(value) => onFilterChange({ taskId: value })}
-          />
+      {/* Filter Controls Panel */}
+      <div className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl rounded-xl p-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Task ID Filter */}
+          <div className="space-y-2">
+            <label className="text-gray-400 text-xs font-medium uppercase tracking-wider">
+              Task ID
+            </label>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+              <input
+                type="text"
+                value={localFilters.taskId}
+                onChange={(e) => setLocalFilters(prev => ({ ...prev, taskId: e.target.value }))}
+                placeholder="Enter Task ID"
+                className="w-full bg-black/20 backdrop-blur-sm border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500/50 transition-colors"
+              />
+            </div>
+          </div>
+
+          {/* Agent Type Filter */}
+          <div className="space-y-2">
+            <label className="text-gray-400 text-xs font-medium uppercase tracking-wider">
+              Agent Type
+            </label>
+            <div className="relative">
+              <select
+                value={localFilters.agentType}
+                onChange={(e) => setLocalFilters(prev => ({ ...prev, agentType: e.target.value }))}
+                className="w-full bg-black/20 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500/50 transition-colors appearance-none"
+              >
+                <option value="" className="bg-gray-900">All Agents</option>
+                <option value="planner" className="bg-gray-900">Planner</option>
+                <option value="worker" className="bg-gray-900">Worker</option>
+                <option value="evaluator" className="bg-gray-900">Evaluator</option>
+              </select>
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
+                <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          {/* Start Date Filter */}
+          <div className="space-y-2">
+            <label className="text-gray-400 text-xs font-medium uppercase tracking-wider">
+              Start Date
+            </label>
+            <div className="relative">
+              <input
+                type="date"
+                value={localFilters.startDate}
+                onChange={(e) => setLocalFilters(prev => ({ ...prev, startDate: e.target.value }))}
+                className="w-full bg-black/20 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500/50 transition-colors [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-50"
+              />
+            </div>
+          </div>
+
+          {/* End Date Filter */}
+          <div className="space-y-2">
+            <label className="text-gray-400 text-xs font-medium uppercase tracking-wider">
+              End Date
+            </label>
+            <div className="relative">
+              <input
+                type="date"
+                value={localFilters.endDate}
+                onChange={(e) => setLocalFilters(prev => ({ ...prev, endDate: e.target.value }))}
+                className="w-full bg-black/20 backdrop-blur-sm border border-white/10 rounded-lg px-4 py-2.5 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-purple-500/50 transition-colors [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-50"
+              />
+            </div>
+          </div>
         </div>
 
-        {/* Agent Type Filter */}
-        <div className="space-y-2">
-          <label className="text-white/80 text-sm font-medium">
-            Agent Type
-          </label>
-          <select
-            value={filters.agentType}
-            onChange={(e) => onFilterChange({ agentType: e.target.value })}
-            className="glass-input w-full px-4 py-2 rounded-lg text-white text-sm"
-          >
-            <option value="">All Agents</option>
-            <option value="planner">Planner</option>
-            <option value="worker">Worker</option>
-            <option value="evaluator">Evaluator</option>
-          </select>
-        </div>
-
-        {/* Start Date Filter */}
-        <div className="space-y-2">
-          <label className="text-white/80 text-sm font-medium">
-            Start Date
-          </label>
-          <input
-            type="datetime-local"
-            value={filters.startDate}
-            onChange={(e) => onFilterChange({ startDate: e.target.value })}
-            className="glass-input w-full px-4 py-2 rounded-lg text-white text-sm"
-          />
-        </div>
-
-        {/* End Date Filter */}
-        <div className="space-y-2">
-          <label className="text-white/80 text-sm font-medium">
-            End Date
-          </label>
-          <input
-            type="datetime-local"
-            value={filters.endDate}
-            onChange={(e) => onFilterChange({ endDate: e.target.value })}
-            className="glass-input w-full px-4 py-2 rounded-lg text-white text-sm"
-          />
-        </div>
-      </div>
-
-      {/* Clear Filters Button */}
-      {(filters.taskId || filters.agentType || filters.startDate || filters.endDate) && (
-        <div className="flex justify-end">
+        {/* Action Buttons */}
+        <div className="flex justify-end items-center gap-4 mt-6 pt-4 border-t border-white/5">
           <button
-            onClick={() =>
-              onFilterChange({
-                taskId: '',
-                agentType: '',
-                startDate: '',
-                endDate: '',
-              })
-            }
-            className="glass-button flex items-center gap-2 text-sm text-white/70 hover:text-white"
+            onClick={handleClearFilters}
+            className="text-gray-400 hover:text-white text-sm font-medium transition-colors"
           >
-            <RefreshCw className="w-4 h-4" />
             Clear Filters
           </button>
+          <button
+            onClick={handleApplyFilters}
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg text-sm font-medium transition-colors"
+          >
+            Apply Filters
+          </button>
         </div>
-      )}
+      </div>
     </div>
   );
 }
+
