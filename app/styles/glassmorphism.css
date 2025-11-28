@@ -399,22 +399,13 @@
 }
 
 /* Scrollbar Styling */
+.glass-scrollbar {
+  scrollbar-width: none;
+}
+
 .glass-scrollbar::-webkit-scrollbar {
-  width: 8px;
-}
-
-.glass-scrollbar::-webkit-scrollbar-track {
-  border-radius: 9999px;
-  background-color: var(--glass-dark);
-}
-
-.glass-scrollbar::-webkit-scrollbar-thumb {
-  border-radius: 9999px;
-  background-color: var(--glass-medium);
-}
-
-.glass-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: var(--glass-light);
+  width: 0;
+  height: 0;
 }
 
 

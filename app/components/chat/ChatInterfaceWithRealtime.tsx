@@ -6,7 +6,6 @@ import { ChatInterface } from './ChatInterface';
 import { useRealtimeLogs, ExecutionLog } from '@/app/hooks/useRealtimeLogs';
 import { AlertCircle, Wifi, WifiOff } from 'lucide-react';
 import { TaskVisualizer } from '../task/TaskVisualizer';
-import { SuggestedTaskButton } from './SuggestedTaskButton';
 
 interface ChatInterfaceWithRealtimeProps {
   userId?: string;
@@ -253,7 +252,9 @@ export function ChatInterfaceWithRealtime({
 
         if (!planRes.ok) throw new Error('Failed to plan task');
         const planJson = await planRes.json();
-        if (!planJson.success || !planJson.data) throw new Error(planJson.error?.message || 'Failed to plan task');
+        if (!planJson.success || !planJson.data) {
+          throw new Error(planJson.error?.message || 'Failed to plan task');
+        }
 
         const { taskId, steps, title } = planJson.data;
         setCurrentTaskId(taskId);
@@ -299,7 +300,12 @@ export function ChatInterfaceWithRealtime({
                     taskId: td.taskId,
                     steps: td.steps.map((step) => ({
                       ...step,
-                      status: status === 'completed' ? 'completed' : status === 'failed' ? 'failed' : step.status,
+                      status:
+                        status === 'completed'
+                          ? 'completed'
+                          : status === 'failed'
+                          ? 'failed'
+                          : step.status,
                       error: status === 'failed' ? executionError || step.error : step.error,
                     })),
                   },
@@ -324,7 +330,7 @@ export function ChatInterfaceWithRealtime({
         console.error('executeTaskFromPrompt error:', err);
       }
     },
-    [userId]
+    [userId, conversationId]
   );
 
   // Derive active task from messages
@@ -342,20 +348,21 @@ export function ChatInterfaceWithRealtime({
       overallStatus: m.taskDecomposition!.steps.every((s) => s.status === 'completed')
         ? 'completed'
         : m.taskDecomposition!.steps.some((s) => s.status === 'failed')
-          ? 'failed'
-          : 'running',
+        ? 'failed'
+        : 'running',
     }))
     .pop() as any; // Cast to any to match TaskVisualizer props for now, or refine type
 
   return (
-    <div className="flex h-full gap-4 lg:gap-6 bg-[#050712]/90 rounded-2xl border border-white/5 shadow-glass-lg p-3 sm:p-4 lg:p-5">
+    <div className="flex h-full gap-4 xl:gap-6 bg-[#050712]/90 rounded-2xl border border-white/5 shadow-glass-lg p-3 sm:p-4 lg:p-5">
       <div className="flex-1 min-w-0 relative h-full">
         {/* Connection Status Indicator */}
         {currentTaskId && (
           <div className="absolute top-4 right-4 z-10">
             <div
-              className={`glass-panel-sm px-3 py-2 rounded-full flex items-center gap-2 text-xs ${isConnected ? 'text-green-400' : 'text-red-400'
-                }`}
+              className={`glass-panel-sm px-3 py-2 rounded-full flex items-center gap-2 text-xs ${
+                isConnected ? 'text-green-400' : 'text-red-400'
+              }`}
             >
               {isConnected ? (
                 <>
@@ -392,25 +399,17 @@ export function ChatInterfaceWithRealtime({
           initialMessages={messages}
           onSendMessage={handleSendMessage}
           className={className}
+          suggestedTasks={suggestedTasks}
+          onExecuteTaskFromPrompt={executeTaskFromPrompt}
         />
-
-        {suggestedTasks && suggestedTasks.length > 0 && (
-          <div className="mt-3 space-y-2">
-            {suggestedTasks.map((s, idx) => (
-              <SuggestedTaskButton
-                key={`${s.description}-${idx}`}
-                description={s.description}
-                onStart={() => executeTaskFromPrompt(s.prompt, s.description)}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
-      {/* Task Visualizer - Desktop Sidebar */}
-      <div className="hidden lg:flex w-80 xl:w-96 shrink-0 h-full">
-        <TaskVisualizer activeTask={activeTask} className="w-full" />
-      </div>
+      {/* Task Visualizer - Desktop Sidebar (right aligned) */}
+      {activeTask && (
+        <div className="hidden xl:flex w-80 xl:w-96 shrink-0 h-full">
+          <TaskVisualizer activeTask={activeTask} className="w-full" />
+        </div>
+      )}
     </div>
   );
 }

@@ -71,6 +71,7 @@
 
   body {
     background-color: var(--galaxy-bg);
+
     background-image:
       radial-gradient(circle at 10% 20%, rgba(255, 109, 36, 0.04), transparent 40%),
       radial-gradient(circle at 90% 50%, rgba(140, 82, 255, 0.06), transparent 40%),
@@ -80,6 +81,12 @@
     min-height: 100vh;
     font-feature-settings: "ss01", "ss02", "cv01", "cv02";
     -webkit-font-smoothing: antialiased;
+    scrollbar-width: none;
+  }
+
+  body::-webkit-scrollbar {
+    width: 0;
+    height: 0;
   }
 }
 
