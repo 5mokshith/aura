@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, lazy, Suspense } from 'react';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, AlertCircle, X } from 'lucide-react';
 import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner';
 
 // Lazy load logs components
@@ -33,6 +33,7 @@ export default function LogsPage() {
   const [error, setError] = useState<string | null>(null);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
+  const [showConnectionAlert, setShowConnectionAlert] = useState(true); // Simulating connection lost for design
   const [filters, setFilters] = useState<LogFilters>({
     taskId: '',
     agentType: '',
@@ -47,15 +48,16 @@ export default function LogsPage() {
     try {
       // Build query parameters
       const params = new URLSearchParams();
-      
+
       // TODO: Get actual userId from auth context
-      params.append('userId', 'temp-user-id');
-      
+      // Using a valid dummy UUID to pass backend validation
+      params.append('userId', '00000000-0000-0000-0000-000000000000');
+
       if (filters.taskId) params.append('taskId', filters.taskId);
       if (filters.agentType) params.append('agentType', filters.agentType);
       if (filters.startDate) params.append('startDate', filters.startDate);
       if (filters.endDate) params.append('endDate', filters.endDate);
-      
+
       // Add pagination
       params.append('limit', LOGS_PER_PAGE.toString());
       params.append('offset', ((page - 1) * LOGS_PER_PAGE).toString());
@@ -90,8 +92,8 @@ export default function LogsPage() {
     try {
       // Fetch all logs for export (without pagination)
       const params = new URLSearchParams();
-      params.append('userId', 'temp-user-id');
-      
+      params.append('userId', '00000000-0000-0000-0000-000000000000');
+
       if (filters.taskId) params.append('taskId', filters.taskId);
       if (filters.agentType) params.append('agentType', filters.agentType);
       if (filters.startDate) params.append('startDate', filters.startDate);
@@ -141,10 +143,10 @@ export default function LogsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900/20 to-gray-900 p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-gray-900 to-gray-900 p-6 relative">
+      <div className="max-w-7xl mx-auto space-y-6 pb-20">
         <Suspense fallback={
-          <div className="glass-panel rounded-xl p-6 flex items-center justify-center">
+          <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-6 flex items-center justify-center">
             <LoadingSpinner />
           </div>
         }>
@@ -157,13 +159,13 @@ export default function LogsPage() {
         </Suspense>
 
         {error && (
-          <div className="glass-panel border-red-500/50 p-4 rounded-lg">
+          <div className="bg-red-500/10 border border-red-500/50 p-4 rounded-lg">
             <p className="text-red-400 text-sm">{error}</p>
           </div>
         )}
 
         <Suspense fallback={
-          <div className="glass-panel rounded-xl p-6 h-96 flex items-center justify-center">
+          <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-6 h-96 flex items-center justify-center">
             <LoadingSpinner />
           </div>
         }>
@@ -176,7 +178,7 @@ export default function LogsPage() {
 
         {/* Pagination Controls */}
         {totalPages > 1 && (
-          <div className="glass-panel rounded-xl p-4 flex items-center justify-between">
+          <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-4 flex items-center justify-between">
             <div className="text-white/60 text-sm">
               Page {currentPage} of {totalPages}
             </div>
@@ -185,7 +187,7 @@ export default function LogsPage() {
               <button
                 onClick={handlePrevPage}
                 disabled={!hasPrevPage || loading}
-                className="glass-button flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 rounded bg-white/5 hover:bg-white/10 text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
               >
                 <ChevronLeft className="w-4 h-4" />
                 Previous
@@ -194,7 +196,7 @@ export default function LogsPage() {
               <button
                 onClick={handleNextPage}
                 disabled={!hasNextPage || loading}
-                className="glass-button flex items-center gap-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 rounded bg-white/5 hover:bg-white/10 text-white text-sm disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-1"
               >
                 Next
                 <ChevronRight className="w-4 h-4" />
@@ -203,6 +205,25 @@ export default function LogsPage() {
           </div>
         )}
       </div>
+
+      {/* Connection Lost Alert */}
+      {showConnectionAlert && (
+        <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-full md:max-w-2xl bg-[#3B1215] border border-[#5C181C] rounded-lg p-4 shadow-lg flex items-center justify-between animate-in slide-in-from-bottom-5 fade-in duration-300 z-50">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-[#F87171]" />
+            <span className="text-[#FECACA] text-sm font-medium">
+              Connection to log stream lost. Retrying automatically...
+            </span>
+          </div>
+          <button
+            onClick={() => setShowConnectionAlert(false)}
+            className="text-[#F87171] hover:text-[#FECACA] transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+
