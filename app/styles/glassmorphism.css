@@ -241,7 +241,8 @@
   border-top-right-radius: 0.125rem;
   padding: 1rem;
   margin-left: auto;
-  max-width: 70%;
+  max-width: 85%;
+  min-width: 40%;
   animation: slideUp var(--transition-slow) ease-out;
 }
 
@@ -256,6 +257,7 @@
   padding: 1rem;
   margin-right: auto;
   max-width: 85%;
+  min-width: 40%;
   animation: slideUp var(--transition-slow) ease-out;
 }
 
@@ -551,18 +553,18 @@
 
 /* Mobile-First Responsive Message Bubbles */
 .message-user {
-  max-width: 90%;
+  max-width: 95%;
 }
 
 @media (min-width: 640px) {
   .message-user {
-    max-width: 80%;
+    max-width: 90%;
   }
 }
 
 @media (min-width: 768px) {
   .message-user {
-    max-width: 70%;
+    max-width: 85%;
   }
 }
 

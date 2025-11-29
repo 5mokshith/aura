@@ -4,6 +4,7 @@ import { Mail, FolderOpen, FileText, Sheet, Calendar } from 'lucide-react';
 import { ServiceMetricsCard } from '@/app/components/dashboard/ServiceMetricsCard';
 import { LiveAnalytics } from '@/app/components/dashboard/LiveAnalytics';
 import { HistoryPanel } from '@/app/components/dashboard/HistoryPanel';
+import { AppShell } from '@/app/components/layout/AppShell';
 
 /**
  * Dashboard Page
@@ -62,41 +63,38 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-transparent to-slate-900">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-display font-bold text-white mb-2">
-            Dashboard
-          </h1>
-          <p className="text-white/60">
-            Pages / Dashboard
-          </p>
-        </div>
-
-        {/* Service Metrics Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
-          {servicesData.map((service) => (
-            <ServiceMetricsCard
-              key={service.name}
-              {...service}
-            />
-          ))}
-        </div>
-
-        {/* Main Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Live Analytics - Takes 2/3 width */}
-          <div className="lg:col-span-2">
-            <LiveAnalytics />
+    <AppShell>
+      <div className="flex-1 overflow-y-auto bg-gradient-to-br from-black via-transparent to-slate-900 rounded-2xl border border-white/5 shadow-glass-lg">
+        <div className="container mx-auto px-6 py-8">
+          <div className="mb-8">
+            <h1 className="text-4xl font-display font-bold text-white mb-2">
+              Dashboard
+            </h1>
+            <p className="text-white/60">
+              Pages / Dashboard
+            </p>
           </div>
 
-          {/* History Panel - Takes 1/3 width */}
-          <div className="lg:col-span-1">
-            <HistoryPanel />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            {servicesData.map((service) => (
+              <ServiceMetricsCard
+                key={service.name}
+                {...service}
+              />
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-6">
+            <div className="lg:col-span-2">
+              <LiveAnalytics />
+            </div>
+
+            <div className="lg:col-span-1">
+              <HistoryPanel />
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </AppShell>
   );
 }

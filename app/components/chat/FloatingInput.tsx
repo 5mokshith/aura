@@ -141,7 +141,7 @@ export function FloatingInput({
             exit={{ opacity: 0, y: -10 }}
             className="absolute left-0 right-0 -bottom-6 text-center"
           >
-            <span className="text-[10px] uppercase tracking-widest text-white/30 font-medium">
+            <span className="text-[10px] uppercase tracking-widest text-sky-400 font-semibold">
               Press Enter to send
             </span>
           </motion.div>

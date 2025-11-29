@@ -11,6 +11,8 @@ import {
   Settings,
   HelpCircle,
   LogOut,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react';
 import { getUserSessionClient } from '@/lib/auth';
 
@@ -43,7 +45,12 @@ const navItems: NavItem[] = [
   },
 ];
 
-export function AppSidebar() {
+interface AppSidebarProps {
+  collapsed?: boolean;
+  onToggle?: () => void;
+}
+
+export function AppSidebar({ collapsed = false, onToggle }: AppSidebarProps) {
   const pathname = usePathname();
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
@@ -73,7 +80,8 @@ export function AppSidebar() {
   return (
     <aside
       className="
-        h-full w-full md:w-64
+        relative
+        h-full w-full
         flex md:flex-col
         items-stretch
         bg-glass-light/90 backdrop-blur-glass
@@ -82,6 +90,7 @@ export function AppSidebar() {
         shadow-glass-lg
         px-4 py-3 md:px-4 md:py-5
         gap-4 md:gap-6
+        overflow-hidden
       "
     >
       <div className="flex items-center justify-between md:justify-start md:flex-col md:items-start gap-3">
@@ -89,7 +98,13 @@ export function AppSidebar() {
           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-neon-cyan to-neon-purple flex items-center justify-center text-white font-display font-semibold text-lg shadow-neon-cyan">
             <span>{initials}</span>
           </div>
-          <div className="hidden md:block">
+          <div
+            className={`
+              hidden md:block
+              transition-all duration-200 origin-left
+              ${collapsed ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100'}
+            `}
+          >
             <div className="text-sm font-display font-semibold text-white">
               AURA
             </div>
@@ -100,11 +115,24 @@ export function AppSidebar() {
           </div>
         </div>
 
-        {userEmail && (
-          <div className="md:hidden text-[11px] text-white/60 truncate max-w-[140px]">
-            {userEmail}
-          </div>
-        )}
+        <div className="flex items-center gap-2 md:self-end">
+          {userEmail && (
+            <div className="md:hidden text-[11px] text-white/60 truncate max-w-[140px]">
+              {userEmail}
+            </div>
+          )}
+
+          {onToggle && (
+            <button
+              type="button"
+              onClick={onToggle}
+              className="hidden md:inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
+              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            >
+              {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+            </button>
+          )}
+        </div>
       </div>
 
       <nav className="flex-1 flex md:flex-col items-center md:items-stretch gap-2 md:gap-1 text-sm">
@@ -136,7 +164,15 @@ export function AppSidebar() {
               aria-current={isActive ? 'page' : undefined}
             >
               <Icon className="w-4 h-4" />
-              <span className="hidden md:inline-block truncate">{item.label}</span>
+              <span
+                className={`
+                  hidden md:inline-block truncate
+                  transition-all duration-200
+                  ${collapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}
+                `}
+              >
+                {item.label}
+              </span>
             </Link>
           );
         })}

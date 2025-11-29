@@ -42,6 +42,8 @@ export function ChatInterface({
     scrollToBottom();
   }, [messages]);
 
+  const isEmpty = messages.length === 0;
+
   const handleSendMessage = async (content: string) => {
     // Create user message
     const userMessage: MessageType = {
@@ -137,10 +139,12 @@ export function ChatInterface({
       {/* Messages Container */}
       <div
         ref={messagesContainerRef}
-        className="flex-1 overflow-y-auto glass-scrollbar px-4 pt-4 pb-32 space-y-4"
+        className={`flex-1 glass-scrollbar px-4 pt-4 pb-32 space-y-4 ${
+          isEmpty ? 'overflow-hidden' : 'overflow-y-auto'
+        }`}
       >
         <AnimatePresence mode="popLayout">
-          {messages.length === 0 ? (
+          {isEmpty ? (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}

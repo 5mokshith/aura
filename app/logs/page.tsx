@@ -3,6 +3,7 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { ChevronLeft, ChevronRight, AlertCircle, X } from 'lucide-react';
 import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner';
+import { AppShell } from '@/app/components/layout/AppShell';
 
 // Lazy load logs components
 const LogsHeader = lazy(() => import('@/app/components/logs/LogsHeader').then(mod => ({ default: mod.LogsHeader })));
@@ -143,8 +144,9 @@ export default function LogsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-gray-900 to-gray-900 p-6 relative">
-      <div className="max-w-7xl mx-auto space-y-6 pb-20">
+    <AppShell>
+      <div className="flex-1 overflow-y-auto bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-900/20 via-gray-900 to-gray-900 p-6 relative rounded-2xl border border-white/5 shadow-glass-lg">
+        <div className="max-w-7xl mx-auto space-y-6 pb-20">
         <Suspense fallback={
           <div className="bg-[#1A1A1A] border border-white/10 rounded-xl p-6 flex items-center justify-center">
             <LoadingSpinner />
@@ -204,26 +206,26 @@ export default function LogsPage() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Connection Lost Alert */}
-      {showConnectionAlert && (
-        <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-full md:max-w-2xl bg-[#3B1215] border border-[#5C181C] rounded-lg p-4 shadow-lg flex items-center justify-between animate-in slide-in-from-bottom-5 fade-in duration-300 z-50">
-          <div className="flex items-center gap-3">
-            <AlertCircle className="w-5 h-5 text-[#F87171]" />
-            <span className="text-[#FECACA] text-sm font-medium">
-              Connection to log stream lost. Retrying automatically...
-            </span>
-          </div>
-          <button
-            onClick={() => setShowConnectionAlert(false)}
-            className="text-[#F87171] hover:text-[#FECACA] transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
         </div>
-      )}
-    </div>
+
+        {showConnectionAlert && (
+          <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-full md:max-w-2xl bg-[#3B1215] border border-[#5C181C] rounded-lg p-4 shadow-lg flex items-center justify-between animate-in slide-in-from-bottom-5 fade-in duration-300 z-50">
+            <div className="flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-[#F87171]" />
+              <span className="text-[#FECACA] text-sm font-medium">
+                Connection to log stream lost. Retrying automatically...
+              </span>
+            </div>
+            <button
+              onClick={() => setShowConnectionAlert(false)}
+              className="text-[#F87171] hover:text-[#FECACA] transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+      </div>
+    </AppShell>
   );
 }
 

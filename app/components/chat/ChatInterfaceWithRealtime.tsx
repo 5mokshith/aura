@@ -354,7 +354,8 @@ export function ChatInterfaceWithRealtime({
     .pop() as any; // Cast to any to match TaskVisualizer props for now, or refine type
 
   return (
-    <div className="flex h-full gap-4 xl:gap-6 bg-[#050712]/90 rounded-2xl border border-white/5 shadow-glass-lg p-3 sm:p-4 lg:p-5">
+
+    <div className="flex flex-1 w-full h-full gap-4 xl:gap-6 bg-[#050712]/90 rounded-2xl border border-white/5 shadow-glass-lg p-3 sm:p-4 lg:p-5">
       <div className="flex-1 min-w-0 relative h-full">
         {/* Connection Status Indicator */}
         {currentTaskId && (
