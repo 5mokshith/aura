@@ -163,7 +163,7 @@ export function AppSidebar({ collapsed = false, onToggle }: AppSidebarProps) {
               `}
               aria-current={isActive ? 'page' : undefined}
             >
-              <Icon className="w-4 h-4" />
+              <Icon className="w-5 h-5" />
               <span
                 className={`
                   hidden md:inline-block truncate
@@ -195,8 +195,16 @@ export function AppSidebar({ collapsed = false, onToggle }: AppSidebarProps) {
             transition-colors
           "
         >
-          <HelpCircle className="w-4 h-4" />
-          <span>Help &amp; docs</span>
+          <HelpCircle className="w-5 h-5" />
+          <span
+            className={`
+              hidden md:inline-block truncate
+              transition-all duration-200
+              ${collapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}
+            `}
+          >
+            Help &amp; docs
+          </span>
         </button>
 
         {userEmail && (
@@ -214,8 +222,16 @@ export function AppSidebar({ collapsed = false, onToggle }: AppSidebarProps) {
               transition-colors
             "
           >
-            <LogOut className="w-4 h-4" />
-            <span>Sign out</span>
+            <LogOut className="w-5 h-5" />
+            <span
+              className={`
+                hidden md:inline-block truncate
+                transition-all duration-200
+                ${collapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'}
+              `}
+            >
+              Sign out
+            </span>
           </button>
         )}
       </div>
