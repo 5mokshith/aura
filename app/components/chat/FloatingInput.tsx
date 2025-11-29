@@ -47,7 +47,7 @@ export function FloatingInput({
   }, [input]);
 
   return (
-    <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 z-40">
+    <div className="fixed bottom-16 left-1/2 -translate-x-1/2 w-full max-w-3xl px-4 z-40">
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

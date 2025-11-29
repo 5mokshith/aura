@@ -181,7 +181,11 @@ Return JSON in this format:
 }
 
 Guidelines:
-- Set "valid" to false only if there are critical issues (for example: core content missing, wrong recipient, or outputs clearly not matching the user's intent)
+- Set "valid" to false only if there are critical issues (for example: core content missing, wrong recipient, or outputs clearly not matching the user's intent).
+- Use the task plan title and step descriptions as the source of truth for what the user actually requested, including the intended tone (for example, "romantic", "personal", or "formal") and topic.
+- For email tasks where the description clearly asks for a personal, romantic, or sentimental message (for example, describing how two people met, filled with love), treat a romantic or poetic email as appropriate and do NOT mark the task invalid just because it is not a generic business email.
+- Only treat tone or style as a critical issue when the email obviously contradicts the requested style or omits key information the request explicitly asked to include (such as required dates, times, locations, or links).
+- When results are broadly on-topic but could be improved (for example, more detail, clearer wording, or a slightly different tone), set "valid" to true and record your concerns in "issues" or "suggestions" instead of failing the task.
 - List specific, actionable issues
 - Provide constructive suggestions for improvement
 - Only suggest retrying steps that actually failed or produced incorrect results

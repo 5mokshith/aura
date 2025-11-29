@@ -243,6 +243,9 @@ export function ChatInterfaceWithRealtime({
   const executeTaskFromPrompt = useCallback(
     async (prompt: string, description?: string) => {
       if (!userId) return;
+      // Clear any existing suggestions once the user has decided to start a task
+      setSuggestedTasks([]);
+
       try {
         const planRes = await fetch('/api/agent/plan', {
           method: 'POST',

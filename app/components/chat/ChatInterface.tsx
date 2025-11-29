@@ -157,7 +157,7 @@ export function ChatInterface({
                   <p className="text-[11px] md:text-xs font-semibold tracking-[0.25em] text-sky-300/80 uppercase">
                     Aura seamlessly works with your Google Workspace
                   </p>
-                  <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-semibold text-slate-50 tracking-tight">
+                  <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-display font-semibold text-transparent bg-gradient-to-b from-white to-transparent bg-clip-text text-slate-50 tracking-tight">
                     Automate Your Workflow.
                     <br className="hidden sm:block" />
                     Elevate Your Productivity.

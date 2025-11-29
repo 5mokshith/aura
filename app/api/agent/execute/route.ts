@@ -156,7 +156,8 @@ export async function POST(request: NextRequest) {
     );
 
     // Update task status
-    const finalStatus = evaluation.valid ? 'completed' : 'failed';
+    const hasHardFailure = results.some(r => !r.success || !r.output);
+    const finalStatus = hasHardFailure ? 'failed' : 'completed';
     await updateTaskStatus(
       taskId,
       finalStatus,
@@ -169,7 +170,7 @@ export async function POST(request: NextRequest) {
       taskId,
       status: finalStatus,
       outputs,
-      error: evaluation.valid ? undefined : evaluation.issues?.join('; '),
+      error: hasHardFailure ? evaluation.issues?.join('; ') : undefined,
     };
 
     return NextResponse.json<ApiResponse<AgentExecuteResponse>>(
