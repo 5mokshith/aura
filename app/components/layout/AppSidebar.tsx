@@ -11,8 +11,6 @@ import {
   Settings,
   HelpCircle,
   LogOut,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 import { getUserSessionClient } from '@/lib/auth';
 
@@ -47,10 +45,9 @@ const navItems: NavItem[] = [
 
 interface AppSidebarProps {
   collapsed?: boolean;
-  onToggle?: () => void;
 }
 
-export function AppSidebar({ collapsed = false, onToggle }: AppSidebarProps) {
+export function AppSidebar({ collapsed = false }: AppSidebarProps) {
   const pathname = usePathname();
   const [userEmail, setUserEmail] = useState<string | null>(null);
 
@@ -121,17 +118,6 @@ export function AppSidebar({ collapsed = false, onToggle }: AppSidebarProps) {
               {userEmail}
             </div>
           )}
-
-          {onToggle && (
-            <button
-              type="button"
-              onClick={onToggle}
-              className="hidden md:inline-flex items-center justify-center w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-colors"
-              aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-            >
-              {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-            </button>
-          )}
         </div>
       </div>
 
@@ -163,7 +149,7 @@ export function AppSidebar({ collapsed = false, onToggle }: AppSidebarProps) {
               `}
               aria-current={isActive ? 'page' : undefined}
             >
-              <Icon className="w-5 h-5" />
+              <Icon className={collapsed ? 'w-6 h-6' : 'w-5 h-5'} />
               <span
                 className={`
                   hidden md:inline-block truncate
@@ -195,7 +181,7 @@ export function AppSidebar({ collapsed = false, onToggle }: AppSidebarProps) {
             transition-colors
           "
         >
-          <HelpCircle className="w-5 h-5" />
+          <HelpCircle className={collapsed ? 'w-6 h-6' : 'w-5 h-5'} />
           <span
             className={`
               hidden md:inline-block truncate
@@ -222,7 +208,7 @@ export function AppSidebar({ collapsed = false, onToggle }: AppSidebarProps) {
               transition-colors
             "
           >
-            <LogOut className="w-5 h-5" />
+            <LogOut className={collapsed ? 'w-6 h-6' : 'w-5 h-5'} />
             <span
               className={`
                 hidden md:inline-block truncate
