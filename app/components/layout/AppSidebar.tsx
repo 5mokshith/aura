@@ -137,8 +137,7 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
                 group
                 flex-1 md:flex-none
                 flex items-center md:items-center
-                justify-center md:justify-start
-                gap-2 md:gap-3
+                ${collapsed ? 'justify-center gap-0' : 'justify-center md:justify-start gap-2 md:gap-3'}
                 px-3 py-2 md:px-3 md:py-2.5
                 rounded-xl
                 transition-all duration-200
@@ -149,7 +148,7 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
               `}
               aria-current={isActive ? 'page' : undefined}
             >
-              <Icon className={collapsed ? 'w-6 h-6' : 'w-5 h-5'} />
+              <Icon className="w-5 h-5" />
               <span
                 className={`
                   hidden md:inline-block truncate
@@ -170,8 +169,9 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
           onClick={() =>
             window.open('https://github.com/5mokshith/aura', '_blank', 'noopener,noreferrer')
           }
-          className="
-            flex items-center gap-3
+          className={`
+            flex items-center
+            ${collapsed ? 'justify-center gap-0' : 'justify-start gap-3'}
             px-3 py-2
             rounded-xl
             text-sm
@@ -179,9 +179,9 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
             hover:text-white
             hover:bg-white/5
             transition-colors
-          "
+          `}
         >
-          <HelpCircle className={collapsed ? 'w-6 h-6' : 'w-5 h-5'} />
+          <HelpCircle className="w-5 h-5" />
           <span
             className={`
               hidden md:inline-block truncate
@@ -197,8 +197,9 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
           <button
             type="button"
             onClick={handleLogout}
-            className="
-              flex items-center gap-3
+            className={`
+              flex items-center
+              ${collapsed ? 'justify-center gap-0' : 'justify-start gap-3'}
               px-3 py-2
               rounded-xl
               text-sm
@@ -206,9 +207,9 @@ export function AppSidebar({ collapsed = false }: AppSidebarProps) {
               hover:text-red-300
               hover:bg-red-500/10
               transition-colors
-            "
+            `}
           >
-            <LogOut className={collapsed ? 'w-6 h-6' : 'w-5 h-5'} />
+            <LogOut className="w-5 h-5" />
             <span
               className={`
                 hidden md:inline-block truncate
