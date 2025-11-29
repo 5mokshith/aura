@@ -54,7 +54,7 @@ function ConfirmDialog({ action, onConfirm, onCancel, isProcessing }: ConfirmDia
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="glass-panel-strong rounded-xl p-6 max-w-md w-full animate-slide-up border-2 border-red-500/50">
+      <div className="bg-white/10 backdrop-blur-md border-2 border-red-500/50 shadow-xl rounded-xl p-6 max-w-md w-full animate-slide-up">
         {/* Icon and Title */}
         <div className="flex items-center gap-3 mb-4">
           {content.icon}
@@ -64,7 +64,7 @@ function ConfirmDialog({ action, onConfirm, onCancel, isProcessing }: ConfirmDia
         </div>
 
         {/* Warning Message */}
-        <div className="glass-panel rounded-lg p-4 border-l-4 border-red-500 mb-6">
+        <div className="bg-red-500/10 backdrop-blur-md border border-red-500/30 rounded-lg p-4 border-l-4 border-l-red-500 mb-6">
           <p className="text-white/90">{content.message}</p>
         </div>
 
@@ -76,7 +76,7 @@ function ConfirmDialog({ action, onConfirm, onCancel, isProcessing }: ConfirmDia
           <input
             type="text"
             id="confirm-input"
-            className="glass-input w-full px-4 py-2 rounded-lg text-white focus:outline-none"
+            className="bg-white/5 backdrop-blur-md border border-white/10 w-full px-4 py-2 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-red-500/50 focus:shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all"
             placeholder="CONFIRM"
             disabled={isProcessing}
           />
@@ -86,7 +86,7 @@ function ConfirmDialog({ action, onConfirm, onCancel, isProcessing }: ConfirmDia
         <div className="flex gap-3">
           <button
             onClick={onCancel}
-            className="glass-button flex-1 py-3 hover:bg-glass-medium"
+            className="bg-white/5 backdrop-blur-md border border-white/10 flex-1 py-3 rounded-lg text-white hover:bg-white/10 hover:border-white/20 transition-all disabled:opacity-50"
             disabled={isProcessing}
           >
             Cancel
@@ -101,7 +101,7 @@ function ConfirmDialog({ action, onConfirm, onCancel, isProcessing }: ConfirmDia
                 alert('Please type CONFIRM to proceed');
               }
             }}
-            className="glass-button flex-1 py-3 bg-red-500/20 border-red-500/50 hover:bg-red-500/30 text-red-400"
+            className="bg-red-500/20 backdrop-blur-md border border-red-500/50 flex-1 py-3 rounded-lg text-red-400 hover:bg-red-500/30 hover:border-red-500/70 transition-all disabled:opacity-50"
             disabled={isProcessing}
           >
             {isProcessing ? 'Processing...' : content.confirmText}
@@ -198,7 +198,7 @@ export function DangerZone() {
 
   return (
     <>
-      <div className="glass-panel-strong rounded-xl p-6 border-2 border-red-500/30">
+      <div className="bg-white/5 backdrop-blur-md border-2 border-red-500/30 shadow-xl rounded-xl p-6">
         <div className="flex items-center gap-3 mb-4">
           <AlertTriangle className="w-6 h-6 text-red-400" />
           <h2 className="text-2xl font-display font-bold text-white">
@@ -212,7 +212,7 @@ export function DangerZone() {
 
         <div className="space-y-3">
           {/* Disconnect Google Account */}
-          <div className="glass-panel rounded-lg p-4 border-l-4 border-orange-500">
+          <div className="bg-white/5 backdrop-blur-md border border-orange-500/30 rounded-lg p-4 border-l-4 border-l-orange-500">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <h3 className="text-white font-medium mb-1">
@@ -224,7 +224,7 @@ export function DangerZone() {
               </div>
               <button
                 onClick={() => setActiveAction('disconnect')}
-                className="glass-button px-4 py-2 border-orange-500/50 hover:bg-orange-500/20 text-orange-400 whitespace-nowrap"
+                className="bg-white/5 backdrop-blur-md border border-orange-500/50 px-4 py-2 rounded-lg text-orange-400 hover:bg-orange-500/20 hover:border-orange-500/70 transition-all whitespace-nowrap"
               >
                 <Unlink className="w-4 h-4 inline mr-2" />
                 Disconnect
@@ -233,7 +233,7 @@ export function DangerZone() {
           </div>
 
           {/* Delete All Logs */}
-          <div className="glass-panel rounded-lg p-4 border-l-4 border-red-500">
+          <div className="bg-white/5 backdrop-blur-md border border-red-500/30 rounded-lg p-4 border-l-4 border-l-red-500">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <h3 className="text-white font-medium mb-1">
@@ -245,7 +245,7 @@ export function DangerZone() {
               </div>
               <button
                 onClick={() => setActiveAction('delete-logs')}
-                className="glass-button px-4 py-2 border-red-500/50 hover:bg-red-500/20 text-red-400 whitespace-nowrap"
+                className="bg-white/5 backdrop-blur-md border border-red-500/50 px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/20 hover:border-red-500/70 transition-all whitespace-nowrap"
               >
                 <Trash2 className="w-4 h-4 inline mr-2" />
                 Delete Logs
@@ -254,7 +254,7 @@ export function DangerZone() {
           </div>
 
           {/* Delete Account */}
-          <div className="glass-panel rounded-lg p-4 border-l-4 border-red-600">
+          <div className="bg-white/5 backdrop-blur-md border border-red-600/30 rounded-lg p-4 border-l-4 border-l-red-600">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
                 <h3 className="text-white font-medium mb-1">
@@ -266,7 +266,7 @@ export function DangerZone() {
               </div>
               <button
                 onClick={() => setActiveAction('delete-account')}
-                className="glass-button px-4 py-2 border-red-600/50 hover:bg-red-600/20 text-red-500 whitespace-nowrap"
+                className="bg-white/5 backdrop-blur-md border border-red-600/50 px-4 py-2 rounded-lg text-red-500 hover:bg-red-600/20 hover:border-red-600/70 transition-all whitespace-nowrap"
               >
                 <UserX className="w-4 h-4 inline mr-2" />
                 Delete

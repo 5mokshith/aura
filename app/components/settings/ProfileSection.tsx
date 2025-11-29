@@ -53,9 +53,9 @@ export function ProfileSection() {
 
   if (loading) {
     return (
-      <div className="glass-panel-strong rounded-xl p-6">
+      <div className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl rounded-xl p-6">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neon-cyan"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400"></div>
         </div>
       </div>
     );
@@ -63,7 +63,7 @@ export function ProfileSection() {
 
   if (!profile) {
     return (
-      <div className="glass-panel-strong rounded-xl p-6">
+      <div className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl rounded-xl p-6">
         <h2 className="text-2xl font-display font-bold text-white mb-6">
           Profile
         </h2>
@@ -75,7 +75,7 @@ export function ProfileSection() {
   }
 
   return (
-    <div className="glass-panel-strong rounded-xl p-6">
+    <div className="bg-white/5 backdrop-blur-md border border-white/10 shadow-xl rounded-xl p-6">
       <h2 className="text-2xl font-display font-bold text-white mb-6">
         Profile
       </h2>
@@ -83,8 +83,8 @@ export function ProfileSection() {
       <div className="space-y-4">
         {/* User Icon */}
         <div className="flex items-center gap-4">
-          <div className="glass-panel rounded-full p-4">
-            <User className="w-8 h-8 text-neon-cyan" />
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-full p-4">
+            <User className="w-8 h-8 text-cyan-400" />
           </div>
           <div>
             <p className="text-sm text-white/60">Account</p>
@@ -93,7 +93,7 @@ export function ProfileSection() {
         </div>
 
         {/* Email */}
-        <div className="glass-panel rounded-lg p-4">
+        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-lg p-4">
           <p className="text-sm text-white/60 mb-1">Email</p>
           <p className="text-white font-medium">{profile?.email || 'Not available'}</p>
         </div>
