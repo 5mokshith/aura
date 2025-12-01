@@ -63,12 +63,23 @@ export function ConnectedApps() {
     checkConnections();
   }, []);
 
+  const getUserIdFromCookie = () => {
+    if (typeof document === 'undefined') return null;
+    const match = document.cookie.split('; ').find(row => row.startsWith('aura_user_id='));
+    return match ? decodeURIComponent(match.split('=')[1]) : null;
+  };
+
   const checkConnections = async () => {
     try {
       // Get user ID from session (placeholder - implement based on your auth)
-      const userId = 'current-user-id'; // TODO: Get from auth context
+      const userId = getUserIdFromCookie();
 
-      const response = await fetch(`/api/db/get-tokens?userId=${userId}`);
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`/api/db/get-tokens?userId=${encodeURIComponent(userId)}`);
       const result = await response.json();
 
       if (result.success && result.data) {

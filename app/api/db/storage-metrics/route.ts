@@ -28,21 +28,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Validate userId is a UUID; if not, return empty counts to avoid UUID casting errors
-    const isUuid = (v?: string) => !!v && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
-    if (!isUuid(userId || undefined)) {
-      return NextResponse.json({
-        success: true,
-        data: {
-          logsCount: 0,
-          logsSize: 0,
-          taskHistoryCount: 0,
-          documentsCount: 0,
-          totalSize: 0,
-        },
-      });
-    }
-
     // Create service client for admin operations
     const supabase = createServiceClient();
 

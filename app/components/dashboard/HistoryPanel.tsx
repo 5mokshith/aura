@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { ArrowUp, Circle, Info, Square, Key, Settings } from 'lucide-react';
 
 /**
@@ -16,52 +17,72 @@ interface HistoryItem {
     icon: 'arrow-up' | 'circle' | 'info' | 'square' | 'key' | 'settings';
 }
 
-const sampleHistory: HistoryItem[] = [
-    {
-        id: '1',
-        title: 'Files synced from Google Drive',
-        timestamp: '22 DEC 7:20 PM',
-        type: 'success',
-        icon: 'arrow-up',
-    },
-    {
-        id: '2',
-        title: 'Sync failed for Asana tasks',
-        timestamp: '21 DEC 11:00 PM',
-        type: 'error',
-        icon: 'circle',
-    },
-    {
-        id: '3',
-        title: 'New leads from Salesforce',
-        timestamp: '21 DEC 9:34 PM',
-        type: 'info',
-        icon: 'info',
-    },
-    {
-        id: '4',
-        title: 'New messages in Slack channel',
-        timestamp: '20 DEC 2:20 AM',
-        type: 'warning',
-        icon: 'square',
-    },
-    {
-        id: '5',
-        title: 'API keys for Dropbox updated',
-        timestamp: '20 DEC 4:54 AM',
-        type: 'update',
-        icon: 'key',
-    },
-    {
-        id: '6',
-        title: 'System maintenance scheduled',
-        timestamp: '17 DEC',
-        type: 'maintenance',
-        icon: 'settings',
-    },
-];
+interface TaskHistoryItem {
+    id: string;
+    title: string;
+    status: string;
+    created_at: string;
+}
 
 export function HistoryPanel() {
+    const [items, setItems] = useState<HistoryItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const getUserIdFromCookie = () => {
+        if (typeof document === 'undefined') return null;
+        const match = document.cookie.split('; ').find(row => row.startsWith('aura_user_id='));
+        return match ? decodeURIComponent(match.split('=')[1]) : null;
+    };
+
+    const mapTaskToHistoryItem = (task: TaskHistoryItem): HistoryItem => {
+        let type: HistoryItem['type'] = 'info';
+        if (task.status === 'success') type = 'success';
+        else if (task.status === 'failed') type = 'error';
+        else if (task.status === 'rerun') type = 'update';
+
+        const icon: HistoryItem['icon'] =
+            type === 'success' ? 'arrow-up' : type === 'error' ? 'circle' : 'info';
+
+        return {
+            id: task.id,
+            title: task.title,
+            timestamp: new Date(task.created_at).toLocaleString(),
+            type,
+            icon,
+        };
+    };
+
+    const fetchHistory = async () => {
+        try {
+            const userId = getUserIdFromCookie();
+            if (!userId) {
+                setLoading(false);
+                return;
+            }
+
+            const response = await fetch(`/api/timeline/history?userId=${encodeURIComponent(userId)}&limit=6`);
+            const result = await response.json();
+
+            if (result.success && result.data) {
+                const tasks: TaskHistoryItem[] = result.data;
+                const mapped = tasks.map(mapTaskToHistoryItem);
+                setItems(mapped);
+                setError(null);
+            } else {
+                setError(result.error?.message || 'Failed to fetch history');
+            }
+        } catch (err: any) {
+            console.error('Error fetching history panel data:', err);
+            setError('Failed to connect to server');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        fetchHistory();
+    }, []);
     const getIcon = (iconType: string) => {
         const iconClass = 'w-4 h-4';
         switch (iconType) {
@@ -101,6 +122,37 @@ export function HistoryPanel() {
         }
     };
 
+    if (loading && !items.length && !error) {
+        return (
+            <div className="glass-panel-strong rounded-xl p-6">
+                <div className="mb-6">
+                    <h2 className="text-2xl font-display font-bold text-white mb-2">
+                        History
+                    </h2>
+                    <div className="flex items-center gap-2">
+                        <ArrowUp className="w-4 h-4 text-green-400" />
+                        <span className="text-green-400 font-medium text-sm">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="glass-panel-strong rounded-xl p-6">
+                <div className="mb-6">
+                    <h2 className="text-2xl font-display font-bold text-white mb-2">
+                        History
+                    </h2>
+                </div>
+                <div className="text-white/70 text-sm">{error}</div>
+            </div>
+        );
+    }
+
+    const list = items;
+
     return (
         <div className="glass-panel-strong rounded-xl p-6">
             {/* Header */}
@@ -117,7 +169,7 @@ export function HistoryPanel() {
 
             {/* Activity List */}
             <div className="space-y-4">
-                {sampleHistory.map((item) => (
+                {list.map((item) => (
                     <div
                         key={item.id}
                         className="flex items-start gap-3 group hover:bg-glass-light rounded-lg p-2 -mx-2 transition-colors cursor-pointer"

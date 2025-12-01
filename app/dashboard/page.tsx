@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Mail, FolderOpen, FileText, Sheet, Calendar } from 'lucide-react';
 import { ServiceMetricsCard } from '@/app/components/dashboard/ServiceMetricsCard';
 import { LiveAnalytics } from '@/app/components/dashboard/LiveAnalytics';
@@ -13,8 +14,26 @@ import { AppShell } from '@/app/components/layout/AppShell';
  * Requirements: 7.1, 7.2, 7.3, 7.4
  */
 export default function DashboardPage() {
-  // Sample metrics data - replace with real API data when available
-  const servicesData = [
+  type ServiceKey = 'gmail' | 'docs' | 'drive' | 'sheets' | 'calendar';
+
+  interface ServiceMetric {
+    id: ServiceKey;
+    count: number;
+    trend: number;
+    isActive: boolean;
+  }
+
+  interface AnalyticsPoint {
+    day: string;
+    Gmail: number;
+    'Google Drive': number;
+    Calendar: number;
+    Docs: number;
+    Sheets: number;
+  }
+
+  // Sample metrics data - replaced at runtime with real API data when available
+  const [servicesData, setServicesData] = useState([
     {
       name: 'Gmail',
       icon: Mail,
@@ -60,7 +79,54 @@ export default function DashboardPage() {
       color: 'dark-purple' as const,
       iconColor: 'text-white',
     },
-  ];
+  ]);
+
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsPoint[] | null>(null);
+
+  const getUserIdFromCookie = () => {
+    if (typeof document === 'undefined') return null;
+    const match = document.cookie.split('; ').find(row => row.startsWith('aura_user_id='));
+    return match ? decodeURIComponent(match.split('=')[1]) : null;
+  };
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const userId = getUserIdFromCookie();
+        if (!userId) return;
+
+        const response = await fetch(`/api/dashboard/metrics?userId=${encodeURIComponent(userId)}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const apiServices: ServiceMetric[] = result.data.services || [];
+
+          setServicesData(prev =>
+            prev.map(card => {
+              const key = card.name.toLowerCase() as ServiceKey;
+              const metric = apiServices.find(s => s.id === key);
+              if (!metric) return card;
+              return {
+                ...card,
+                count: metric.count,
+                trend: metric.trend,
+                isActive: metric.isActive,
+              };
+            })
+          );
+
+          const apiPoints: AnalyticsPoint[] = result.data.analytics?.points || [];
+          if (apiPoints.length) {
+            setAnalyticsData(apiPoints);
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching dashboard metrics:', err);
+      }
+    };
+
+    fetchMetrics();
+  }, []);
 
   return (
     <AppShell>
@@ -86,7 +152,7 @@ export default function DashboardPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pb-6">
             <div className="lg:col-span-2">
-              <LiveAnalytics />
+              <LiveAnalytics data={analyticsData || undefined} />
             </div>
 
             <div className="lg:col-span-1">

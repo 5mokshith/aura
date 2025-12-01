@@ -31,12 +31,23 @@ export function RecentActivity() {
     fetchRecentActivity();
   }, []);
 
+  const getUserIdFromCookie = () => {
+    if (typeof document === 'undefined') return null;
+    const match = document.cookie.split('; ').find(row => row.startsWith('aura_user_id='));
+    return match ? decodeURIComponent(match.split('=')[1]) : null;
+  };
+
   const fetchRecentActivity = async () => {
     try {
       // Get user ID from session (placeholder - implement based on your auth)
-      const userId = 'current-user-id'; // TODO: Get from auth context
+      const userId = getUserIdFromCookie();
 
-      const response = await fetch(`/api/timeline/history?userId=${userId}&limit=10`);
+      if (!userId) {
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch(`/api/timeline/history?userId=${encodeURIComponent(userId)}&limit=10`);
       const result = await response.json();
 
       if (result.success && result.data) {

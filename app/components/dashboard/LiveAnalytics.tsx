@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { ChevronDown } from 'lucide-react';
 
@@ -23,8 +22,19 @@ const generateAnalyticsData = () => {
     }));
 };
 
-export function LiveAnalytics() {
-    const [data] = useState(generateAnalyticsData());
+interface LiveAnalyticsProps {
+    data?: {
+        day: string;
+        Gmail: number;
+        'Google Drive': number;
+        Calendar: number;
+        Docs: number;
+        Sheets: number;
+    }[];
+}
+
+export function LiveAnalytics({ data }: LiveAnalyticsProps) {
+    const chartData = data && data.length ? data : generateAnalyticsData();
 
     return (
         <div className="glass-panel-strong rounded-xl p-6">
@@ -50,7 +60,7 @@ export function LiveAnalytics() {
             <div className="w-full h-80">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart
-                        data={data}
+                        data={chartData}
                         margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" stroke="#ffffff20" />
