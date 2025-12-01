@@ -52,20 +52,6 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // If the userId is not a valid UUID (e.g., "temp-user-id" for anonymous users),
-    // there will be no corresponding execution logs in the database. Avoid querying
-    // Supabase with an invalid UUID to prevent "invalid input syntax for type uuid".
-    if (!isValidUuid(userId)) {
-      const emptyResponse: LogsResponse = { logs: [], totalCount: 0 };
-      return NextResponse.json<ApiResponse<LogsResponse>>(
-        {
-          success: true,
-          data: emptyResponse,
-        },
-        { status: 200 }
-      );
-    }
-
     const supabase = createServiceClient();
 
     // Build query

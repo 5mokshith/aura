@@ -4,6 +4,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { ChevronLeft, ChevronRight, AlertCircle, X } from 'lucide-react';
 import { LoadingSpinner } from '@/app/components/ui/LoadingSpinner';
 import { AppShell } from '@/app/components/layout/AppShell';
+import { getUserSessionClient } from '@/lib/auth';
 
 // Lazy load logs components
 const LogsHeader = lazy(() => import('@/app/components/logs/LogsHeader').then(mod => ({ default: mod.LogsHeader })));
@@ -52,7 +53,17 @@ export default function LogsPage() {
 
       // TODO: Get actual userId from auth context
       // Using a valid dummy UUID to pass backend validation
-      params.append('userId', '00000000-0000-0000-0000-000000000000');
+      const session = getUserSessionClient();
+      const userId = session?.userId;
+
+      if (!userId) {
+        setLogs([]);
+        setTotalCount(0);
+        setLoading(false);
+        return;
+      }
+
+      params.append('userId', userId);
 
       if (filters.taskId) params.append('taskId', filters.taskId);
       if (filters.agentType) params.append('agentType', filters.agentType);
@@ -93,7 +104,15 @@ export default function LogsPage() {
     try {
       // Fetch all logs for export (without pagination)
       const params = new URLSearchParams();
-      params.append('userId', '00000000-0000-0000-0000-000000000000');
+      const session = getUserSessionClient();
+      const userId = session?.userId;
+
+      if (!userId) {
+        setError('No user session found for export');
+        return;
+      }
+
+      params.append('userId', userId);
 
       if (filters.taskId) params.append('taskId', filters.taskId);
       if (filters.agentType) params.append('agentType', filters.agentType);
@@ -208,7 +227,7 @@ export default function LogsPage() {
         )}
         </div>
 
-        {showConnectionAlert && (
+        {/* {showConnectionAlert && (
           <div className="fixed bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-full md:max-w-2xl bg-[#3B1215] border border-[#5C181C] rounded-lg p-4 shadow-lg flex items-center justify-between animate-in slide-in-from-bottom-5 fade-in duration-300 z-50">
             <div className="flex items-center gap-3">
               <AlertCircle className="w-5 h-5 text-[#F87171]" />
@@ -223,7 +242,7 @@ export default function LogsPage() {
               <X className="w-4 h-4" />
             </button>
           </div>
-        )}
+        )} */}
       </div>
     </AppShell>
   );
