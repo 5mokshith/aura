@@ -99,8 +99,16 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Execute step
-      const result = await executeStep(step, usedUserId, supabase, taskId, 0, resolvedConversationId || undefined);
+      // Execute step (with access to previous results for simple placeholder resolution)
+      const result = await executeStep(
+        step,
+        usedUserId,
+        supabase,
+        taskId,
+        0,
+        resolvedConversationId || undefined,
+        results
+      );
       results.push(result);
 
       if (result.success && result.output) {
@@ -219,7 +227,8 @@ async function executeStep(
   supabase: any,
   taskId: string,
   retryCount = 0,
-  conversationId?: string
+  conversationId?: string,
+  previousResults: WorkerResult[] = []
 ): Promise<WorkerResult> {
   const maxRetries = 2;
 
@@ -236,9 +245,11 @@ async function executeStep(
       { status: 'running' },
       conversationId
     );
+    // Resolve any simple {{step_X.*}} placeholders in parameters using previous results
+    const resolvedStep = resolveStepPlaceholders(step, previousResults);
 
     const worker = getWorker(step.service);
-    const result = await worker.executeStep(step, userId);
+    const result = await worker.executeStep(resolvedStep, userId);
 
     if (result.success) {
       await updateStepStatus(taskId, step.id, 'completed');
@@ -284,7 +295,7 @@ async function executeStep(
         // Wait before retry (exponential backoff)
         await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
 
-        return executeStep(step, userId, supabase, taskId, retryCount + 1, conversationId);
+        return executeStep(step, userId, supabase, taskId, retryCount + 1, conversationId, previousResults);
       }
     }
 
@@ -311,6 +322,117 @@ async function executeStep(
       error: errorMessage,
     };
   }
+}
+
+/**
+ * Resolve simple {{step_X.*}} placeholders in step parameters using previous WorkerResult outputs.
+ * Currently supports patterns like {{step_1.fileId}} where fileId is taken from the first file
+ * returned by a Drive search step, or from output.googleId / output.data.fileId when available.
+ */
+function resolveStepPlaceholders(step: PlanStep, previousResults: WorkerResult[]): PlanStep {
+  if (!step.parameters) return step;
+
+  const resolvedParameters = resolveValue(step.parameters, previousResults);
+
+  return {
+    ...step,
+    parameters: resolvedParameters,
+  };
+}
+
+function resolveValue(value: any, previousResults: WorkerResult[]): any {
+  if (typeof value === 'string') {
+    // First try strict {{step_X.*}} templates
+    const templated = resolveTemplateString(value, previousResults);
+    if (templated !== value) return templated;
+
+    // Backward-compat: handle simple patterns like "fileId_from_step_1"
+    const legacyMatch = value.match(/^\s*fileId_from_(step_\d+)\s*$/);
+    if (legacyMatch) {
+      const stepRef = legacyMatch[1];
+      return resolveTemplateString(`{{${stepRef}.fileId}}`, previousResults);
+    }
+
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((v) => resolveValue(v, previousResults));
+  }
+
+  if (value && typeof value === 'object') {
+    const out: any = {};
+    for (const [key, v] of Object.entries(value)) {
+      out[key] = resolveValue(v, previousResults);
+    }
+    return out;
+  }
+
+  return value;
+}
+
+function resolveTemplateString(template: string, previousResults: WorkerResult[]): any {
+  const match = template.match(/^\s*\{\{\s*([^}]+)\s*\}\}\s*$/);
+  if (!match) return template;
+
+  const expression = match[1]; // e.g. "step_1.fileId"
+  const [stepRef, ...pathParts] = expression.split('.');
+  if (!stepRef.startsWith('step_')) return template;
+
+  const targetStepId = stepRef;
+  const result = previousResults.find((r) => r.stepId === targetStepId);
+  if (!result) return template;
+
+  const path = pathParts.join('.');
+
+  // Special handling for common shortcuts like {{step_1.fileId}}
+  if (path === 'fileId') {
+    const output = result.output as any;
+    if (!output) return template;
+
+    if (output.googleId) return String(output.googleId);
+    if (output.data?.fileId) return String(output.data.fileId);
+    if (Array.isArray(output.data?.files) && output.data.files[0]?.id) {
+      return String(output.data.files[0].id);
+    }
+
+    return template;
+  }
+
+  // Generic dotted path resolution starting from result
+  let current: any = result;
+  if (path) {
+    const segments = path.split('.');
+    for (const segment of segments) {
+      if (!current) break;
+
+      const arrayMatch = segment.match(/^(\w+)(\[(\d+)\])?$/);
+      if (!arrayMatch) {
+        current = current[segment as keyof typeof current];
+        continue;
+      }
+
+      const key = arrayMatch[1];
+      const indexStr = arrayMatch[3];
+
+      current = current[key];
+      if (indexStr !== undefined) {
+        const idx = parseInt(indexStr, 10);
+        if (Array.isArray(current)) {
+          current = current[idx];
+        } else {
+          current = undefined;
+          break;
+        }
+      }
+    }
+  }
+
+  if (current === undefined || current === null) {
+    return template;
+  }
+
+  return String(current);
 }
 
 /**

@@ -38,7 +38,8 @@ export class DriveWorker extends BaseWorker {
 
     const { query, fileType, limit = 20 } = step.parameters || {};
 
-    let q = `name contains '${query}' and trashed=false`;
+    const safeQuery = String(query).replace(/'/g, "\\'");
+    let q = `name contains '${safeQuery}' and trashed=false`;
     if (fileType) {
       q += ` and mimeType='${fileType}'`;
     }

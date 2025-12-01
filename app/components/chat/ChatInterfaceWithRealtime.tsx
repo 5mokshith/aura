@@ -58,6 +58,33 @@ function buildExecutionSummary(outputs: any[]): string | null {
     return [header, '', ...lines].join('\n\n');
   }
 
+  // Handle Drive search responses where data.files contains Drive file list
+  if (
+    primary?.type === 'data' &&
+    primary.data &&
+    Array.isArray((primary as any).data?.files)
+  ) {
+    const files = (primary as any).data.files as any[];
+
+    if (files.length === 0) {
+      return 'I searched your Drive but did not find any matching files.';
+    }
+
+    const header = `I searched your Drive and found ${files.length} file${files.length === 1 ? '' : 's'} related to your request:`;
+    const maxFilesToShow = 5;
+    const lines = files.slice(0, maxFilesToShow).map((f, index) => {
+      const name = f.name || '(no name)';
+      const mimeType = f.mimeType || '';
+      return `${index + 1}. ${name}${mimeType ? ` — ${mimeType}` : ''}`;
+    });
+
+    if (files.length > maxFilesToShow) {
+      lines.push(`...and ${files.length - maxFilesToShow} more file(s).`);
+    }
+
+    return [header, '', ...lines].join('\n');
+  }
+
   // Handle single Gmail read response where data.body contains the email content
   if (primary?.type === 'data' && primary.data && primary.data.body) {
     const { subject, from, date, body } = primary.data as any;
@@ -103,6 +130,8 @@ export function ChatInterfaceWithRealtime({
   const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [suggestedTasks, setSuggestedTasks] = useState<Array<{ description: string; prompt: string }>>([]);
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
+  const [isTaskSidebarPending, setIsTaskSidebarPending] = useState(false);
+  const [pendingTaskTitle, setPendingTaskTitle] = useState<string | null>(null);
 
   // Subscribe to Realtime logs
   const { isConnected, error } = useRealtimeLogs({
@@ -243,6 +272,8 @@ export function ChatInterfaceWithRealtime({
   const executeTaskFromPrompt = useCallback(
     async (prompt: string, description?: string) => {
       if (!userId) return;
+      setIsTaskSidebarPending(true);
+      setPendingTaskTitle(description || 'Starting task');
       // Clear any existing suggestions once the user has decided to start a task
       setSuggestedTasks([]);
 
@@ -331,6 +362,9 @@ export function ChatInterfaceWithRealtime({
         }
       } catch (err) {
         console.error('executeTaskFromPrompt error:', err);
+      } finally {
+        setIsTaskSidebarPending(false);
+        setPendingTaskTitle(null);
       }
     },
     [userId, conversationId]
@@ -356,6 +390,21 @@ export function ChatInterfaceWithRealtime({
     }))
     .pop() as any; // Cast to any to match TaskVisualizer props for now, or refine type
 
+  const hasPlannedTask = !!activeTask;
+
+  const sidebarActiveTask =
+    activeTask ||
+    (isTaskSidebarPending
+      ? {
+          id: 'pending',
+          title: pendingTaskTitle || 'Preparing task...',
+          subtasks: [],
+          overallStatus: 'pending' as const,
+        }
+      : undefined);
+
+  const showTaskSidebar = !!sidebarActiveTask;
+
   return (
 
     <div className="flex flex-1 w-full h-full gap-4 xl:gap-6 bg-[#050712]/90 rounded-2xl border border-white/5 shadow-glass-lg p-3 sm:p-4 lg:p-5">
@@ -368,17 +417,7 @@ export function ChatInterfaceWithRealtime({
                 isConnected ? 'text-green-400' : 'text-red-400'
               }`}
             >
-              {isConnected ? (
-                <>
-                  <Wifi className="w-3 h-3" />
-                  <span>Live</span>
-                </>
-              ) : (
-                <>
-                  <WifiOff className="w-3 h-3" />
-                  <span>Disconnected</span>
-                </>
-              )}
+              
             </div>
           </div>
         )}
@@ -409,9 +448,9 @@ export function ChatInterfaceWithRealtime({
       </div>
 
       {/* Task Visualizer - Desktop Sidebar (right aligned) */}
-      {activeTask && (
+      {showTaskSidebar && sidebarActiveTask && (
         <div className="hidden xl:flex w-80 xl:w-96 shrink-0 h-full">
-          <TaskVisualizer activeTask={activeTask} className="w-full" />
+          <TaskVisualizer activeTask={sidebarActiveTask} className="w-full" isLoading={!hasPlannedTask} />
         </div>
       )}
     </div>

@@ -182,13 +182,34 @@ export function ChatInterface({
 
         {suggestedTasks && suggestedTasks.length > 0 && onExecuteTaskFromPrompt && (
           <div className="mt-2 space-y-2">
-            {suggestedTasks.map((s, idx) => (
-              <SuggestedTaskButton
-                key={`${s.description}-${idx}`}
-                description={s.description}
-                onStart={() => onExecuteTaskFromPrompt(s.prompt, s.description)}
-              />
-            ))}
+            <SuggestedTaskButton
+              description={
+                suggestedTasks.length === 1
+                  ? suggestedTasks[0].description
+                  : suggestedTasks
+                      .map((task, index) => `${index + 1}. ${task.description}`)
+                      .join('  ')
+              }
+              onStart={() => {
+                const combinedDescription =
+                  suggestedTasks.length === 1
+                    ? suggestedTasks[0].description
+                    : suggestedTasks
+                        .map((task, index) => `${index + 1}. ${task.description}`)
+                        .join('  ');
+
+                const combinedPrompt =
+                  suggestedTasks.length === 1
+                    ? suggestedTasks[0].prompt
+                    : suggestedTasks
+                        .map((task, index) =>
+                          index === 0 ? `First, ${task.prompt}` : `Then, ${task.prompt}`
+                        )
+                        .join(' ');
+
+                return onExecuteTaskFromPrompt(combinedPrompt, combinedDescription);
+              }}
+            />
           </div>
         )}
 

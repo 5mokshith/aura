@@ -81,6 +81,13 @@ Available Google Services:
 - sheets: Read spreadsheets, write data, update cells
 - calendar: Create events, list events, delete events
 
+Action names you MUST use (never invent new ones):
+- For gmail steps: "send", "search", "read"
+- For drive steps: "search", "download", "upload"
+- For docs steps: "create", "update", "read"
+- For sheets steps: "read", "write", "update"
+- For calendar steps: "create", "list", "delete"
+
 Your response MUST be valid JSON in this exact format:
 {
   "title": "Brief task title (max 60 chars)",
@@ -114,6 +121,48 @@ Important parameter shapes (you MUST respect these exactly):
     ]
   }
 
+- For Sheets "write" steps:
+  "parameters": {
+    "title": "Optional spreadsheet title (used when creating a new sheet)",
+    "spreadsheetId": "Optional existing spreadsheet ID. If omitted, a new spreadsheet will be created.",
+    "range": "Optional A1 range like 'Sheet1!A1'. Default is 'Sheet1!A1'.",
+    "values": [
+      ["Header 1", "Header 2"],
+      ["Row 1 Col 1", "Row 1 Col 2"]
+    ]
+  }
+
+- For Calendar "create" steps:
+  "parameters": {
+    "summary": "Short event title, for example 'Lunch'",
+    "description": "Optional longer description of the event",
+    "startTime": "ISO 8601 date-time string such as '2025-12-01T12:00:00+05:30' representing when the event starts",
+    "endTime": "ISO 8601 date-time string such as '2025-12-01T13:00:00+05:30' representing when the event ends",
+    "timeZone": "Optional IANA time zone name like 'Asia/Kolkata' (defaults to UTC if omitted)",
+    "attendees": ["Optional list of attendee email addresses such as 'person@example.com'"],
+    "location": "Optional event location string"
+  }
+
+- For Drive "search" steps:
+  "parameters": {
+    "query": "File name or search phrase provided by the user (e.g., 'Mokshith rao')",
+    "fileType": "Optional MIME type filter like 'application/pdf'",
+    "limit": 20
+  }
+
+- For Drive "download" steps:
+  "parameters": {
+    "fileId": "The Drive file ID to download"
+  }
+
+- For Drive "upload" steps:
+  "parameters": {
+    "filename": "File name to create in Drive",
+    "content": "Base64-encoded file content",
+    "mimeType": "Optional MIME type (e.g., 'text/plain')",
+    "folderId": "Optional destination folder ID"
+  }
+
 Guidelines:
 1. Break complex tasks into simple, atomic steps.
 2. Each step should have ONE clear action.
@@ -125,11 +174,12 @@ Guidelines:
 8. For document tasks, provide the actual content as an ordered list of heading/paragraph blocks.
 9. For calendar tasks, include time, date, and attendees.
 10. For file operations, specify search queries or file names.
-11. When the user asks you to WRITE content (stories, drafts, emails, summaries, etc.), you MUST generate the full text yourself inside the plan parameters.
-12. If a later step needs to email or otherwise share content you generated in an earlier step, REPEAT the same full text in that later step's parameters instead of using phrases like "content from step_1" or "see previous step".
-13. Avoid meta-language or instructions in parameters. Parameters must contain final, user-ready text only.
-14. When the user specifies a word count (e.g., "300-word story"), generate text that is reasonably close to that length (±10–15%).
-15. If the user explicitly asks to send an email with a story or other generated content "in the body" (and does not ask for a separate document), use a single Gmail "send" step whose "body" parameter contains the FULL generated text that satisfies the story/topic and word-count requirements. Do NOT treat the subject line or a short note as the story itself.
+11. When a later Drive step needs the fileId of a file found in an earlier Drive "search" step, set that parameter using the canonical placeholder form {{step_X.fileId}} (or {{step_N.fileId}} for other steps). Do NOT invent new placeholder names like "fileId_from_step_1".
+12. When the user asks you to WRITE content (stories, drafts, emails, summaries, etc.), you MUST generate the full text yourself inside the plan parameters.
+13. If a later step needs to email or otherwise share content you generated in an earlier step, REPEAT the same full text in that later step's parameters instead of using phrases like "content from step_1" or "see previous step".
+14. Avoid meta-language or instructions in parameters. Parameters must contain final, user-ready text only.
+15. When the user specifies a word count (e.g., "300-word story"), generate text that is reasonably close to that length (±10–15%).
+16. If the user explicitly asks to send an email with a story or other generated content "in the body" (and does not ask for a separate document), use a single Gmail "send" step whose "body" parameter contains the FULL generated text that satisfies the story/topic and word-count requirements. Do NOT treat the subject line or a short note as the story itself.
 
 Example A (Doc + Email): If the user says, "Write a 300-word story about a boy meeting a girl and then email it to mokshithrao1481@gmail.com.", a good plan is:
 {

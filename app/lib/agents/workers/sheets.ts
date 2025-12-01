@@ -61,12 +61,33 @@ export class SheetsWorker extends BaseWorker {
   }
 
   private async writeSheet(step: PlanStep, sheets: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters || {}, ['spreadsheetId', 'range', 'values']);
+    const parameters = step.parameters || {};
+    this.validateParameters(parameters, ['values']);
 
-    const { spreadsheetId, range, values } = step.parameters || {};
+    const {
+      spreadsheetId,
+      range = 'Sheet1!A1',
+      values,
+      title,
+    } = parameters;
+
+    let targetSpreadsheetId = spreadsheetId as string | undefined;
+
+    // If no spreadsheetId is provided, create a new spreadsheet first
+    if (!targetSpreadsheetId) {
+      const createResult = await sheets.spreadsheets.create({
+        requestBody: {
+          properties: {
+            title: title || 'AURA Sheet',
+          },
+        },
+      });
+
+      targetSpreadsheetId = createResult.data.spreadsheetId!;
+    }
 
     const result = await sheets.spreadsheets.values.append({
-      spreadsheetId,
+      spreadsheetId: targetSpreadsheetId,
       range,
       valueInputOption: 'USER_ENTERED',
       requestBody: {
@@ -76,11 +97,11 @@ export class SheetsWorker extends BaseWorker {
 
     return this.createSuccessResult(step.id, {
       type: 'data',
-      title: `Added ${values.length} rows`,
-      googleId: spreadsheetId,
-      url: `https://docs.google.com/spreadsheets/d/${spreadsheetId}/edit`,
+      title: title || `Added ${values.length} rows`,
+      googleId: targetSpreadsheetId,
+      url: `https://docs.google.com/spreadsheets/d/${targetSpreadsheetId}/edit`,
       data: {
-        spreadsheetId,
+        spreadsheetId: targetSpreadsheetId,
         updatedRange: result.data.updates?.updatedRange,
         updatedRows: result.data.updates?.updatedRows,
         updatedColumns: result.data.updates?.updatedColumns,

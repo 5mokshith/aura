@@ -16,9 +16,10 @@ interface ActiveTask {
 interface TaskVisualizerProps {
   activeTask?: ActiveTask;
   className?: string;
+  isLoading?: boolean;
 }
 
-export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerProps) {
+export function TaskVisualizer({ activeTask, className = '', isLoading = false }: TaskVisualizerProps) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   useEffect(() => {
@@ -97,75 +98,101 @@ export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerPro
 
               {/* Task Card */}
               <div className="mb-4">
-                <TaskCard
-                  task={{
-                    id: activeTask.id,
-                    title: activeTask.title,
-                    status: activeTask.overallStatus,
-                  }}
-                  showProgress
-                />
+                {isLoading ? (
+                  <div className="glass-panel rounded-lg p-4 animate-pulse">
+                    <div className="h-4 w-24 bg-white/10 rounded mb-2" />
+                    <div className="h-6 w-40 bg-white/20 rounded" />
+                  </div>
+                ) : (
+                  <TaskCard
+                    task={{
+                      id: activeTask.id,
+                      title: activeTask.title,
+                      status: activeTask.overallStatus,
+                    }}
+                    showProgress
+                  />
+                )}
               </div>
 
               {/* Subtasks Timeline */}
               <div className="flex-1 overflow-hidden">
-                <h3 className="text-sm font-medium text-white/70 mb-4 uppercase tracking-wide px-1">
-                  Subtasks ({activeTask.subtasks.length})
-                </h3>
-
-                <AnimatedList
-                  items={activeTask.subtasks}
-                  renderItem={(subtask, index, isSelected) => (
-                    <div className="relative pl-10">
-                      {/* Timeline dot */}
+                {isLoading ? (
+                  <div className="space-y-3">
+                    {Array.from({ length: 3 }).map((_, index) => (
                       <div
-                        className={`
-                          absolute left-2.5 top-3 w-3 h-3 rounded-full
-                          border-2 border-background z-10
-                          ${subtask.status === 'completed' ? 'bg-green-500' : ''}
-                          ${subtask.status === 'running' ? 'bg-neon-cyan animate-glow-pulse-cyan' : ''}
-                          ${subtask.status === 'failed' ? 'bg-red-500' : ''}
-                          ${subtask.status === 'pending' ? 'bg-gray-500/50' : ''}
-                        `}
-                      />
-
-                      {/* Subtask content */}
-                      <div
-                        className={`
-                          glass-panel rounded-lg p-3
-                          border-l-2
-                          ${subtask.status === 'completed' ? 'border-green-500/50' : ''}
-                          ${subtask.status === 'running' ? 'border-neon-cyan' : ''}
-                          ${subtask.status === 'failed' ? 'border-red-500/50' : ''}
-                          ${subtask.status === 'pending' ? 'border-gray-500/30' : ''}
-                          transition-all duration-300
-                          ${isSelected ? 'bg-white/10 border-white/30' : ''}
-                        `}
+                        key={index}
+                        className="glass-panel rounded-lg p-3 flex items-center gap-3 animate-pulse"
                       >
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <p className="text-sm text-white/80 flex-1">
-                            {subtask.description}
-                          </p>
-                          {subtask.googleService && (
-                            <GoogleServiceIcon service={subtask.googleService} />
-                          )}
-                        </div>
-
-                        <div className="flex items-center gap-2 text-xs">
-                          <AgentBadge agent={subtask.agent} />
-                          {subtask.error && (
-                            <span className="text-red-400 truncate">
-                              {subtask.error}
-                            </span>
-                          )}
+                        <div className="w-3 h-3 rounded-full bg-white/20" />
+                        <div className="flex-1 space-y-2">
+                          <div className="h-3 w-3/4 bg-white/10 rounded" />
+                          <div className="h-3 w-1/2 bg-white/5 rounded" />
                         </div>
                       </div>
-                    </div>
-                  )}
-                >
-                  {/* Timeline line */}
-                  <div className="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-neon-cyan/50 via-neon-purple/30 to-transparent" />
-                </AnimatedList>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <h3 className="text-sm font-medium text-white/70 mb-4 uppercase tracking-wide px-1">
+                      Subtasks ({activeTask.subtasks.length})
+                    </h3>
+
+                    <AnimatedList
+                      items={activeTask.subtasks}
+                      renderItem={(subtask, index, isSelected) => (
+                        <div className="relative pl-10">
+                          {/* Timeline dot */}
+                          <div
+                            className={`
+                              absolute left-2.5 top-3 w-3 h-3 rounded-full
+                              border-2 border-background z-10
+                              ${subtask.status === 'completed' ? 'bg-green-500' : ''}
+                              ${subtask.status === 'running' ? 'bg-neon-cyan animate-glow-pulse-cyan' : ''}
+                              ${subtask.status === 'failed' ? 'bg-red-500' : ''}
+                              ${subtask.status === 'pending' ? 'bg-gray-500/50' : ''}
+                            `}
+                          />
+
+                          {/* Subtask content */}
+                          <div
+                            className={`
+                              glass-panel rounded-lg p-3
+                              border-l-2
+                              ${subtask.status === 'completed' ? 'border-green-500/50' : ''}
+                              ${subtask.status === 'running' ? 'border-neon-cyan' : ''}
+                              ${subtask.status === 'failed' ? 'border-red-500/50' : ''}
+                              ${subtask.status === 'pending' ? 'border-gray-500/30' : ''}
+                              transition-all duration-300
+                              ${isSelected ? 'bg-white/10 border-white/30' : ''}
+                            `}
+                          >
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <p className="text-sm text-white/80 flex-1">
+                                {subtask.description}
+                              </p>
+                              {subtask.googleService && (
+                                <GoogleServiceIcon service={subtask.googleService} />
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2 text-xs">
+                              <AgentBadge agent={subtask.agent} />
+                              {subtask.error && (
+                                <span className="text-red-400 truncate">
+                                  {subtask.error}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    >
+                      {/* Timeline line */}
+                      <div className="absolute left-4 top-2 bottom-2 w-px bg-gradient-to-b from-neon-cyan/50 via-neon-purple/30 to-transparent" />
+                    </AnimatedList>
+                  </>
+                )}
               </div>
             </div>
           )}
@@ -212,14 +239,21 @@ export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerPro
         >
           <div className="p-4 space-y-4">
             {/* Task Card */}
-            <TaskCard
-              task={{
-                id: activeTask.id,
-                title: activeTask.title,
-                status: activeTask.overallStatus,
-              }}
-              showProgress
-            />
+            {isLoading ? (
+              <div className="glass-panel rounded-lg p-4 animate-pulse">
+                <div className="h-4 w-24 bg-white/10 rounded mb-2" />
+                <div className="h-6 w-40 bg-white/20 rounded" />
+              </div>
+            ) : (
+              <TaskCard
+                task={{
+                  id: activeTask.id,
+                  title: activeTask.title,
+                  status: activeTask.overallStatus,
+                }}
+                showProgress
+              />
+            )}
 
             {/* Subtasks */}
             <div>
@@ -228,32 +262,42 @@ export function TaskVisualizer({ activeTask, className = '' }: TaskVisualizerPro
               </h3>
 
               <div className="space-y-2">
-                {activeTask.subtasks.map((subtask) => (
-                  <div
-                    key={subtask.id}
-                    className={`
-                      glass-panel rounded-lg p-3
-                      border-l-2
-                      ${subtask.status === 'completed' ? 'border-green-500/50' : ''}
-                      ${subtask.status === 'running' ? 'border-neon-cyan' : ''}
-                      ${subtask.status === 'failed' ? 'border-red-500/50' : ''}
-                      ${subtask.status === 'pending' ? 'border-gray-500/30' : ''}
-                    `}
-                  >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <p className="text-sm text-white/80 flex-1">
-                        {subtask.description}
-                      </p>
-                      {subtask.googleService && (
-                        <GoogleServiceIcon service={subtask.googleService} />
-                      )}
-                    </div>
+                {isLoading
+                  ? Array.from({ length: 3 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className="glass-panel rounded-lg p-3 border-l-2 border-white/10 animate-pulse"
+                      >
+                        <div className="h-3 w-3/4 bg-white/10 rounded mb-2" />
+                        <div className="h-3 w-1/2 bg-white/5 rounded" />
+                      </div>
+                    ))
+                  : activeTask.subtasks.map((subtask) => (
+                      <div
+                        key={subtask.id}
+                        className={`
+                          glass-panel rounded-lg p-3
+                          border-l-2
+                          ${subtask.status === 'completed' ? 'border-green-500/50' : ''}
+                          ${subtask.status === 'running' ? 'border-neon-cyan' : ''}
+                          ${subtask.status === 'failed' ? 'border-red-500/50' : ''}
+                          ${subtask.status === 'pending' ? 'border-gray-500/30' : ''}
+                        `}
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <p className="text-sm text-white/80 flex-1">
+                            {subtask.description}
+                          </p>
+                          {subtask.googleService && (
+                            <GoogleServiceIcon service={subtask.googleService} />
+                          )}
+                        </div>
 
-                    <div className="flex items-center gap-2 text-xs">
-                      <AgentBadge agent={subtask.agent} />
-                    </div>
-                  </div>
-                ))}
+                        <div className="flex items-center gap-2 text-xs">
+                          <AgentBadge agent={subtask.agent} />
+                        </div>
+                      </div>
+                    ))}
               </div>
             </div>
           </div>
