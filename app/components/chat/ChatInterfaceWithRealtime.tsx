@@ -132,6 +132,13 @@ export function ChatInterfaceWithRealtime({
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const [isTaskSidebarPending, setIsTaskSidebarPending] = useState(false);
   const [pendingTaskTitle, setPendingTaskTitle] = useState<string | null>(null);
+  const [clientTimeZone] = useState<string>(() => {
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone;
+    } catch {
+      return 'UTC';
+    }
+  });
 
   // Subscribe to Realtime logs
   const { isConnected, error } = useRealtimeLogs({
@@ -281,7 +288,7 @@ export function ChatInterfaceWithRealtime({
         const planRes = await fetch('/api/agent/plan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, userId, conversationId }),
+          body: JSON.stringify({ prompt, userId, conversationId, userTimeZone: clientTimeZone }),
         });
 
         if (!planRes.ok) throw new Error('Failed to plan task');
@@ -367,7 +374,7 @@ export function ChatInterfaceWithRealtime({
         setPendingTaskTitle(null);
       }
     },
-    [userId, conversationId]
+    [userId, conversationId, clientTimeZone]
   );
 
   // Derive active task from messages

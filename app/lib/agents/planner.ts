@@ -24,9 +24,9 @@ export class PlannerAgent {
   /**
    * Decompose a user prompt into executable steps
    */
-  async planTask(prompt: string, userId: string): Promise<TaskPlan> {
+  async planTask(prompt: string, userId: string, userTimeZone?: string): Promise<TaskPlan> {
     const systemPrompt = this.getSystemPrompt();
-    const userPrompt = this.formatUserPrompt(prompt);
+    const userPrompt = this.formatUserPrompt(prompt, userTimeZone);
 
     try {
       const result = await this.model.generateContent([systemPrompt, userPrompt]);
@@ -138,7 +138,7 @@ Important parameter shapes (you MUST respect these exactly):
     "description": "Optional longer description of the event",
     "startTime": "ISO 8601 date-time string such as '2025-12-01T12:00:00+05:30' representing when the event starts",
     "endTime": "ISO 8601 date-time string such as '2025-12-01T13:00:00+05:30' representing when the event ends",
-    "timeZone": "Optional IANA time zone name like 'Asia/Kolkata' (defaults to UTC if omitted)",
+    "timeZone": "Optional IANA time zone name like 'Asia/Kolkata'. If omitted, assume the user's local timezone.",
     "attendees": ["Optional list of attendee email addresses such as 'person@example.com'"],
     "location": "Optional event location string"
   }
@@ -233,10 +233,16 @@ Example B (Direct email only): If the user says, "Send an email to mokshithrao14
 Never return Markdown, code fences, or explanatory text outside of this JSON structure.`;
   }
 
-  private formatUserPrompt(prompt: string): string {
+  private formatUserPrompt(prompt: string, userTimeZone?: string): string {
+    const timezoneContext = userTimeZone
+      ? `User's local time zone is ${userTimeZone}. When interpreting relative dates like "today" or "tomorrow" and clock times like "3 pm", or when creating calendar events, assume this time zone unless the user explicitly specifies another one.
+
+`
+      : '';
+
     return `User Request: ${prompt}
 
-Please analyze this request and create a detailed execution plan with specific steps.`;
+${timezoneContext}Please analyze this request and create a detailed execution plan with specific steps.`;
   }
 
   private convertToSteps(rawSteps: any[]): PlanStep[] {

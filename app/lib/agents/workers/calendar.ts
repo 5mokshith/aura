@@ -2,6 +2,10 @@ import { google } from 'googleapis';
 import { BaseWorker } from './base';
 import { WorkerResult, PlanStep } from '@/app/types/agent';
 
+// Default timezone for calendar events when the plan does not explicitly
+// specify one. This can be overridden via the AURA_DEFAULT_TIMEZONE env var.
+const DEFAULT_TIME_ZONE = process.env.AURA_DEFAULT_TIMEZONE || 'Asia/Kolkata';
+
 /**
  * Worker agent for Google Calendar operations
  */
@@ -44,7 +48,7 @@ export class CalendarWorker extends BaseWorker {
       endTime,
       attendees,
       location,
-      timeZone = 'UTC',
+      timeZone = DEFAULT_TIME_ZONE,
     } = params;
 
     const event = {
