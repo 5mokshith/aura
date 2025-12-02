@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import { Message as MessageType, ExecutionUpdate } from '@/app/types/chat';
 import { ChatInterface } from './ChatInterface';
 import { useRealtimeLogs, ExecutionLog } from '@/app/hooks/useRealtimeLogs';
-import { AlertCircle, Wifi, WifiOff } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { TaskVisualizer } from '../task/TaskVisualizer';
 
 interface ChatInterfaceWithRealtimeProps {
@@ -132,6 +132,11 @@ export function ChatInterfaceWithRealtime({
   const [conversationId, setConversationId] = useState<string | undefined>(undefined);
   const [isTaskSidebarPending, setIsTaskSidebarPending] = useState(false);
   const [pendingTaskTitle, setPendingTaskTitle] = useState<string | null>(null);
+  const [emailDraft, setEmailDraft] = useState<{
+    to: string | string[];
+    subject: string;
+    body: string;
+  } | null>(null);
   const [clientTimeZone] = useState<string>(() => {
     try {
       return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -308,13 +313,36 @@ export function ChatInterfaceWithRealtime({
           taskDecomposition: {
             taskId,
             ...(title ? { title } : {}),
-            steps: steps.map((step: any) => ({
-              id: step.id,
-              description: step.description,
-              status: step.status ?? 'pending',
-              agent: step.agent || 'worker',
-              googleService: step.googleService,
-            })),
+            steps: steps.flatMap((step: any) => {
+              const baseStep = {
+                id: step.id,
+                description: step.description,
+                status: step.status ?? 'pending',
+                agent: step.agent || 'worker',
+                googleService: step.googleService,
+              };
+
+              if (
+                step.googleService === 'gmail' &&
+                typeof step.description === 'string' &&
+                /^send/i.test(step.description.trim())
+              ) {
+                return [
+                  {
+                    ...baseStep,
+                    description: `Craft email: ${step.description}`,
+                  },
+                  {
+                    ...baseStep,
+                    id: `${step.id}_send`,
+                    description: `Send email: ${step.description}`,
+                    status: 'pending' as const,
+                  },
+                ];
+              }
+
+              return [baseStep];
+            }),
           },
           executionFeed: [],
         };
@@ -324,17 +352,40 @@ export function ChatInterfaceWithRealtime({
         const execRes = await fetch('/api/agent/execute', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ taskId, userId, conversationId }),
+          body: JSON.stringify({ taskId, userId, conversationId, mode: 'preview' }),
         });
         if (!execRes.ok) throw new Error('Failed to execute task');
         const execJson = await execRes.json();
         if (execJson?.success && execJson.data) {
           const { status, outputs, error: executionError } = execJson.data;
 
+          const hasDraftEmail = Array.isArray(outputs)
+            ? outputs.some((o: any) => o?.type === 'email' && o?.data?.mode === 'draft')
+            : false;
+
           setMessages((prev) =>
             prev.map((msg) => {
               if (msg.role === 'assistant' && msg.taskDecomposition?.taskId === taskId) {
                 const td = msg.taskDecomposition!;
+
+                if (hasDraftEmail) {
+                  return {
+                    ...msg,
+                    taskDecomposition: {
+                      taskId: td.taskId,
+                      steps: td.steps.map((step) => {
+                        if (step.id.endsWith('_send')) {
+                          return { ...step, status: 'pending', error: undefined };
+                        }
+                        if (step.googleService === 'gmail') {
+                          return { ...step, status: 'completed', error: undefined };
+                        }
+                        return step;
+                      }),
+                    },
+                  };
+                }
+
                 return {
                   ...msg,
                   taskDecomposition: {
@@ -356,15 +407,38 @@ export function ChatInterfaceWithRealtime({
             })
           );
 
-          const summaryContent = buildExecutionSummary(outputs);
-          if (summaryContent) {
-            const resultMessage: MessageType = {
-              id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-              role: 'assistant',
-              content: summaryContent,
-              timestamp: new Date(),
-            };
-            setMessages((prev) => [...prev, resultMessage]);
+          if (hasDraftEmail) {
+            const draftEmail = Array.isArray(outputs)
+              ? outputs.find((o: any) => o?.type === 'email' && o?.data?.mode === 'draft')
+              : undefined;
+
+            if (draftEmail && draftEmail.data) {
+              setEmailDraft({
+                to: draftEmail.data.to,
+                subject: draftEmail.data.subject,
+                body: draftEmail.data.body,
+              });
+
+              const draftMessage: MessageType = {
+                id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                role: 'assistant',
+                content:
+                  'I have drafted this email. Please review and edit it in the chat area before I send it for you.',
+                timestamp: new Date(),
+              };
+              setMessages((prev) => [...prev, draftMessage]);
+            }
+          } else {
+            const summaryContent = buildExecutionSummary(outputs);
+            if (summaryContent) {
+              const resultMessage: MessageType = {
+                id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                role: 'assistant',
+                content: summaryContent,
+                timestamp: new Date(),
+              };
+              setMessages((prev) => [...prev, resultMessage]);
+            }
           }
         }
       } catch (err) {
@@ -375,6 +449,40 @@ export function ChatInterfaceWithRealtime({
       }
     },
     [userId, conversationId, clientTimeZone]
+  );
+
+  const handleDraftSent = useCallback(
+    (info: { to: string | string[]; subject: string }) => {
+      const recipients = Array.isArray(info.to) ? info.to.join(', ') : info.to;
+      const confirmation: MessageType = {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        role: 'assistant',
+        content: `Done. I've sent your email to ${recipients} with the subject "${info.subject}".`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) =>
+        prev.map((msg) => {
+          if (msg.role === 'assistant' && msg.taskDecomposition?.taskId === currentTaskId) {
+            const td = msg.taskDecomposition!;
+            return {
+              ...msg,
+              taskDecomposition: {
+                taskId: td.taskId,
+                steps: td.steps.map((step) =>
+                  step.id.endsWith('_send')
+                    ? { ...step, status: 'completed' as const }
+                    : step
+                ),
+              },
+            };
+          }
+          return msg;
+        })
+      );
+      setMessages((prev) => [...prev, confirmation]);
+      setEmailDraft(null);
+    },
+    [currentTaskId]
   );
 
   // Derive active task from messages
@@ -415,7 +523,7 @@ export function ChatInterfaceWithRealtime({
   return (
 
     <div className="flex flex-1 w-full h-full gap-4 xl:gap-6 bg-[#050712]/90 rounded-2xl border border-white/5 shadow-glass-lg p-3 sm:p-4 lg:p-5">
-      <div className="flex-1 min-w-0 relative h-full">
+      <div className="flex-1 min-w-0 relative h-full flex flex-col">
         {/* Connection Status Indicator */}
         {currentTaskId && (
           <div className="absolute top-4 right-4 z-10">
@@ -445,13 +553,19 @@ export function ChatInterfaceWithRealtime({
         )}
 
         {/* Chat Interface */}
-        <ChatInterface
-          initialMessages={messages}
-          onSendMessage={handleSendMessage}
-          className={className}
-          suggestedTasks={suggestedTasks}
-          onExecuteTaskFromPrompt={executeTaskFromPrompt}
-        />
+        <div className="flex-1 min-h-0">
+          <ChatInterface
+            initialMessages={messages}
+            onSendMessage={handleSendMessage}
+            className={className}
+            suggestedTasks={suggestedTasks}
+            onExecuteTaskFromPrompt={executeTaskFromPrompt}
+            userId={userId}
+            emailDraft={emailDraft}
+            onDraftSent={handleDraftSent}
+            onDraftCancel={() => setEmailDraft(null)}
+          />
+        </div>
       </div>
 
       {/* Task Visualizer - Desktop Sidebar (right aligned) */}

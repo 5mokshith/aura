@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body: AgentExecuteRequest = await request.json();
-    const { taskId, userId, conversationId } = body;
+    const { taskId, userId, conversationId, mode } = body;
 
     const cookieUserId = request.cookies.get('aura_user_id')?.value;
     const usedUserId = userId || cookieUserId || '';
@@ -107,7 +107,8 @@ export async function POST(request: NextRequest) {
         taskId,
         0,
         resolvedConversationId || undefined,
-        results
+        results,
+        mode
       );
       results.push(result);
 
@@ -141,6 +142,15 @@ export async function POST(request: NextRequest) {
           undefined,
           resolvedConversationId || undefined
         );
+        break;
+      }
+
+      // In preview mode, stop executing further steps after preparing a Gmail send draft
+      if (
+        (mode === 'preview') &&
+        step.service === 'gmail' &&
+        step.action === 'send'
+      ) {
         break;
       }
     }
@@ -228,7 +238,8 @@ async function executeStep(
   taskId: string,
   retryCount = 0,
   conversationId?: string,
-  previousResults: WorkerResult[] = []
+  previousResults: WorkerResult[] = [],
+  mode?: AgentExecuteRequest['mode']
 ): Promise<WorkerResult> {
   const maxRetries = 2;
 
@@ -245,8 +256,53 @@ async function executeStep(
       { status: 'running' },
       conversationId
     );
-    // Resolve any simple {{step_X.*}} placeholders in parameters using previous results
     const resolvedStep = resolveStepPlaceholders(step, previousResults);
+
+    const effectiveMode = mode ?? 'auto';
+    if (effectiveMode === 'preview' && resolvedStep.service === 'gmail' && resolvedStep.action === 'send') {
+      const { to, subject, body, cc, bcc } = resolvedStep.parameters || {};
+
+      const rawBody = typeof body === 'string' ? body : String(body ?? '');
+      const trimmedBody = rawBody.trim();
+      const maxBodyChars = 4000;
+      const bodyForOutput =
+        trimmedBody.length > maxBodyChars ? trimmedBody.slice(0, maxBodyChars) : trimmedBody;
+
+      const draftOutput = {
+        type: 'email' as const,
+        title: `Draft email: ${subject}`,
+        data: {
+          taskId,
+          stepId: resolvedStep.id,
+          to,
+          cc,
+          bcc,
+          subject,
+          body: bodyForOutput,
+          mode: 'draft',
+          requiresApproval: true,
+        },
+      };
+
+      await updateStepStatus(taskId, step.id, 'completed');
+      await logExecution(
+        supabase,
+        userId,
+        taskId,
+        step.id,
+        'worker',
+        'info',
+        `Prepared Gmail send draft in preview mode: ${step.description}`,
+        { status: 'completed', mode: 'preview', previewType: 'gmail_send_draft' },
+        conversationId
+      );
+
+      return {
+        stepId: step.id,
+        success: true,
+        output: draftOutput,
+      };
+    }
 
     const worker = getWorker(step.service);
     const result = await worker.executeStep(resolvedStep, userId);
@@ -295,7 +351,7 @@ async function executeStep(
         // Wait before retry (exponential backoff)
         await new Promise(resolve => setTimeout(resolve, Math.pow(2, retryCount) * 1000));
 
-        return executeStep(step, userId, supabase, taskId, retryCount + 1, conversationId, previousResults);
+        return executeStep(step, userId, supabase, taskId, retryCount + 1, conversationId, previousResults, mode);
       }
     }
 

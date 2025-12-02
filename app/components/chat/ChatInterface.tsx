@@ -7,6 +7,7 @@ import { FloatingInput } from './FloatingInput';
 import { motion, AnimatePresence } from 'framer-motion';
 import { QuickActionsPanel } from '../actions/QuickActionsPanel';
 import { SuggestedTaskButton } from './SuggestedTaskButton';
+import { EmailDraftEditor } from './EmailDraftEditor';
 
 interface ChatInterfaceProps {
   initialMessages?: MessageType[];
@@ -14,6 +15,14 @@ interface ChatInterfaceProps {
   className?: string;
   suggestedTasks?: Array<{ description: string; prompt: string }>;
   onExecuteTaskFromPrompt?: (prompt: string, description?: string) => Promise<void> | void;
+  userId?: string;
+  emailDraft?: {
+    to: string | string[];
+    subject: string;
+    body: string;
+  } | null;
+  onDraftSent?: (info: { to: string | string[]; subject: string }) => void;
+  onDraftCancel?: () => void;
 }
 
 export function ChatInterface({
@@ -22,6 +31,10 @@ export function ChatInterface({
   className = '',
   suggestedTasks,
   onExecuteTaskFromPrompt,
+  userId,
+  emailDraft,
+  onDraftSent,
+  onDraftCancel,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<MessageType[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
@@ -179,6 +192,15 @@ export function ChatInterface({
             ))
           )}
         </AnimatePresence>
+
+        {userId && emailDraft && (
+          <EmailDraftEditor
+            userId={userId}
+            draft={emailDraft}
+            onSent={onDraftSent}
+            onCancel={onDraftCancel}
+          />
+        )}
 
         {suggestedTasks && suggestedTasks.length > 0 && onExecuteTaskFromPrompt && (
           <div className="mt-2 space-y-2">
