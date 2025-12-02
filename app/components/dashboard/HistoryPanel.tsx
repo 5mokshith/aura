@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { ArrowUp, Circle, Info, Square, Key, Settings } from 'lucide-react';
 
+import { useRouter } from 'next/navigation';
+
 /**
  * HistoryPanel Component
  * 
@@ -15,6 +17,7 @@ interface HistoryItem {
     timestamp: string;
     type: 'success' | 'error' | 'info' | 'warning' | 'update' | 'maintenance';
     icon: 'arrow-up' | 'circle' | 'info' | 'square' | 'key' | 'settings';
+    conversationId?: string;
 }
 
 interface TaskHistoryItem {
@@ -22,12 +25,14 @@ interface TaskHistoryItem {
     title: string;
     status: string;
     created_at: string;
+    conversation_id?: string;
 }
 
 export function HistoryPanel() {
     const [items, setItems] = useState<HistoryItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const router = useRouter();
 
     const getUserIdFromCookie = () => {
         if (typeof document === 'undefined') return null;
@@ -50,6 +55,7 @@ export function HistoryPanel() {
             timestamp: new Date(task.created_at).toLocaleString(),
             type,
             icon,
+            conversationId: task.conversation_id,
         };
     };
 
@@ -83,6 +89,13 @@ export function HistoryPanel() {
     useEffect(() => {
         fetchHistory();
     }, []);
+
+    const handleItemClick = (conversationId?: string) => {
+        if (conversationId) {
+            router.push(`/?conversationId=${conversationId}`);
+        }
+    };
+
     const getIcon = (iconType: string) => {
         const iconClass = 'w-4 h-4';
         switch (iconType) {
@@ -172,6 +185,7 @@ export function HistoryPanel() {
                 {list.map((item) => (
                     <div
                         key={item.id}
+                        onClick={() => handleItemClick(item.conversationId)}
                         className="flex items-start gap-3 group hover:bg-glass-light rounded-lg p-2 -mx-2 transition-colors cursor-pointer"
                     >
                         {/* Icon */}
