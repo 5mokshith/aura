@@ -28,21 +28,18 @@ function ConfirmDialog({ action, onConfirm, onCancel, isProcessing }: ConfirmDia
           title: 'Disconnect Google Account',
           message: 'Are you sure you want to disconnect your Google Workspace account? You will need to reconnect to use AURA again.',
           confirmText: 'Disconnect',
-          icon: <Unlink className="w-6 h-6 text-red-400" />,
         };
       case 'delete-logs':
         return {
           title: 'Delete All Execution Logs',
           message: 'This will permanently delete all execution logs and task history. This action cannot be undone.',
           confirmText: 'Delete Logs',
-          icon: <Trash2 className="w-6 h-6 text-red-400" />,
         };
       case 'delete-account':
         return {
           title: 'Delete Account',
           message: 'This will permanently delete your account, all data, and disconnect all services. This action cannot be undone.',
           confirmText: 'Delete Account',
-          icon: <UserX className="w-6 h-6 text-red-400" />,
         };
       default:
         return null;
@@ -54,54 +51,28 @@ function ConfirmDialog({ action, onConfirm, onCancel, isProcessing }: ConfirmDia
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white/10 backdrop-blur-md border-2 border-red-500/50 shadow-xl rounded-xl p-6 max-w-md w-full animate-slide-up">
-        {/* Icon and Title */}
-        <div className="flex items-center gap-3 mb-4">
-          {content.icon}
-          <h3 className="text-xl font-display font-bold text-white">
-            {content.title}
-          </h3>
-        </div>
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full shadow-xl">
+        {/* Title */}
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+          {content.title}
+        </h3>
 
         {/* Warning Message */}
-        <div className="bg-red-500/10 backdrop-blur-md border border-red-500/30 rounded-lg p-4 border-l-4 border-l-red-500 mb-6">
-          <p className="text-white/90">{content.message}</p>
-        </div>
-
-        {/* Confirmation Input */}
-        <div className="mb-6">
-          <label className="block text-sm text-white/60 mb-2">
-            Type <strong className="text-red-400">CONFIRM</strong> to proceed
-          </label>
-          <input
-            type="text"
-            id="confirm-input"
-            className="bg-white/5 backdrop-blur-md border border-white/10 w-full px-4 py-2 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-red-500/50 focus:shadow-[0_0_20px_rgba(239,68,68,0.3)] transition-all"
-            placeholder="CONFIRM"
-            disabled={isProcessing}
-          />
-        </div>
+        <p className="text-sm text-gray-600 dark:text-gray-300 mb-6">{content.message}</p>
 
         {/* Action Buttons */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 justify-end">
           <button
             onClick={onCancel}
-            className="bg-white/5 backdrop-blur-md border border-white/10 flex-1 py-3 rounded-lg text-white hover:bg-white/10 hover:border-white/20 transition-all disabled:opacity-50"
+            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
             disabled={isProcessing}
           >
             Cancel
           </button>
 
           <button
-            onClick={() => {
-              const input = document.getElementById('confirm-input') as HTMLInputElement;
-              if (input?.value === 'CONFIRM') {
-                onConfirm();
-              } else {
-                alert('Please type CONFIRM to proceed');
-              }
-            }}
-            className="bg-red-500/20 backdrop-blur-md border border-red-500/50 flex-1 py-3 rounded-lg text-red-400 hover:bg-red-500/30 hover:border-red-500/70 transition-all disabled:opacity-50"
+            onClick={onConfirm}
+            className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors disabled:opacity-50"
             disabled={isProcessing}
           >
             {isProcessing ? 'Processing...' : content.confirmText}
@@ -198,77 +169,77 @@ export function DangerZone() {
 
   return (
     <>
-      <div className="bg-white/5 backdrop-blur-md border-2 border-red-500/30 shadow-xl rounded-xl p-6">
-        <div className="flex items-center gap-3 mb-4">
-          <AlertTriangle className="w-6 h-6 text-red-400" />
-          <h2 className="text-2xl font-display font-bold text-white">
+      <div className="bg-white dark:bg-gray-800 rounded-lg p-6">
+        <div className="flex items-center gap-2 mb-2">
+          <AlertTriangle className="w-5 h-5 text-red-500" />
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             Danger Zone
           </h2>
         </div>
 
-        <p className="text-white/60 mb-6">
+        <p className="text-xs text-gray-500 dark:text-gray-400 mb-6">
           These actions are irreversible. Please proceed with caution.
         </p>
 
         <div className="space-y-3">
           {/* Disconnect Google Account */}
-          <div className="bg-white/5 backdrop-blur-md border border-orange-500/30 rounded-lg p-4 border-l-4 border-l-orange-500">
+          <div className="bg-orange-50 dark:bg-orange-900/20 border-l-4 border-orange-500 p-4 rounded">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <h3 className="text-white font-medium mb-1">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
                   Disconnect Google Account
                 </h3>
-                <p className="text-sm text-white/60">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Remove access to your Google Workspace services
                 </p>
               </div>
               <button
                 onClick={() => setActiveAction('disconnect')}
-                className="bg-white/5 backdrop-blur-md border border-orange-500/50 px-4 py-2 rounded-lg text-orange-400 hover:bg-orange-500/20 hover:border-orange-500/70 transition-all whitespace-nowrap"
+                className="text-sm font-medium text-orange-600 dark:text-orange-400 hover:underline whitespace-nowrap flex items-center gap-1"
               >
-                <Unlink className="w-4 h-4 inline mr-2" />
+                <Unlink className="w-4 h-4" />
                 Disconnect
               </button>
             </div>
           </div>
 
           {/* Delete All Logs */}
-          <div className="bg-white/5 backdrop-blur-md border border-red-500/30 rounded-lg p-4 border-l-4 border-l-red-500">
+          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-500 p-4 rounded">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <h3 className="text-white font-medium mb-1">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
                   Delete All Execution Logs
                 </h3>
-                <p className="text-sm text-white/60">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Permanently remove all task history and execution logs
                 </p>
               </div>
               <button
                 onClick={() => setActiveAction('delete-logs')}
-                className="bg-white/5 backdrop-blur-md border border-red-500/50 px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/20 hover:border-red-500/70 transition-all whitespace-nowrap"
+                className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline whitespace-nowrap flex items-center gap-1"
               >
-                <Trash2 className="w-4 h-4 inline mr-2" />
+                <Trash2 className="w-4 h-4" />
                 Delete Logs
               </button>
             </div>
           </div>
 
           {/* Delete Account */}
-          <div className="bg-white/5 backdrop-blur-md border border-red-600/30 rounded-lg p-4 border-l-4 border-l-red-600">
+          <div className="bg-red-50 dark:bg-red-900/20 border-l-4 border-red-600 p-4 rounded">
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1">
-                <h3 className="text-white font-medium mb-1">
+                <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-1">
                   Delete Account
                 </h3>
-                <p className="text-sm text-white/60">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Permanently delete your account and all associated data
                 </p>
               </div>
               <button
                 onClick={() => setActiveAction('delete-account')}
-                className="bg-white/5 backdrop-blur-md border border-red-600/50 px-4 py-2 rounded-lg text-red-500 hover:bg-red-600/20 hover:border-red-600/70 transition-all whitespace-nowrap"
+                className="text-sm font-medium text-red-600 dark:text-red-400 hover:underline whitespace-nowrap flex items-center gap-1"
               >
-                <UserX className="w-4 h-4 inline mr-2" />
+                <UserX className="w-4 h-4" />
                 Delete
               </button>
             </div>
