@@ -28,6 +28,7 @@ export interface AgentExecuteRequest {
   taskId: string;
   userId: string;
   conversationId?: string;
+  mode?: 'auto' | 'preview';
 }
 
 export interface AgentExecuteResponse {
@@ -38,10 +39,11 @@ export interface AgentExecuteResponse {
 }
 
 export interface TaskOutput {
-  type: 'document' | 'email' | 'calendar_event' | 'file';
+  type: 'document' | 'email' | 'calendar_event' | 'file' | 'data';
   title: string;
   url?: string;
   googleId?: string;
+  data?: any;
 }
 
 export interface GmailSendRequest {
@@ -49,6 +51,16 @@ export interface GmailSendRequest {
   subject: string;
   body: string;
   attachments?: Attachment[];
+}
+
+export interface EmailSendRequest {
+  taskId?: string;
+  stepId?: string;
+  userId?: string;
+  conversationId?: string;
+  to: string | string[];
+  subject: string;
+  body: string;
 }
 
 export interface Attachment {

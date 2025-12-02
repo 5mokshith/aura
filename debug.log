@@ -10,3 +10,4 @@
 [1128/180733.628:ERROR:base\i18n\icu_util.cc:224] Invalid file descriptor to ICU data received.
 [1201/103929.733:ERROR:base\i18n\icu_util.cc:224] Invalid file descriptor to ICU data received.
 [1201/104012.776:ERROR:base\i18n\icu_util.cc:224] Invalid file descriptor to ICU data received.
+[1202/141758.205:ERROR:base\i18n\icu_util.cc:224] Invalid file descriptor to ICU data received.

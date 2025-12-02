@@ -1,9 +1,9 @@
 'use client';
 
 import { FcGoogle } from 'react-icons/fc';
-import { FaRobot } from 'react-icons/fa6';
 import { ArrowRight, Check } from 'lucide-react';
 import { useState } from 'react';
+import Image from 'next/image';
 
 export default function Page() {
   const [isLoading, setIsLoading] = useState(false);
@@ -85,7 +85,7 @@ export default function Page() {
           </div>
 
           <div className="mt-auto pt-20">
-            <p className="text-gray-600 text-sm">© 2024 AURA. All rights reserved.</p>
+            <p className="text-gray-600 text-sm"> 2024 AURA. All rights reserved.</p>
           </div>
         </div>
       </div>
@@ -110,8 +110,15 @@ export default function Page() {
         <div className="w-full max-w-lg relative z-10">
           {/* AURA Logo and Title */}
           <div className="flex flex-col items-center mb-12">
-            <div className="bg-blue-600 p-4 rounded-2xl mb-4 shadow-2xl">
-              <FaRobot className="text-white text-4xl" />
+            <div className="backdrop-blur-xl p-4 rounded-2xl mb-4 shadow-2xl flex items-center justify-center">
+              <Image
+                src="/aura.png"
+                alt="AURA logo"
+                width={58}
+                height={58}
+                className="rounded-xl object-contain"
+                priority
+              />
             </div>
             <h2 className="text-6xl font-bold text-white tracking-tight mb-2">AURA</h2>
             <p className="text-white/90 text-base font-medium tracking-wide">Agentic Unified Reasoning Assistant</p>
