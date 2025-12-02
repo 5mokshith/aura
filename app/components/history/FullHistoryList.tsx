@@ -152,7 +152,7 @@ export function FullHistoryList({ initialItems }: FullHistoryListProps) {
             </div>
 
             {/* List Items */}
-            <div className="space-y-3 max-h-screen overflow-y-auto">
+            <div className="space-y-3 max-h-[70vh] overflow-y-auto">
                 {filteredItems.length === 0 ? (
                     <div className="glass-panel-strong rounded-xl py-12 text-center text-white/30 text-sm">
                         No history found matching your criteria.
