@@ -10,7 +10,7 @@ export default async function HomePage(props: { searchParams: Promise<{ conversa
   const userId = session?.userId;
 
   let initialMessages: Message[] = [];
-  if (userId) {
+  if (userId && searchParams.conversationId) {
     const conversation = await getRecentConversation(userId, searchParams.conversationId);
     if (conversation) {
       initialMessages = conversation.messages;

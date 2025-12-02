@@ -129,10 +129,15 @@ export async function GET(request: NextRequest) {
     if (tokenError) {
       if (tokenError.code !== 'PGRST116') {
         console.error('Error fetching tokens for dashboard metrics:', tokenError);
+      } else {
+        console.log('No Google token found for user:', userId);
       }
     } else if (tokenRow && tokenRow.expires_at) {
       const expiresAt = new Date(tokenRow.expires_at);
       isConnected = expiresAt > now;
+      console.log('Token status:', { userId, expiresAt, now, isConnected });
+    } else {
+      console.log('Token found but no expiration date:', tokenRow);
     }
 
     const services = SERVICE_KEYS.map((id) => {
