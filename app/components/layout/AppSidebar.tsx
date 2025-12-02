@@ -11,6 +11,7 @@ import {
   Settings,
   HelpCircle,
   LogOut,
+  History,
 } from 'lucide-react';
 import { getUserSessionClient } from '@/lib/auth';
 
@@ -30,6 +31,11 @@ const navItems: NavItem[] = [
     label: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
+  },
+  {
+    label: 'History',
+    href: '/history',
+    icon: History,
   },
   {
     label: 'Logs',

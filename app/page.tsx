@@ -1,40 +1,29 @@
-'use client';
-
-import { useState, lazy, Suspense, useMemo } from 'react';
-import { Message } from './types/chat';
-import { LoadingSpinner } from './components/ui/LoadingSpinner';
+import { getUserSession } from '@/lib/auth-server';
+import { getRecentConversation } from '@/app/actions/chat';
+import { ChatInterfaceWithRealtime } from './components/chat/ChatInterfaceWithRealtime';
 import { AppShell } from './components/layout/AppShell';
-import { getUserSessionClient } from '@/lib/auth';
+import { Message } from './types/chat';
 
-// Lazy load heavy components for better performance
-const ChatInterfaceWithRealtime = lazy(() =>
-  import('./components/chat/ChatInterfaceWithRealtime').then((mod) => ({
-    default: mod.ChatInterfaceWithRealtime,
-  }))
-);
-
-export default function HomePage() {
-  const [messages] = useState<Message[]>([]);
-
-  // Derive user session from cookies (set by Google OAuth callback)
-  const session = useMemo(() => getUserSessionClient(), []);
+export default async function HomePage(props: { searchParams: Promise<{ conversationId?: string }> }) {
+  const searchParams = await props.searchParams;
+  const session = await getUserSession();
   const userId = session?.userId;
+
+  let initialMessages: Message[] = [];
+  if (userId) {
+    const conversation = await getRecentConversation(userId, searchParams.conversationId);
+    if (conversation) {
+      initialMessages = conversation.messages;
+    }
+  }
 
   return (
     <AppShell>
-      <Suspense
-        fallback={
-          <div className="flex-1 flex items-center justify-center rounded-3xl border border-white/10 bg-black/40">
-            <LoadingSpinner />
-          </div>
-        }
-      >
-        <ChatInterfaceWithRealtime
-          userId={userId}
-          initialMessages={messages}
-          className="h-full"
-        />
-      </Suspense>
+      <ChatInterfaceWithRealtime
+        userId={userId}
+        initialMessages={initialMessages}
+        className="h-full"
+      />
     </AppShell>
   );
 }
