@@ -112,10 +112,10 @@ export default function Page() {
           <div className="flex flex-col items-center mb-12">
             <div className="backdrop-blur-xl p-4 rounded-2xl mb-4 shadow-2xl flex items-center justify-center">
               <Image
-                src="/aura.png"
+                src="/AURA3.png"
                 alt="AURA logo"
-                width={58}
-                height={58}
+                width={180}
+                height={190}
                 className="rounded-xl object-contain"
                 priority
               />
