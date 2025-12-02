@@ -209,7 +209,10 @@ export function HistoryPanel() {
             </div>
 
             {/* View All Link */}
-            <button className="w-full mt-6 text-sm text-neon-cyan hover:text-neon-cyan/80 font-medium text-center transition-colors">
+            <button
+                onClick={() => router.push('/history')}
+                className="w-full mt-6 text-sm text-neon-cyan hover:text-neon-cyan/80 font-medium text-center transition-colors"
+            >
                 View All Activity →
             </button>
         </div>

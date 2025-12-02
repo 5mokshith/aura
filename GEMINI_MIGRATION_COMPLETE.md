@@ -6,7 +6,7 @@ AURA has been successfully configured to use **Google Gemini 2.5 Flash** as the 
 
 ## What Changed
 
-### 🔧  Technical Changes
+### 🔧 Technical Changes
 
 1. **New Dependency**: `@google/generative-ai` package installed
 2. **Unified LLM Client**: `lib/llm/client.ts` now supports multiple providers
