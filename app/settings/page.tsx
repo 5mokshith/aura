@@ -19,17 +19,17 @@ const DangerZone = lazy(() => import('@/app/components/settings/DangerZone').the
 export default function SettingsPage() {
   return (
     <AppShell>
-      <div className="flex-1 overflow-y-auto bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 rounded-2xl border border-white/5 shadow-glass-lg">
+      <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-gray-900 rounded-2xl p-6">
         <div className="container mx-auto px-6 py-8 max-w-4xl">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-2">
-              <SettingsIcon className="w-8 h-8 text-neon-cyan" />
-              <h1 className="text-4xl font-display font-bold text-white">
+              <SettingsIcon className="w-6 h-6 text-orange-500" />
+              <h1 className="text-2xl font-semibold text-gray-900 dark:text-white">
                 Settings
               </h1>
             </div>
-            <p className="text-white/60">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Manage your account, preferences, and security settings
             </p>
           </div>
