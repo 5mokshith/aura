@@ -15,6 +15,15 @@ interface ChatInterfaceWithRealtimeProps {
   className?: string;
 }
 
+function stripSimpleMarkdown(text: string): string {
+  if (!text) return '';
+  let result = text;
+  result = result.replace(/\*\*(.+?)\*\*/g, '$1');
+  result = result.replace(/(^|[\s])_(.+?)_([\s]|$)/g, '$1$2$3');
+  result = result.replace(/(^|[\s])\*(.+?)\*([\s]|$)/g, '$1$2$3');
+  return result;
+}
+
 function buildExecutionSummary(outputs: any[]): string | null {
   if (!outputs || outputs.length === 0) {
     return null;
@@ -485,10 +494,14 @@ export function ChatInterfaceWithRealtime({
                 : undefined;
 
               if (draftEmail && draftEmail.data) {
+                const rawBody = typeof draftEmail.data.body === 'string'
+                  ? draftEmail.data.body
+                  : String(draftEmail.data.body ?? '');
+
                 setEmailDraft({
                   to: draftEmail.data.to,
                   subject: draftEmail.data.subject,
-                  body: draftEmail.data.body,
+                  body: stripSimpleMarkdown(rawBody),
                 });
 
                 const draftMessage: MessageType = {
