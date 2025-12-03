@@ -1,0 +1,20 @@
+PROJECT CONSTRAINTS AND DOCUMENTATION REQUIREMENTS
+====================================================
+
+The following sections must be addressed for this project:
+
+• Problem Statement
+
+• Project Overview – Introduction
+
+• End Users
+
+• Wow Factor in Project
+
+• Modelling/Block Diagram/Flow of Project
+
+• Result/outcomes
+
+• Conclusion
+
+• Future Perspective
