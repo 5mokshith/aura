@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { Message as MessageType, EmailListItem } from '@/app/types/chat';
 import { ExecutionFeed, ExecutionStatus } from './ExecutionFeed';
 import { motion } from 'framer-motion';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import {
   Mail,
   FolderOpen,
@@ -44,9 +46,17 @@ export function Message({ message }: MessageProps) {
       <div className={`flex-1 ${isUser ? 'flex justify-end' : ''}`}>
         <div className={isUser ? 'message-user' : 'message-assistant'}>
           {/* Message Text */}
-          <p className="text-white/90 whitespace-pre-wrap break-words">
-            {message.content}
-          </p>
+          {isUser ? (
+            <p className="text-white/90 whitespace-pre-wrap break-words">
+              {message.content}
+            </p>
+          ) : (
+            <div className="text-white/90 break-words space-y-2">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {message.content}
+              </ReactMarkdown>
+            </div>
+          )}
 
           {message.emailList && message.emailList.length > 0 && (
             <div className="mt-4 space-y-2">

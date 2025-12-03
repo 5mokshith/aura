@@ -248,19 +248,6 @@ export async function POST(request: NextRequest) {
 }
 
 async function generateContentSummaryOutput(plan: TaskPlan, results: WorkerResult[]): Promise<any | null> {
-  const titleLower = plan.title.toLowerCase();
-  const looksLikeSummarizeTask =
-    titleLower.includes('summarize') ||
-    titleLower.includes('summary') ||
-    plan.steps.some((step) => {
-      const desc = (step.description || '').toLowerCase();
-      return desc.includes('summarize') || desc.includes('summary');
-    });
-
-  if (!looksLikeSummarizeTask) {
-    return null;
-  }
-
   const candidate = findTextCandidate(results);
   if (!candidate) {
     return null;
