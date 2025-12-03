@@ -83,16 +83,38 @@ export class DriveWorker extends BaseWorker {
       fields: 'id, name, mimeType, webViewLink',
     });
 
-    // Download file content
-    const response = await drive.files.get(
-      {
-        fileId,
-        alt: 'media',
-      },
-      { responseType: 'arraybuffer' }
-    );
+    const mimeType = metadata.data.mimeType || '';
 
-    const content = Buffer.from(response.data).toString('base64');
+    let contentBuffer: Buffer;
+
+    if (mimeType.startsWith('application/vnd.google-apps.')) {
+      const exportMimeType =
+        mimeType === 'application/vnd.google-apps.spreadsheet'
+          ? 'text/csv'
+          : 'text/plain';
+
+      const exportResponse = await drive.files.export(
+        {
+          fileId,
+          mimeType: exportMimeType,
+        },
+        { responseType: 'arraybuffer' }
+      );
+
+      contentBuffer = Buffer.from(exportResponse.data as ArrayBuffer);
+    } else {
+      const response = await drive.files.get(
+        {
+          fileId,
+          alt: 'media',
+        },
+        { responseType: 'arraybuffer' }
+      );
+
+      contentBuffer = Buffer.from(response.data as ArrayBuffer);
+    }
+
+    const content = contentBuffer.toString('base64');
 
     return this.createSuccessResult(step.id, {
       type: 'file',

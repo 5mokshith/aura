@@ -1,3 +1,13 @@
+export interface EmailListItem {
+  id: string;
+  threadId?: string;
+  from?: string;
+  subject?: string;
+  date?: string;
+  snippet?: string;
+  body?: string;
+}
+
 export interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -9,6 +19,7 @@ export interface Message {
     description: string;
     prompt: string;
   };
+  emailList?: EmailListItem[];
 }
 
 export interface TaskDecomposition {

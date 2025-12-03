@@ -1,15 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { getWorker } from '@/app/lib/agents/workers';
 import { evaluatorAgent } from '@/app/lib/agents/evaluator';
 import { getTaskPlan, updateTaskStatus, updateStepStatus } from '@/app/lib/agents/storage';
 import { createServiceClient } from '@/app/lib/supabase/server';
+import { getEnv } from '@/app/lib/env';
 import { ApiResponse, AgentExecuteRequest, AgentExecuteResponse } from '@/app/types/api';
-import { WorkerResult, PlanStep } from '@/app/types/agent';
+import { WorkerResult, PlanStep, TaskPlan } from '@/app/types/agent';
 
 /**
  * POST /api/agent/execute
  * Execute planned task steps sequentially
  */
+const envConfig = getEnv();
+const genAI = new GoogleGenerativeAI(envConfig.llm.geminiApiKey!);
+const summarizerModel = genAI.getGenerativeModel({
+  model: envConfig.llm.geminiModel || 'gemini-2.0-flash-exp',
+  generationConfig: {
+    temperature: 0.4,
+    topP: 0.95,
+    topK: 40,
+    maxOutputTokens: 2048,
+  },
+});
+
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const supabase = createServiceClient();
@@ -155,6 +169,11 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    const summaryOutput = await generateContentSummaryOutput(plan, results);
+    if (summaryOutput) {
+      outputs.unshift(summaryOutput);
+    }
+
     // Evaluate results
     await logExecution(supabase, usedUserId, taskId, null, 'evaluator', 'info', 'Evaluating results', undefined, resolvedConversationId || undefined);
 
@@ -226,6 +245,99 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+async function generateContentSummaryOutput(plan: TaskPlan, results: WorkerResult[]): Promise<any | null> {
+  const titleLower = plan.title.toLowerCase();
+  const looksLikeSummarizeTask =
+    titleLower.includes('summarize') ||
+    titleLower.includes('summary') ||
+    plan.steps.some((step) => {
+      const desc = (step.description || '').toLowerCase();
+      return desc.includes('summarize') || desc.includes('summary');
+    });
+
+  if (!looksLikeSummarizeTask) {
+    return null;
+  }
+
+  const candidate = findTextCandidate(results);
+  if (!candidate) {
+    return null;
+  }
+
+  const trimmed = candidate.text.trim();
+  if (trimmed.length < 100) {
+    return null;
+  }
+
+  const maxChars = 16000;
+  const inputText = trimmed.length > maxChars ? trimmed.slice(0, maxChars) : trimmed;
+
+  const prompt = `Summarize the following document for the user in clear, concise natural language. Focus on the main ideas, key points, and any important details.\n\nDocument title: ${
+    candidate.title || plan.title
+  }\n\nDocument content:\n${inputText}`;
+
+  try {
+    const result = await summarizerModel.generateContent([prompt]);
+    const summaryText = result.response.text().trim();
+    if (!summaryText) {
+      return null;
+    }
+
+    return {
+      type: 'data',
+      title: candidate.title ? `Summary of ${candidate.title}` : 'Summary of document',
+      data: {
+        summary: summaryText,
+      },
+    };
+  } catch (error) {
+    console.error('Failed to generate content summary:', error);
+    return null;
+  }
+}
+
+function findTextCandidate(results: WorkerResult[]): { text: string; title?: string } | null {
+  for (const r of results) {
+    const output = r.output as any;
+    if (!output) {
+      continue;
+    }
+
+    if (output.type === 'data' && output.data) {
+      const data = output.data as any;
+      if (typeof data.content === 'string' && data.content.trim().length > 0) {
+        return {
+          text: data.content,
+          title: data.title || output.title,
+        };
+      }
+    }
+
+    if (output.type === 'file' && output.data) {
+      const data = output.data as any;
+      const mimeType = String(data.mimeType || '');
+      const content = data.content;
+      const isTextLike =
+        mimeType.startsWith('text/') ||
+        mimeType.startsWith('application/vnd.google-apps.');
+
+      if (typeof content === 'string' && isTextLike) {
+        try {
+          const decoded = Buffer.from(content, 'base64').toString('utf8');
+          if (decoded.trim().length > 0) {
+            return {
+              text: decoded,
+              title: output.title,
+            };
+          }
+        } catch {}
+      }
+    }
+  }
+
+  return null;
 }
 
 /**

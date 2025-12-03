@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import { Message as MessageType, ExecutionUpdate } from '@/app/types/chat';
+import { Message as MessageType, ExecutionUpdate, EmailListItem } from '@/app/types/chat';
 import { ChatInterface } from './ChatInterface';
 import { useRealtimeLogs, ExecutionLog } from '@/app/hooks/useRealtimeLogs';
 import { AlertCircle } from 'lucide-react';
@@ -20,6 +20,22 @@ function buildExecutionSummary(outputs: any[]): string | null {
   }
 
   const primary = outputs[0];
+
+  if (
+    primary?.type === 'data' &&
+    (primary as any).data &&
+    typeof (primary as any).data.summary === 'string'
+  ) {
+    const summary = ((primary as any).data.summary as string).trim();
+    if (summary.length > 0) {
+      const title = typeof primary.title === 'string' && primary.title.trim() !== ''
+        ? primary.title.trim()
+        : 'the document';
+      return `Here's a summary of ${title}:
+
+${summary}`;
+    }
+  }
 
   // Handle Gmail search/read responses where data.messages contains email list
   if (
@@ -499,11 +515,18 @@ export function ChatInterfaceWithRealtime({
           } else {
             const summaryContent = buildExecutionSummary(outputs);
             if (summaryContent) {
+              let emailList: EmailListItem[] | undefined;
+              const primary = outputs && outputs[0];
+              if (primary?.type === 'data' && primary.data && Array.isArray(primary.data.messages)) {
+                emailList = primary.data.messages as EmailListItem[];
+              }
+
               const resultMessage: MessageType = {
                 id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 role: 'assistant',
                 content: summaryContent,
                 timestamp: new Date(),
+                ...(emailList ? { emailList } : {}),
               };
               setMessages((prev) => [...prev, resultMessage]);
             }

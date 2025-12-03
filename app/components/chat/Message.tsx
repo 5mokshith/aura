@@ -1,16 +1,18 @@
 'use client';
 
-import { Message as MessageType } from '@/app/types/chat';
+import { useState } from 'react';
+import { Message as MessageType, EmailListItem } from '@/app/types/chat';
 import { ExecutionFeed, ExecutionStatus } from './ExecutionFeed';
 import { motion } from 'framer-motion';
-import { 
-  Mail, 
-  FolderOpen, 
-  FileText, 
-  Sheet, 
+import {
+  Mail,
+  FolderOpen,
+  FileText,
+  Sheet,
   Calendar,
   User,
-  Bot
+  Bot,
+  ChevronDown,
 } from 'lucide-react';
 
 interface MessageProps {
@@ -45,6 +47,12 @@ export function Message({ message }: MessageProps) {
           <p className="text-white/90 whitespace-pre-wrap break-words">
             {message.content}
           </p>
+
+          {message.emailList && message.emailList.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <EmailList emails={message.emailList} />
+            </div>
+          )}
 
           {/* Task Decomposition */}
           {message.taskDecomposition && (
@@ -137,6 +145,65 @@ function AgentBadge({ agent }: { agent: string }) {
   return (
     <div className={`inline-flex items-center px-2 py-1 rounded-md text-xs border ${color}`}>
       {label}
+    </div>
+  );
+}
+
+function EmailList({ emails }: { emails: EmailListItem[] }) {
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  return (
+    <div className="space-y-2">
+      {emails.map((email, index) => {
+        const isExpanded = expandedId === email.id;
+        const subject = email.subject && email.subject.trim() !== '' ? email.subject : '(no subject)';
+        const from = email.from || 'Unknown sender';
+        const date = email.date || '';
+        const snippet = email.snippet || '';
+        const body = email.body || '';
+
+        return (
+          <div
+            key={email.id || `${index}`}
+            className="glass-panel-md rounded-xl border border-white/10 px-3 py-2"
+          >
+            <button
+              type="button"
+              className="flex w-full items-start justify-between gap-3 text-left"
+              onClick={() => setExpandedId(isExpanded ? null : email.id)}
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white/90 break-words">
+                  {index + 1}. {subject}
+                </p>
+                <p className="text-xs text-white/60 mt-0.5 break-words">
+                  {from}
+                  {date ? ` (${date})` : ''}
+                </p>
+                {!isExpanded && snippet && (
+                  <p className="text-xs text-white/70 mt-1 line-clamp-2 break-words">
+                    {snippet}
+                  </p>
+                )}
+              </div>
+              <div className="flex items-center mt-1">
+                <ChevronDown
+                  className={`w-4 h-4 text-white/60 transition-transform ${
+                    isExpanded ? 'rotate-180' : 'rotate-0'
+                  }`}
+                />
+              </div>
+            </button>
+            {isExpanded && body && (
+              <div className="mt-2 pt-2 border-t border-white/10">
+                <p className="text-xs text-white/80 whitespace-pre-wrap break-words">
+                  {body}
+                </p>
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

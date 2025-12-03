@@ -162,7 +162,7 @@ export function ChatInterface({
       {/* Messages Container */}
       <div
         ref={messagesContainerRef}
-        className={`flex-1 glass-scrollbar px-4 pt-4 pb-32 space-y-4 ${
+        className={`flex-1 glass-scrollbar px-4 pt-4 pb-32 space-y-4 scroll-bar-minimal ${
           isEmpty ? 'overflow-hidden' : 'overflow-y-auto'
         }`}
       >
