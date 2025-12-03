@@ -2,6 +2,21 @@ import { google } from 'googleapis';
 import { BaseWorker } from './base';
 import { WorkerResult, PlanStep } from '@/app/types/agent';
 
+function formatHtmlBody(body: string): string {
+  const trimmed = (body || '').trim();
+  if (!trimmed) return '';
+  if (/[<][a-zA-Z!/]/.test(trimmed)) {
+    return trimmed;
+  }
+  const paragraphs = trimmed.split(/\n\s*\n/);
+  const htmlParagraphs = paragraphs.map((para) => {
+    const lines = para.split('\n');
+    const joined = lines.map((line) => line.trim()).join('<br>');
+    return `<p>${joined}</p>`;
+  });
+  return htmlParagraphs.join('\n');
+}
+
 /**
  * Worker agent for Gmail operations
  */
@@ -39,6 +54,7 @@ export class GmailWorker extends BaseWorker {
     const { to, subject, body, cc, bcc } = step.parameters || {};
 
     const rawBody = typeof body === 'string' ? body : String(body ?? '');
+    const htmlBody = formatHtmlBody(rawBody);
     const trimmedBody = rawBody.trim();
     const maxBodyChars = 4000;
     const bodyForOutput =
@@ -52,7 +68,7 @@ export class GmailWorker extends BaseWorker {
       `Subject: ${subject}`,
       'Content-Type: text/html; charset=utf-8',
       '',
-      body,
+      htmlBody,
     ].filter(Boolean);
 
     const message = messageParts.join('\n');

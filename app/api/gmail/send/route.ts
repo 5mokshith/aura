@@ -70,6 +70,8 @@ function createMimeMessage(
 
   let message = '';
 
+  const htmlBody = formatHtmlBody(body);
+
   // Headers
   message += `To: ${to.join(', ')}${nl}`;
   message += `Subject: ${subject}${nl}`;
@@ -85,7 +87,7 @@ function createMimeMessage(
     message += `Content-Type: text/html; charset=UTF-8${nl}`;
     message += `Content-Transfer-Encoding: 7bit${nl}`;
     message += nl;
-    message += body + nl;
+    message += htmlBody + nl;
 
     // Attachment parts
     for (const attachment of attachments) {
@@ -102,8 +104,23 @@ function createMimeMessage(
     // Simple text/html message
     message += `Content-Type: text/html; charset=UTF-8${nl}`;
     message += nl;
-    message += body;
+    message += htmlBody;
   }
 
   return message;
+}
+
+function formatHtmlBody(body: string): string {
+  const trimmed = (body || '').trim();
+  if (!trimmed) return '';
+  if (/[<][a-zA-Z!/]/.test(trimmed)) {
+    return trimmed;
+  }
+  const paragraphs = trimmed.split(/\n\s*\n/);
+  const htmlParagraphs = paragraphs.map((para) => {
+    const lines = para.split('\n');
+    const joined = lines.map((line) => line.trim()).join('<br>');
+    return `<p>${joined}</p>`;
+  });
+  return htmlParagraphs.join('\n');
 }
