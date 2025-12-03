@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { QuickActionsPanel } from '../actions/QuickActionsPanel';
 import { SuggestedTaskButton } from './SuggestedTaskButton';
 import { EmailDraftEditor } from './EmailDraftEditor';
+import { DocDraftEditor } from './DocDraftEditor';
 
 interface ChatInterfaceProps {
   initialMessages?: MessageType[];
@@ -23,6 +24,12 @@ interface ChatInterfaceProps {
   } | null;
   onDraftSent?: (info: { to: string | string[]; subject: string }) => void;
   onDraftCancel?: () => void;
+  docDraft?: {
+    title: string;
+    body: string;
+  } | null;
+  onDocDraftCreated?: (info: { title: string; url?: string }) => void;
+  onDocDraftCancel?: () => void;
 }
 
 export function ChatInterface({
@@ -35,6 +42,9 @@ export function ChatInterface({
   emailDraft,
   onDraftSent,
   onDraftCancel,
+  docDraft,
+  onDocDraftCreated,
+  onDocDraftCancel,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<MessageType[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
@@ -192,6 +202,15 @@ export function ChatInterface({
             ))
           )}
         </AnimatePresence>
+
+        {userId && docDraft && (
+          <DocDraftEditor
+            userId={userId}
+            draft={docDraft}
+            onCreated={onDocDraftCreated}
+            onCancel={onDocDraftCancel}
+          />
+        )}
 
         {userId && emailDraft && (
           <EmailDraftEditor

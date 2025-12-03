@@ -147,9 +147,9 @@ export async function POST(request: NextRequest) {
 
       // In preview mode, stop executing further steps after preparing a Gmail send draft
       if (
-        (mode === 'preview') &&
-        step.service === 'gmail' &&
-        step.action === 'send'
+        mode === 'preview' &&
+        ((step.service === 'gmail' && step.action === 'send') ||
+          (step.service === 'docs' && step.action === 'create'))
       ) {
         break;
       }
@@ -294,6 +294,50 @@ async function executeStep(
         'info',
         `Prepared Gmail send draft in preview mode: ${step.description}`,
         { status: 'completed', mode: 'preview', previewType: 'gmail_send_draft' },
+        conversationId
+      );
+
+      return {
+        stepId: step.id,
+        success: true,
+        output: draftOutput,
+      };
+    }
+
+    if (effectiveMode === 'preview' && resolvedStep.service === 'docs' && resolvedStep.action === 'create') {
+      const { title, content } = resolvedStep.parameters || {};
+
+      const safeTitle = typeof title === 'string' && title.trim() !== '' ? title.trim() : 'Untitled document';
+      const blocks = Array.isArray(content) ? content : [];
+      const bodyText = blocks
+        .map((block: any) => (typeof block?.text === 'string' ? block.text.trim() : ''))
+        .filter((text: string) => text.length > 0)
+        .join('\n\n');
+
+      const draftOutput = {
+        type: 'document' as const,
+        title: `Draft doc: ${safeTitle}`,
+        data: {
+          taskId,
+          stepId: resolvedStep.id,
+          title: safeTitle,
+          body: bodyText,
+          content: blocks,
+          mode: 'draft',
+          requiresApproval: true,
+        },
+      };
+
+      await updateStepStatus(taskId, step.id, 'completed');
+      await logExecution(
+        supabase,
+        userId,
+        taskId,
+        step.id,
+        'worker',
+        'info',
+        `Prepared Docs create draft in preview mode: ${step.description}`,
+        { status: 'completed', mode: 'preview', previewType: 'docs_create_draft' },
         conversationId
       );
 

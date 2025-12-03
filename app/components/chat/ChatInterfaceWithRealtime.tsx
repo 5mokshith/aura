@@ -137,6 +137,10 @@ export function ChatInterfaceWithRealtime({
     subject: string;
     body: string;
   } | null>(null);
+  const [docDraft, setDocDraft] = useState<{
+    title: string;
+    body: string;
+  } | null>(null);
   const [clientTimeZone] = useState<string>(() => {
     try {
       return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -341,6 +345,25 @@ export function ChatInterfaceWithRealtime({
                 ];
               }
 
+              if (
+                step.googleService === 'docs' &&
+                typeof step.description === 'string' &&
+                /^create/i.test(step.description.trim())
+              ) {
+                return [
+                  {
+                    ...baseStep,
+                    description: `Draft doc: ${step.description}`,
+                  },
+                  {
+                    ...baseStep,
+                    id: `${step.id}_create`,
+                    description: `Create doc: ${step.description}`,
+                    status: 'pending' as const,
+                  },
+                ];
+              }
+
               return [baseStep];
             }),
           },
@@ -362,6 +385,9 @@ export function ChatInterfaceWithRealtime({
           const hasDraftEmail = Array.isArray(outputs)
             ? outputs.some((o: any) => o?.type === 'email' && o?.data?.mode === 'draft')
             : false;
+          const hasDraftDoc = Array.isArray(outputs)
+            ? outputs.some((o: any) => o?.type === 'document' && o?.data?.mode === 'draft')
+            : false;
 
           setMessages((prev) =>
             prev.map((msg) => {
@@ -378,6 +404,24 @@ export function ChatInterfaceWithRealtime({
                           return { ...step, status: 'pending', error: undefined };
                         }
                         if (step.googleService === 'gmail') {
+                          return { ...step, status: 'completed', error: undefined };
+                        }
+                        return step;
+                      }),
+                    },
+                  };
+                }
+
+                if (hasDraftDoc) {
+                  return {
+                    ...msg,
+                    taskDecomposition: {
+                      taskId: td.taskId,
+                      steps: td.steps.map((step) => {
+                        if (step.id.endsWith('_create')) {
+                          return { ...step, status: 'pending', error: undefined };
+                        }
+                        if (step.googleService === 'docs') {
                           return { ...step, status: 'completed', error: undefined };
                         }
                         return step;
@@ -407,26 +451,50 @@ export function ChatInterfaceWithRealtime({
             })
           );
 
-          if (hasDraftEmail) {
-            const draftEmail = Array.isArray(outputs)
-              ? outputs.find((o: any) => o?.type === 'email' && o?.data?.mode === 'draft')
-              : undefined;
+          if (hasDraftEmail || hasDraftDoc) {
+            if (hasDraftEmail) {
+              const draftEmail = Array.isArray(outputs)
+                ? outputs.find((o: any) => o?.type === 'email' && o?.data?.mode === 'draft')
+                : undefined;
 
-            if (draftEmail && draftEmail.data) {
-              setEmailDraft({
-                to: draftEmail.data.to,
-                subject: draftEmail.data.subject,
-                body: draftEmail.data.body,
-              });
+              if (draftEmail && draftEmail.data) {
+                setEmailDraft({
+                  to: draftEmail.data.to,
+                  subject: draftEmail.data.subject,
+                  body: draftEmail.data.body,
+                });
 
-              const draftMessage: MessageType = {
-                id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                role: 'assistant',
-                content:
-                  'I have drafted this email. Please review and edit it in the chat area before I send it for you.',
-                timestamp: new Date(),
-              };
-              setMessages((prev) => [...prev, draftMessage]);
+                const draftMessage: MessageType = {
+                  id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                  role: 'assistant',
+                  content:
+                    'I have drafted this email. Please review and edit it in the chat area before I send it for you.',
+                  timestamp: new Date(),
+                };
+                setMessages((prev) => [...prev, draftMessage]);
+              }
+            }
+
+            if (hasDraftDoc) {
+              const draftDoc = Array.isArray(outputs)
+                ? outputs.find((o: any) => o?.type === 'document' && o?.data?.mode === 'draft')
+                : undefined;
+
+              if (draftDoc && draftDoc.data) {
+                setDocDraft({
+                  title: draftDoc.data.title,
+                  body: draftDoc.data.body,
+                });
+
+                const draftDocMessage: MessageType = {
+                  id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                  role: 'assistant',
+                  content:
+                    'I have drafted this Google Doc. Please review and edit it in the chat area before I create it for you.',
+                  timestamp: new Date(),
+                };
+                setMessages((prev) => [...prev, draftDocMessage]);
+              }
             }
           } else {
             const summaryContent = buildExecutionSummary(outputs);
@@ -481,6 +549,43 @@ export function ChatInterfaceWithRealtime({
       );
       setMessages((prev) => [...prev, confirmation]);
       setEmailDraft(null);
+    },
+    [currentTaskId]
+  );
+
+  const handleDocCreated = useCallback(
+    (info: { title: string; url?: string }) => {
+      const confirmation: MessageType = {
+        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        role: 'assistant',
+        content: info.url
+          ? `Done. I've created a Google Doc titled "${info.title}". You can open it here: ${info.url}`
+          : `Done. I've created a Google Doc titled "${info.title}".`,
+        timestamp: new Date(),
+      };
+
+      setMessages((prev) =>
+        prev.map((msg) => {
+          if (msg.role === 'assistant' && msg.taskDecomposition?.taskId === currentTaskId) {
+            const td = msg.taskDecomposition!;
+            return {
+              ...msg,
+              taskDecomposition: {
+                taskId: td.taskId,
+                steps: td.steps.map((step) =>
+                  step.id.endsWith('_create') || step.googleService === 'docs'
+                    ? { ...step, status: 'completed' as const }
+                    : step
+                ),
+              },
+            };
+          }
+          return msg;
+        })
+      );
+
+      setMessages((prev) => [...prev, confirmation]);
+      setDocDraft(null);
     },
     [currentTaskId]
   );
@@ -564,6 +669,9 @@ export function ChatInterfaceWithRealtime({
             emailDraft={emailDraft}
             onDraftSent={handleDraftSent}
             onDraftCancel={() => setEmailDraft(null)}
+            docDraft={docDraft}
+            onDocDraftCreated={handleDocCreated}
+            onDocDraftCancel={() => setDocDraft(null)}
           />
         </div>
       </div>
