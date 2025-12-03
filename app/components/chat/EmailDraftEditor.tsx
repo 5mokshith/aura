@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type KeyboardEvent } from 'react';
 
 interface EmailDraftEditorProps {
   userId: string;
@@ -21,6 +21,12 @@ export function EmailDraftEditor({ userId, draft, onSent, onCancel }: EmailDraft
   const [bodyInput, setBodyInput] = useState(draft.body || '');
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleBodyKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    // Let the textarea handle Enter normally (insert newline),
+    // but prevent any global key handlers from hijacking it.
+    e.stopPropagation();
+  };
 
   const handleSend = async () => {
     if (!userId) return;
@@ -105,6 +111,7 @@ export function EmailDraftEditor({ userId, draft, onSent, onCancel }: EmailDraft
           className="w-full min-h-[180px] rounded-md bg-black/40 border border-white/10 px-2 py-1.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-neon-cyan resize-y"
           value={bodyInput}
           onChange={(e) => setBodyInput(e.target.value)}
+          onKeyDown={handleBodyKeyDown}
           placeholder="Review and edit the email content here..."
         />
       </div>
