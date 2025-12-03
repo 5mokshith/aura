@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, FormEvent, KeyboardEvent, useRef, useEffect } from 'react';
-import { Send, Loader2, Mic, Sparkles } from 'lucide-react';
+import { Send, Loader2, Mic, Sparkles, MessageSquarePlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FloatingInputProps {
@@ -9,6 +9,7 @@ interface FloatingInputProps {
   isLoading?: boolean;
   disabled?: boolean;
   placeholder?: string;
+  onNewChat?: () => void;
 }
 
 export function FloatingInput({
@@ -16,6 +17,7 @@ export function FloatingInput({
   isLoading = false,
   disabled = false,
   placeholder = 'Ask AURA anything...',
+  onNewChat,
 }: FloatingInputProps) {
   const [input, setInput] = useState('');
   const [isFocused, setIsFocused] = useState(false);
@@ -101,6 +103,19 @@ export function FloatingInput({
           </div>
 
           <div className="flex items-center gap-1 pb-1 pr-1">
+            {onNewChat && (
+              <motion.button
+                type="button"
+                onClick={onNewChat}
+                whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.1)' }}
+                whileTap={{ scale: 0.9 }}
+                className="p-2.5 rounded-full text-white/40 hover:text-neon-cyan transition-colors"
+                title="New Chat"
+              >
+                <MessageSquarePlus className="w-5 h-5" />
+              </motion.button>
+            )}
+
             <motion.button
               type="button"
               whileHover={{ scale: 1.1, backgroundColor: 'rgba(255,255,255,0.1)' }}

@@ -30,6 +30,7 @@ interface ChatInterfaceProps {
   } | null;
   onDocDraftCreated?: (info: { title: string; url?: string }) => void;
   onDocDraftCancel?: () => void;
+  onNewChat?: () => void;
 }
 
 export function ChatInterface({
@@ -45,6 +46,7 @@ export function ChatInterface({
   docDraft,
   onDocDraftCreated,
   onDocDraftCancel,
+  onNewChat,
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<MessageType[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
@@ -162,9 +164,8 @@ export function ChatInterface({
       {/* Messages Container */}
       <div
         ref={messagesContainerRef}
-        className={`flex-1 glass-scrollbar px-4 pt-4 pb-32 space-y-4 scroll-bar-minimal ${
-          isEmpty ? 'overflow-hidden' : 'overflow-y-auto'
-        }`}
+        className={`flex-1 glass-scrollbar px-4 pt-4 pb-32 space-y-4 scroll-bar-minimal ${isEmpty ? 'overflow-hidden' : 'overflow-y-auto'
+          }`}
       >
         <AnimatePresence mode="popLayout">
           {isEmpty ? (
@@ -228,25 +229,25 @@ export function ChatInterface({
                 suggestedTasks.length === 1
                   ? suggestedTasks[0].description
                   : suggestedTasks
-                      .map((task, index) => `${index + 1}. ${task.description}`)
-                      .join('  ')
+                    .map((task, index) => `${index + 1}. ${task.description}`)
+                    .join('  ')
               }
               onStart={() => {
                 const combinedDescription =
                   suggestedTasks.length === 1
                     ? suggestedTasks[0].description
                     : suggestedTasks
-                        .map((task, index) => `${index + 1}. ${task.description}`)
-                        .join('  ');
+                      .map((task, index) => `${index + 1}. ${task.description}`)
+                      .join('  ');
 
                 const combinedPrompt =
                   suggestedTasks.length === 1
                     ? suggestedTasks[0].prompt
                     : suggestedTasks
-                        .map((task, index) =>
-                          index === 0 ? `First, ${task.prompt}` : `Then, ${task.prompt}`
-                        )
-                        .join(' ');
+                      .map((task, index) =>
+                        index === 0 ? `First, ${task.prompt}` : `Then, ${task.prompt}`
+                      )
+                      .join(' ');
 
                 return onExecuteTaskFromPrompt(combinedPrompt, combinedDescription);
               }}
@@ -283,6 +284,7 @@ export function ChatInterface({
         onSubmit={handleSendMessage}
         isLoading={isLoading}
         placeholder="Ask AURA anything..."
+        onNewChat={onNewChat}
       />
     </div>
   );

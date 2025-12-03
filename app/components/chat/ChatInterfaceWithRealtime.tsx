@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Message as MessageType, ExecutionUpdate, EmailListItem } from '@/app/types/chat';
 import { ChatInterface } from './ChatInterface';
 import { useRealtimeLogs, ExecutionLog } from '@/app/hooks/useRealtimeLogs';
@@ -164,6 +165,16 @@ export function ChatInterfaceWithRealtime({
       return 'UTC';
     }
   });
+
+  const router = useRouter();
+
+  // Sync conversationId to URL when it changes
+  useEffect(() => {
+    if (conversationId) {
+      const newUrl = `/?conversationId=${encodeURIComponent(conversationId)}`;
+      router.replace(newUrl);
+    }
+  }, [conversationId, router]);
 
   // Subscribe to Realtime logs
   const { isConnected, error } = useRealtimeLogs({
@@ -456,8 +467,8 @@ export function ChatInterfaceWithRealtime({
                         status === 'completed'
                           ? 'completed'
                           : status === 'failed'
-                          ? 'failed'
-                          : step.status,
+                            ? 'failed'
+                            : step.status,
                       error: status === 'failed' ? executionError || step.error : step.error,
                     })),
                   },
@@ -613,6 +624,17 @@ export function ChatInterfaceWithRealtime({
     [currentTaskId]
   );
 
+  // Handle creating a new chat (reset state and URL)
+  const handleNewChat = useCallback(() => {
+    setMessages([]);
+    setConversationId(undefined);
+    setCurrentTaskId(null);
+    setSuggestedTasks([]);
+    setEmailDraft(null);
+    setDocDraft(null);
+    router.push('/');
+  }, [router]);
+
   // Derive active task from messages
   const activeTask = messages
     .filter((m) => m.role === 'assistant' && m.taskDecomposition)
@@ -628,8 +650,8 @@ export function ChatInterfaceWithRealtime({
       overallStatus: m.taskDecomposition!.steps.every((s) => s.status === 'completed')
         ? 'completed'
         : m.taskDecomposition!.steps.some((s) => s.status === 'failed')
-        ? 'failed'
-        : 'running',
+          ? 'failed'
+          : 'running',
     }))
     .pop() as any; // Cast to any to match TaskVisualizer props for now, or refine type
 
@@ -639,11 +661,11 @@ export function ChatInterfaceWithRealtime({
     activeTask ||
     (isTaskSidebarPending
       ? {
-          id: 'pending',
-          title: pendingTaskTitle || 'Preparing task...',
-          subtasks: [],
-          overallStatus: 'pending' as const,
-        }
+        id: 'pending',
+        title: pendingTaskTitle || 'Preparing task...',
+        subtasks: [],
+        overallStatus: 'pending' as const,
+      }
       : undefined);
 
   const showTaskSidebar = !!sidebarActiveTask;
@@ -656,11 +678,10 @@ export function ChatInterfaceWithRealtime({
         {currentTaskId && (
           <div className="absolute top-4 right-4 z-10">
             <div
-              className={`glass-panel-sm px-3 py-2 rounded-full flex items-center gap-2 text-xs ${
-                isConnected ? 'text-green-400' : 'text-red-400'
-              }`}
+              className={`glass-panel-sm px-3 py-2 rounded-full flex items-center gap-2 text-xs ${isConnected ? 'text-green-400' : 'text-red-400'
+                }`}
             >
-              
+
             </div>
           </div>
         )}
@@ -695,6 +716,7 @@ export function ChatInterfaceWithRealtime({
             docDraft={docDraft}
             onDocDraftCreated={handleDocCreated}
             onDocDraftCancel={() => setDocDraft(null)}
+            onNewChat={handleNewChat}
           />
         </div>
       </div>
