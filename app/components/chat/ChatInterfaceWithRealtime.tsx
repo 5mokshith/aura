@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Message as MessageType, ExecutionUpdate, EmailListItem } from '@/app/types/chat';
+import { Message as MessageType, ExecutionUpdate, EmailListItem, DriveFileListItem } from '@/app/types/chat';
 import { ChatInterface } from './ChatInterface';
 import { useRealtimeLogs, ExecutionLog } from '@/app/hooks/useRealtimeLogs';
 import { AlertCircle } from 'lucide-react';
@@ -540,9 +540,15 @@ export function ChatInterfaceWithRealtime({
             const summaryContent = buildExecutionSummary(outputs);
             if (summaryContent) {
               let emailList: EmailListItem[] | undefined;
+              let driveFiles: DriveFileListItem[] | undefined;
               const primary = outputs && outputs[0];
+
               if (primary?.type === 'data' && primary.data && Array.isArray(primary.data.messages)) {
                 emailList = primary.data.messages as EmailListItem[];
+              }
+
+              if (primary?.type === 'data' && primary.data && Array.isArray(primary.data.files)) {
+                driveFiles = primary.data.files as DriveFileListItem[];
               }
 
               const resultMessage: MessageType = {
@@ -551,6 +557,7 @@ export function ChatInterfaceWithRealtime({
                 content: summaryContent,
                 timestamp: new Date(),
                 ...(emailList ? { emailList } : {}),
+                ...(driveFiles ? { driveFiles } : {}),
               };
               setMessages((prev) => [...prev, resultMessage]);
             }

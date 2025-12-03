@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Message as MessageType } from '@/app/types/chat';
+import { Message as MessageType, DriveFileListItem } from '@/app/types/chat';
 import { Message } from './Message';
 import { FloatingInput } from './FloatingInput';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -51,6 +51,7 @@ export function ChatInterface({
 }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<MessageType[]>(initialMessages);
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingDriveSummaryFileId, setPendingDriveSummaryFileId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
 
@@ -104,6 +105,36 @@ export function ChatInterface({
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleDriveFileAction = async (file: DriveFileListItem, action: 'summarize' | 'open') => {
+    if (action === 'open') {
+      if (file.webViewLink && typeof window !== 'undefined') {
+        window.open(file.webViewLink, '_blank', 'noopener,noreferrer');
+      }
+      return;
+    }
+
+    if (!onExecuteTaskFromPrompt) {
+      return;
+    }
+
+    // Prevent starting multiple summarize tasks at the same time
+    if (pendingDriveSummaryFileId) {
+      return;
+    }
+
+    setPendingDriveSummaryFileId(file.id);
+
+    const safeName = file.name || 'this file';
+    const description = `Summarize Drive file: ${safeName}`;
+    const prompt = `Download my Google Drive file with id ${file.id} (name "${safeName}") and summarize it for me in our chat.`;
+
+    try {
+      await onExecuteTaskFromPrompt(prompt, description);
+    } finally {
+      setPendingDriveSummaryFileId(current => (current === file.id ? null : current));
     }
   };
 
@@ -220,7 +251,12 @@ export function ChatInterface({
             </motion.div>
           ) : (
             messages.map((message) => (
-              <Message key={message.id} message={message} />
+              <Message
+                key={message.id}
+                message={message}
+                onDriveFileAction={onExecuteTaskFromPrompt ? handleDriveFileAction : undefined}
+                pendingDriveSummaryFileId={pendingDriveSummaryFileId}
+              />
             ))
           )}
         </AnimatePresence>

@@ -8,6 +8,17 @@ export interface EmailListItem {
   body?: string;
 }
 
+export interface DriveFileListItem {
+  id: string;
+  name: string;
+  mimeType?: string;
+  modifiedTime?: string;
+  webViewLink?: string;
+  thumbnailLink?: string;
+  iconLink?: string;
+  size?: string | number;
+}
+
 export interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -20,6 +31,7 @@ export interface Message {
     prompt: string;
   };
   emailList?: EmailListItem[];
+  driveFiles?: DriveFileListItem[];
 }
 
 export interface TaskDecomposition {

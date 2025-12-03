@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Message as MessageType, EmailListItem } from '@/app/types/chat';
+import { Message as MessageType, EmailListItem, DriveFileListItem } from '@/app/types/chat';
 import { ExecutionFeed, ExecutionStatus } from './ExecutionFeed';
 import { motion } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
@@ -15,13 +15,16 @@ import {
   User,
   Bot,
   ChevronDown,
+  Loader2,
 } from 'lucide-react';
 
 interface MessageProps {
   message: MessageType;
+  onDriveFileAction?: (file: DriveFileListItem, action: 'summarize' | 'open') => void;
+  pendingDriveSummaryFileId?: string | null;
 }
 
-export function Message({ message }: MessageProps) {
+export function Message({ message, onDriveFileAction, pendingDriveSummaryFileId }: MessageProps) {
   const isUser = message.role === 'user';
 
   return (
@@ -61,6 +64,16 @@ export function Message({ message }: MessageProps) {
           {message.emailList && message.emailList.length > 0 && (
             <div className="mt-4 space-y-2">
               <EmailList emails={message.emailList} />
+            </div>
+          )}
+
+          {message.driveFiles && message.driveFiles.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <DriveFileList
+                files={message.driveFiles}
+                onAction={onDriveFileAction}
+                pendingSummaryFileId={pendingDriveSummaryFileId}
+              />
             </div>
           )}
 
@@ -211,6 +224,89 @@ function EmailList({ emails }: { emails: EmailListItem[] }) {
                 </p>
               </div>
             )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function DriveFileList({
+  files,
+  onAction,
+  pendingSummaryFileId,
+}: {
+  files: DriveFileListItem[];
+  onAction?: (file: DriveFileListItem, action: 'summarize' | 'open') => void;
+  pendingSummaryFileId?: string | null;
+}) {
+  return (
+    <div className="space-y-2">
+      {files.map((file, index) => {
+        const name = file.name || '(no name)';
+        const mimeType = file.mimeType || '';
+        const modified = file.modifiedTime || '';
+        const size = file.size;
+        const isSummarizing = pendingSummaryFileId === file.id;
+
+        return (
+          <div
+            key={file.id || `${index}`}
+            className="glass-panel-md rounded-xl border border-white/10 px-3 py-2 flex items-start justify-between gap-3"
+          >
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-white/90 break-words">
+                {index + 1}. {name}
+              </p>
+              <p className="text-xs text-white/60 mt-0.5 break-words">
+                {mimeType}
+                {modified ? ` \u00b7 ${modified}` : ''}
+                {typeof size !== 'undefined' ? ` \u00b7 ${size}` : ''}
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 flex-shrink-0">
+              {file.webViewLink && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      window.open(file.webViewLink as string, '_blank', 'noopener,noreferrer');
+                    }
+                    if (onAction) {
+                      onAction(file, 'open');
+                    }
+                  }}
+                  className="px-2 py-1 rounded-md bg-white/10 hover:bg-white/20 text-xs text-white/80 transition-colors"
+                >
+                  Open in Drive
+                </button>
+              )}
+              {onAction && (
+                <button
+                  type="button"
+                  disabled={isSummarizing}
+                  onClick={() => {
+                    if (!isSummarizing && onAction) {
+                      onAction(file, 'summarize');
+                    }
+                  }}
+                  className={`px-2 py-1 rounded-md text-xs text-white/90 transition-colors ${
+                    isSummarizing
+                      ? 'bg-neon-purple/20 cursor-not-allowed opacity-70'
+                      : 'bg-neon-purple/30 hover:bg-neon-purple/50'
+                  }`}
+                >
+                  {isSummarizing ? (
+                    <span className="flex items-center gap-1">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      Summarizing...
+                    </span>
+                  ) : (
+                    'Summarize'
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         );
       })}
