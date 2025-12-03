@@ -54,7 +54,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.variable} ${spaceGrotesk.variable} font-sans antialiased bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 min-h-screen`}
+        className={`${inter.variable} ${spaceGrotesk.variable} scroll-bar-minimal font-sans antialiased bg-gray-50 dark:bg-gradient-to-br dark:from-gray-900 dark:via-purple-900/20 dark:to-gray-900 min-h-screen`}
       >
         <SkipLink />
         <QueryProvider>

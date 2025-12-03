@@ -1,7 +1,7 @@
-import { google } from 'googleapis';
-import { getOAuth2Client } from '@/app/lib/google/auth';
-import { apiErrorResponse, AuraError } from '@/app/lib/errorHandler';
-import { GmailSendRequest } from '@/app/types/api';
+ import { google } from 'googleapis';
+ import { getOAuth2Client } from '@/app/lib/google/auth';
+ import { apiErrorResponse, AuraError } from '@/app/lib/errorHandler';
+ import { GmailSendRequest } from '@/app/types/api';
 
 /**
  * POST /api/gmail/send
@@ -116,10 +116,27 @@ function formatHtmlBody(body: string): string {
   if (/[<][a-zA-Z!/]/.test(trimmed)) {
     return trimmed;
   }
+
+  const applyInlineMarkdown = (text: string): string => {
+    if (!text) return '';
+    let result = text;
+
+    // Bold: **text**
+    result = result.replace(/\*\*(.+?)\*\*/g, '<strong>$1<\/strong>');
+
+    // Italic: _text_ or *text*
+    result = result.replace(/(^|[\s])_(.+?)_([\s]|$)/g, '$1<em>$2<\/em>$3');
+    result = result.replace(/(^|[\s])\*(.+?)\*([\s]|$)/g, '$1<em>$2<\/em>$3');
+
+    return result;
+  };
+
   const paragraphs = trimmed.split(/\n\s*\n/);
   const htmlParagraphs = paragraphs.map((para) => {
     const lines = para.split('\n');
-    const joined = lines.map((line) => line.trim()).join('<br>');
+    const joined = lines
+      .map((line) => applyInlineMarkdown(line.trim()))
+      .join('<br>');
     return `<p>${joined}</p>`;
   });
   return htmlParagraphs.join('\n');
