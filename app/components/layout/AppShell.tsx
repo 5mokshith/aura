@@ -20,9 +20,8 @@ export function AppShell({ children }: AppShellProps) {
         <div
           onMouseEnter={() => setIsHoveringSidebar(true)}
           onMouseLeave={() => setIsHoveringSidebar(false)}
-          className={`shrink-0 transition-[width] duration-300 ease-out ${
-            isVisuallyCollapsed ? 'w-16 md:w-20' : 'w-20 md:w-64'
-          }`}
+          className={`shrink-0 transition-[width] duration-300 ease-out ${isVisuallyCollapsed ? 'w-16 md:w-20' : 'w-20 md:w-64'
+            }`}
         >
           <AppSidebar collapsed={isVisuallyCollapsed} />
         </div>

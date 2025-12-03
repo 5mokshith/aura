@@ -9,6 +9,7 @@ import { QuickActionsPanel } from '../actions/QuickActionsPanel';
 import { SuggestedTaskButton } from './SuggestedTaskButton';
 import { EmailDraftEditor } from './EmailDraftEditor';
 import { DocDraftEditor } from './DocDraftEditor';
+import { SquarePen } from 'lucide-react';
 
 interface ChatInterfaceProps {
   initialMessages?: MessageType[];
@@ -161,6 +162,26 @@ export function ChatInterface({
 
   return (
     <div className={`flex flex-col h-full ${className}`}>
+      {/* New Chat Button - Top Left */}
+      {!isEmpty && onNewChat && (
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="absolute top-4 left-4 z-50"
+        >
+          <motion.button
+            onClick={onNewChat}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 hover:text-neon-cyan hover:border-neon-cyan/30 hover:bg-white/10 transition-all duration-300 shadow-lg backdrop-blur-sm"
+            title="Start a new chat"
+          >
+            <SquarePen className="w-4 h-4" />
+            <span className="text-sm font-medium">New Chat</span>
+          </motion.button>
+        </motion.div>
+      )}
+
       {/* Messages Container */}
       <div
         ref={messagesContainerRef}
@@ -284,7 +305,6 @@ export function ChatInterface({
         onSubmit={handleSendMessage}
         isLoading={isLoading}
         placeholder="Ask AURA anything..."
-        onNewChat={onNewChat}
       />
     </div>
   );
