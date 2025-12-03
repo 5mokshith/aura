@@ -675,18 +675,17 @@ export function ChatInterfaceWithRealtime({
     }))
     .pop() as any; // Cast to any to match TaskVisualizer props for now, or refine type
 
-  const hasPlannedTask = !!activeTask;
+  const hasEffectivePlannedTask = !!activeTask && !isTaskSidebarPending;
 
   const sidebarActiveTask =
-    activeTask ||
-    (isTaskSidebarPending
+    isTaskSidebarPending
       ? {
         id: 'pending',
         title: pendingTaskTitle || 'Preparing task...',
         subtasks: [],
         overallStatus: 'pending' as const,
       }
-      : undefined);
+      : activeTask;
 
   const showTaskSidebar = !!sidebarActiveTask;
 
@@ -744,7 +743,11 @@ export function ChatInterfaceWithRealtime({
       {/* Task Visualizer - Desktop Sidebar (right aligned) */}
       {showTaskSidebar && sidebarActiveTask && (
         <div className="hidden xl:flex w-80 xl:w-96 shrink-0 h-full">
-          <TaskVisualizer activeTask={sidebarActiveTask} className="w-full" isLoading={!hasPlannedTask} />
+          <TaskVisualizer
+            activeTask={sidebarActiveTask}
+            className="w-full"
+            isLoading={isTaskSidebarPending || !hasEffectivePlannedTask}
+          />
         </div>
       )}
     </div>
