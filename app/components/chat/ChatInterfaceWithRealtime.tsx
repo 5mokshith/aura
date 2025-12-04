@@ -468,12 +468,29 @@ export function ChatInterfaceWithRealtime({
                       taskId: td.taskId,
                       steps: td.steps.map((step) => {
                         if (step.id.endsWith('_send')) {
+                          // Keep the explicit send step pending until the user confirms
                           return { ...step, status: 'pending', error: undefined };
                         }
                         if (step.googleService === 'gmail') {
+                          // The Gmail worker step that prepared the draft has completed
                           return { ...step, status: 'completed', error: undefined };
                         }
-                        return step;
+
+                        // For all other services (e.g., calendar), fall back to overall task status
+                        const updatedStatus =
+                          status === 'completed'
+                            ? 'completed'
+                            : status === 'failed'
+                              ? 'failed'
+                              : step.status;
+                        const updatedError =
+                          status === 'failed' ? executionError || step.error : step.error;
+
+                        return {
+                          ...step,
+                          status: updatedStatus,
+                          error: updatedError,
+                        };
                       }),
                     },
                   };
@@ -486,12 +503,29 @@ export function ChatInterfaceWithRealtime({
                       taskId: td.taskId,
                       steps: td.steps.map((step) => {
                         if (step.id.endsWith('_create')) {
+                          // Keep the explicit create step pending until the user confirms
                           return { ...step, status: 'pending', error: undefined };
                         }
                         if (step.googleService === 'docs') {
+                          // The Docs worker step that prepared the draft has completed
                           return { ...step, status: 'completed', error: undefined };
                         }
-                        return step;
+
+                        // For all other services, fall back to overall task status
+                        const updatedStatus =
+                          status === 'completed'
+                            ? 'completed'
+                            : status === 'failed'
+                              ? 'failed'
+                              : step.status;
+                        const updatedError =
+                          status === 'failed' ? executionError || step.error : step.error;
+
+                        return {
+                          ...step,
+                          status: updatedStatus,
+                          error: updatedError,
+                        };
                       }),
                     },
                   };
