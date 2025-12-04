@@ -327,6 +327,94 @@ function findTextCandidate(results: WorkerResult[]): { text: string; title?: str
   return null;
 }
 
+async function maybeGenerateEmailSummaryBodyFromResults(
+  step: PlanStep,
+  previousResults: WorkerResult[],
+  toParam?: any,
+  subjectParam?: any
+): Promise<string | null> {
+  const description = (step.description || '').toLowerCase();
+  const looksLikeSummaryEmail =
+    description.includes('summary') ||
+    description.includes('summarize') ||
+    description.includes('summarise');
+
+  if (!looksLikeSummaryEmail) {
+    return null;
+  }
+
+  let contentText = '';
+
+  // Prefer explicit structured/text content from prior data outputs (e.g., Sheets read)
+  for (const r of previousResults) {
+    const output = r.output as any;
+    if (output?.type === 'data' && output.data) {
+      const data = output.data as any;
+      if (typeof data.content === 'string' && data.content.trim().length > 0) {
+        contentText = data.content.trim();
+        break;
+      }
+    }
+  }
+
+  if (!contentText) {
+    const candidate = findTextCandidate(previousResults);
+    if (!candidate || !candidate.text) {
+      return null;
+    }
+    contentText = candidate.text.trim();
+  }
+
+  if (contentText.length < 50) {
+    return null;
+  }
+
+  const maxChars = 16000;
+  const inputText =
+    contentText.length > maxChars ? contentText.slice(0, maxChars) : contentText;
+
+  const toForPrompt = Array.isArray(toParam)
+    ? toParam.join(', ')
+    : typeof toParam === 'string'
+      ? toParam
+      : '';
+  const subjectForPrompt = typeof subjectParam === 'string' ? subjectParam : '';
+
+  const prompt = `You are AURA's email writer.
+
+The user asked you to perform this step:
+"${step.description}"
+
+Recipient(s): ${toForPrompt || '(not specified)'}
+Subject: ${subjectForPrompt || '(not specified)'}
+
+Below is structured data (for example, a spreadsheet) that you must base the email summary on. The first row is usually headers.
+
+${inputText}
+
+Write the full email body, including:
+- a short greeting,
+- a concise but accurate summary of the data, mentioning key figures you can actually compute from the data,
+- a brief closing line and sign-off as "AURA".
+
+CRITICAL RULES:
+- Use only information that can be derived from the data above.
+- Do NOT invent column names, values, or student names.
+- Do NOT use phrases like "assuming the sheet contains columns" or any similar wording.
+- If a requested statistic cannot be computed from the data, say so explicitly instead of guessing.
+
+Return only the email body, without any additional commentary.`;
+
+  try {
+    const result = await summarizerModel.generateContent([prompt]);
+    const body = result.response.text().trim();
+    return body || null;
+  } catch (error) {
+    console.error('Failed to generate email summary body:', error);
+    return null;
+  }
+}
+
 /**
  * Execute a single step with error handling and retries
  */
@@ -361,7 +449,22 @@ async function executeStep(
     if (effectiveMode === 'preview' && resolvedStep.service === 'gmail' && resolvedStep.action === 'send') {
       const { to, subject, body, cc, bcc } = resolvedStep.parameters || {};
 
-      const rawBody = typeof body === 'string' ? body : String(body ?? '');
+      let rawBody = typeof body === 'string' ? body : String(body ?? '');
+
+      // For summary-style emails (e.g., summarizing a sheet or document),
+      // try to regenerate the body using actual content from previous steps
+      // instead of relying on planner-time guesses.
+      const maybeDataDrivenBody = await maybeGenerateEmailSummaryBodyFromResults(
+        resolvedStep,
+        previousResults,
+        to,
+        subject
+      );
+
+      if (maybeDataDrivenBody && maybeDataDrivenBody.trim().length > 0) {
+        rawBody = maybeDataDrivenBody;
+      }
+
       const trimmedBody = rawBody.trim();
       const maxBodyChars = 4000;
       const bodyForOutput =

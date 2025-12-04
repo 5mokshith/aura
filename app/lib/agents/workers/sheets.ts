@@ -44,6 +44,7 @@ export class SheetsWorker extends BaseWorker {
     });
 
     const values = result.data.values || [];
+    const content = formatSheetValuesAsText(values);
 
     return this.createSuccessResult(step.id, {
       type: 'data',
@@ -56,6 +57,7 @@ export class SheetsWorker extends BaseWorker {
         values,
         rowCount: values.length,
         columnCount: values[0]?.length || 0,
+        ...(content ? { content } : {}),
       },
     });
   }
@@ -145,6 +147,26 @@ export class SheetsWorker extends BaseWorker {
       },
     });
   }
+}
+
+function formatSheetValuesAsText(values: any[][], maxRows = 200, maxCols = 20): string {
+  if (!Array.isArray(values) || values.length === 0) {
+    return '';
+  }
+
+  const limitedRows = values.slice(0, maxRows);
+  const lines = limitedRows.map((row) => {
+    if (!Array.isArray(row)) return '';
+
+    const cells = row.slice(0, maxCols).map((cell) => {
+      if (cell === null || cell === undefined) return '';
+      return String(cell);
+    });
+
+    return cells.join('\t');
+  });
+
+  return lines.join('\n');
 }
 
 export const sheetsWorker = new SheetsWorker();

@@ -150,7 +150,7 @@ Important parameter shapes (you MUST respect these exactly):
 
 - For Drive "search" steps:
   "parameters": {
-    "query": "File name or search phrase provided by the user (e.g., 'Mokshith rao')",
+    "query": "A short file-name keyword or phrase taken directly from the user (for example, 'student', 'student marks sheet', 'Q4 report'). Do NOT use full sentences like 'files where the title starts with 'student'' or 'search my Drive for student files' here; instead, pass only the actual search terms.",
     "fileType": "Optional MIME type filter like 'application/pdf'",
     "limit": 20
   }

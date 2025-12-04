@@ -38,8 +38,39 @@ export class DriveWorker extends BaseWorker {
 
     const { query, fileType, limit = 20 } = step.parameters || {};
 
-    const safeQuery = String(query).replace(/'/g, "\\'");
-    let q = `name contains '${safeQuery}' and trashed=false`;
+    const rawQuery = String(query ?? '').trim();
+
+    // Extract a primary search phrase. If the model provided a sentence like
+    // "files where the title starts with 'student'", prefer the text inside
+    // quotes ("student") as the actual search term.
+    const quotedMatch = rawQuery.match(/["']([^"']+)["']/);
+    const baseQuery = (quotedMatch ? quotedMatch[1] : rawQuery).trim();
+
+    if (!baseQuery) {
+      throw new Error('Drive search query cannot be empty');
+    }
+
+    // Split into individual keywords so that we can match files even when the
+    // user only types part of the name (e.g., "student" for "Student marks sheet").
+    const tokens = baseQuery
+      .split(/\s+/)
+      .map((t) => t.trim())
+      .filter((t) => t.length > 1);
+
+    const searchTerms = tokens.length > 0 ? tokens : [baseQuery];
+
+    const escapeTerm = (term: string) => term.replace(/'/g, "\\'");
+
+    const nameConditions = searchTerms.map(
+      (term) => `name contains '${escapeTerm(term)}'`
+    );
+    const fullTextConditions = searchTerms.map(
+      (term) => `fullText contains '${escapeTerm(term)}'`
+    );
+
+    const allConditions = [...nameConditions, ...fullTextConditions];
+
+    let q = `(${allConditions.join(' or ')}) and trashed=false`;
     if (fileType) {
       q += ` and mimeType='${fileType}'`;
     }
