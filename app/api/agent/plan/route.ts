@@ -11,7 +11,7 @@ import { ApiResponse, AgentPlanRequest, AgentPlanResponse } from '@/app/types/ap
 export async function POST(request: NextRequest) {
   try {
     const body: AgentPlanRequest = await request.json();
-    const { prompt, userId, conversationId, userTimeZone } = body;
+    const { prompt, userId, conversationId, userTimeZone, userLocalDate } = body;
 
     const cookieUserId = request.cookies.get('aura_user_id')?.value;
     const usedUserId = userId || cookieUserId || '';
@@ -31,8 +31,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Plan the task using Planner Agent (pass through userTimeZone when provided)
-    const plan = await plannerAgent.planTask(prompt, usedUserId, userTimeZone);
+    // Plan the task using Planner Agent (pass through userTimeZone and userLocalDate when provided)
+    const plan = await plannerAgent.planTask(prompt, usedUserId, userTimeZone, userLocalDate);
 
     // Save task (V2)
     const supabase = createServiceClient();

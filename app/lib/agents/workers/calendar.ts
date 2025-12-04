@@ -38,7 +38,7 @@ export class CalendarWorker extends BaseWorker {
   }
 
   private async createEvent(step: PlanStep, calendar: any): Promise<WorkerResult> {
-    this.validateParameters(step.parameters || {}, ['summary', 'startTime', 'endTime']);
+    this.validateParameters(step.parameters || {}, ['startTime', 'endTime']);
 
     const params = step.parameters || {};
     const {
@@ -51,8 +51,15 @@ export class CalendarWorker extends BaseWorker {
       timeZone = DEFAULT_TIME_ZONE,
     } = params;
 
+    const safeSummary =
+      typeof summary === 'string' && summary.trim().length > 0
+        ? summary.trim()
+        : (typeof step.description === 'string' && step.description.trim().length > 0
+            ? step.description.trim().slice(0, 255)
+            : 'Calendar event');
+
     const event = {
-      summary,
+      summary: safeSummary,
       description,
       location,
       start: {

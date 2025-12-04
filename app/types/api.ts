@@ -15,6 +15,7 @@ export interface AgentPlanRequest {
   userId: string;
   conversationId?: string;
   userTimeZone?: string;
+  userLocalDate?: string;
 }
 
 export interface AgentPlanResponse {

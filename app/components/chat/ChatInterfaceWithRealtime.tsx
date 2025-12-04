@@ -174,8 +174,33 @@ export function ChatInterfaceWithRealtime({
       return 'UTC';
     }
   });
+  const [clientLocalDate, setClientLocalDate] = useState<string | null>(null);
 
   const router = useRouter();
+
+  useEffect(() => {
+    try {
+      const now = new Date();
+      const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: clientTimeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      });
+      const parts = formatter.formatToParts(now);
+      const year = parts.find((p) => p.type === 'year')?.value;
+      const month = parts.find((p) => p.type === 'month')?.value;
+      const day = parts.find((p) => p.type === 'day')?.value;
+
+      if (year && month && day) {
+        setClientLocalDate(`${year}-${month}-${day}`);
+      } else {
+        setClientLocalDate(now.toISOString().slice(0, 10));
+      }
+    } catch {
+      setClientLocalDate(new Date().toISOString().slice(0, 10));
+    }
+  }, [clientTimeZone]);
 
   // Sync conversationId to URL when it changes
   useEffect(() => {
@@ -333,7 +358,13 @@ export function ChatInterfaceWithRealtime({
         const planRes = await fetch('/api/agent/plan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, userId, conversationId, userTimeZone: clientTimeZone }),
+          body: JSON.stringify({
+            prompt,
+            userId,
+            conversationId,
+            userTimeZone: clientTimeZone,
+            userLocalDate: clientLocalDate || new Date().toISOString().slice(0, 10),
+          }),
         });
 
         if (!planRes.ok) throw new Error('Failed to plan task');
@@ -570,7 +601,7 @@ export function ChatInterfaceWithRealtime({
         setPendingTaskTitle(null);
       }
     },
-    [userId, conversationId, clientTimeZone]
+    [userId, conversationId, clientTimeZone, clientLocalDate]
   );
 
   const handleDraftSent = useCallback(
