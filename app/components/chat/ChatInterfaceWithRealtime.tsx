@@ -60,28 +60,26 @@ ${summary}`;
     }
 
     const header = `Here are your latest ${messages.length} emails:`;
-    const lines = messages.map((m, index) => {
-      const from = m.from || 'Unknown sender';
-      const subject = m.subject && m.subject.trim() !== '' ? m.subject : '(no subject)';
-      const date = m.date || '';
 
-      // First line: numbered subject + sender (and date if available)
-      const titleLine = `${index + 1}. ${subject} — ${from}${date ? ` (${date})` : ''}`;
+    const maxEmailsToShow = 5;
+    const lines = messages.slice(0, maxEmailsToShow).map((m, index) => {
+      const subject =
+        typeof m.subject === 'string' && m.subject.trim() !== ''
+          ? m.subject.trim()
+          : '(no subject)';
+      const from = typeof m.from === 'string' && m.from.trim() !== '' ? m.from : 'Unknown sender';
+      const date = typeof m.date === 'string' ? m.date : '';
 
-      // Optional second line: a short snippet, trimmed and collapsed
-      const rawSnippet = typeof m.snippet === 'string' ? m.snippet.trim().replace(/\s+/g, ' ') : '';
-      const maxSnippetLength = 160;
-      const snippet = rawSnippet
-        ? rawSnippet.length > maxSnippetLength
-          ? `${rawSnippet.slice(0, maxSnippetLength).trim()}...`
-          : rawSnippet
-        : '';
-
-      const snippetLine = snippet ? `   ${snippet}` : '';
-      return snippetLine ? `${titleLine}\n${snippetLine}` : titleLine;
+      return `- ${index + 1}. **${subject}** — ${from}${date ? ` (${date})` : ''}`;
     });
 
-    return [header, '', ...lines].join('\n\n');
+    if (messages.length > maxEmailsToShow) {
+      lines.push(`- ...and ${messages.length - maxEmailsToShow} more email(s).`);
+    }
+
+    lines.push('', 'You can click any email below to expand and read more details.');
+
+    return [header, '', ...lines].join('\n');
   }
 
   // Handle Drive search responses where data.files contains Drive file list
