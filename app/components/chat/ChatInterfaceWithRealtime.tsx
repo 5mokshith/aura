@@ -439,6 +439,10 @@ export function ChatInterfaceWithRealtime({
 
         setMessages((prev) => [...prev, assistantMessage]);
 
+        // Planning is done; show the actual task immediately in the sidebar instead of the loader.
+        setIsTaskSidebarPending(false);
+        setPendingTaskTitle(null);
+
         const execRes = await fetch('/api/agent/execute', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
