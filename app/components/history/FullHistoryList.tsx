@@ -152,7 +152,7 @@ export function FullHistoryList({ initialItems }: FullHistoryListProps) {
             </div>
 
             {/* List Items */}
-            <div className="space-y-3 max-h-[65vh] overflow-y-auto">
+            <div className="space-y-3 max-h-[65vh] overflow-y-auto overflow-x-hidden">
                 {filteredItems.length === 0 ? (
                     <div className="glass-panel-strong rounded-xl py-12 text-center text-white/30 text-sm">
                         No history found matching your criteria.
@@ -165,7 +165,7 @@ export function FullHistoryList({ initialItems }: FullHistoryListProps) {
                             className="
                 group relative
                 glass-panel-strong rounded-xl
-                grid grid-cols-[auto_1fr_auto_auto] gap-4 px-6 py-4 items-center
+                grid grid-cols-[auto_1fr_auto_auto] gap-2 sm:gap-4 px-4 sm:px-6 py-4 items-center
                 hover:bg-white/10 hover:border-white/20
                 hover:scale-[1.02] hover:shadow-lg hover:shadow-neon-cyan/10
                 transition-all duration-300 ease-out
@@ -174,7 +174,7 @@ export function FullHistoryList({ initialItems }: FullHistoryListProps) {
               "
                         >
                             {/* Date Column */}
-                            <div className="w-40 flex items-center gap-3">
+                            <div className="min-w-0 flex-shrink-0 flex items-center gap-2 sm:gap-3">
                                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${getIconColor(item.type)}`}>
                                     {getIcon(item.icon)}
                                 </div>
@@ -196,7 +196,7 @@ export function FullHistoryList({ initialItems }: FullHistoryListProps) {
                             </div>
 
                             {/* Status Column */}
-                            <div className="w-24 flex justify-center">
+                            <div className="min-w-0 flex justify-center">
                                 {getStatusBadge(item.status, item.type)}
                             </div>
 
