@@ -29,7 +29,8 @@ export interface AgentExecuteRequest {
   taskId: string;
   userId: string;
   conversationId?: string;
-  mode?: 'auto' | 'preview';
+  mode?: 'auto' | 'preview' | 'preview_auto';
+  resumeFromStepId?: string;
 }
 
 export interface AgentExecuteResponse {

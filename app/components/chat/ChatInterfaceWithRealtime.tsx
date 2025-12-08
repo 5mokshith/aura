@@ -160,10 +160,14 @@ export function ChatInterfaceWithRealtime({
     to: string | string[];
     subject: string;
     body: string;
+    taskId?: string;
+    stepId?: string;
   } | null>(null);
   const [docDraft, setDocDraft] = useState<{
     title: string;
     body: string;
+    taskId?: string;
+    stepId?: string;
   } | null>(null);
   const [clientTimeZone] = useState<string>(() => {
     try {
@@ -365,10 +369,15 @@ export function ChatInterfaceWithRealtime({
           }),
         });
 
-        if (!planRes.ok) throw new Error('Failed to plan task');
-        const planJson = await planRes.json();
-        if (!planJson.success || !planJson.data) {
-          throw new Error(planJson.error?.message || 'Failed to plan task');
+        const planJson = await planRes
+          .json()
+          .catch(() => null as any);
+
+        if (!planRes.ok || !planJson?.success || !planJson.data) {
+          const message =
+            planJson?.error?.message ||
+            `Failed to plan task${planRes.status ? ` (status ${planRes.status})` : ''}`;
+          throw new Error(message);
         }
 
         const { taskId, steps, title } = planJson.data;
@@ -444,7 +453,7 @@ export function ChatInterfaceWithRealtime({
         const execRes = await fetch('/api/agent/execute', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ taskId, userId, conversationId, mode: 'preview' }),
+          body: JSON.stringify({ taskId, userId, conversationId, mode: 'preview_auto' }),
         });
         if (!execRes.ok) throw new Error('Failed to execute task');
         const execJson = await execRes.json();
@@ -569,6 +578,8 @@ export function ChatInterfaceWithRealtime({
                   to: draftEmail.data.to,
                   subject: draftEmail.data.subject,
                   body: stripSimpleMarkdown(rawBody),
+                  taskId: draftEmail.data.taskId,
+                  stepId: draftEmail.data.stepId,
                 });
 
                 const draftMessage: MessageType = {
@@ -591,6 +602,8 @@ export function ChatInterfaceWithRealtime({
                 setDocDraft({
                   title: draftDoc.data.title,
                   body: draftDoc.data.body,
+                  taskId: draftDoc.data.taskId,
+                  stepId: draftDoc.data.stepId,
                 });
 
                 const draftDocMessage: MessageType = {
@@ -641,7 +654,7 @@ export function ChatInterfaceWithRealtime({
   );
 
   const handleDraftSent = useCallback(
-    (info: { to: string | string[]; subject: string }) => {
+    async (info: { to: string | string[]; subject: string }) => {
       const recipients = Array.isArray(info.to) ? info.to.join(', ') : info.to;
       const confirmation: MessageType = {
         id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -669,13 +682,49 @@ export function ChatInterfaceWithRealtime({
         })
       );
       setMessages((prev) => [...prev, confirmation]);
+      const draftMeta = emailDraft;
       setEmailDraft(null);
+
+      let resumeTaskId = draftMeta?.taskId || currentTaskId || undefined;
+      let resumeStepId = draftMeta?.stepId;
+
+      if (!resumeStepId && resumeTaskId && messages.length > 0) {
+        const associatedMessage = messages.find(
+          (m) => m.role === 'assistant' && m.taskDecomposition?.taskId === resumeTaskId
+        );
+
+        const baseGmailStep = associatedMessage?.taskDecomposition?.steps.find(
+          (step) => step.googleService === 'gmail' && !step.id.endsWith('_send')
+        );
+
+        if (baseGmailStep) {
+          resumeStepId = baseGmailStep.id;
+        }
+      }
+
+      if (resumeTaskId && resumeStepId && userId) {
+        try {
+          await fetch('/api/agent/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              taskId: resumeTaskId,
+              userId,
+              conversationId,
+              mode: 'auto',
+              resumeFromStepId: resumeStepId,
+            }),
+          });
+        } catch (err) {
+          console.error('Failed to resume task after email send:', err);
+        }
+      }
     },
-    [currentTaskId]
+    [currentTaskId, emailDraft, userId, conversationId, messages]
   );
 
   const handleDocCreated = useCallback(
-    (info: { title: string; url?: string }) => {
+    async (info: { title: string; url?: string }) => {
       const confirmation: MessageType = {
         id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         role: 'assistant',
@@ -706,9 +755,45 @@ export function ChatInterfaceWithRealtime({
       );
 
       setMessages((prev) => [...prev, confirmation]);
+      const draftMeta = docDraft;
       setDocDraft(null);
+
+      let resumeTaskId = draftMeta?.taskId || currentTaskId || undefined;
+      let resumeStepId = draftMeta?.stepId;
+
+      if (!resumeStepId && resumeTaskId && messages.length > 0) {
+        const associatedMessage = messages.find(
+          (m) => m.role === 'assistant' && m.taskDecomposition?.taskId === resumeTaskId
+        );
+
+        const baseDocsStep = associatedMessage?.taskDecomposition?.steps.find(
+          (step) => step.googleService === 'docs' && !step.id.endsWith('_create')
+        );
+
+        if (baseDocsStep) {
+          resumeStepId = baseDocsStep.id;
+        }
+      }
+
+      if (resumeTaskId && resumeStepId && userId) {
+        try {
+          await fetch('/api/agent/execute', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              taskId: resumeTaskId,
+              userId,
+              conversationId,
+              mode: 'auto',
+              resumeFromStepId: resumeStepId,
+            }),
+          });
+        } catch (err) {
+          console.error('Failed to resume task after doc create:', err);
+        }
+      }
     },
-    [currentTaskId]
+    [currentTaskId, docDraft, userId, conversationId, messages]
   );
 
   // Handle creating a new chat (reset state and URL)

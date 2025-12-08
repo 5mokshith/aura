@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body: AgentExecuteRequest = await request.json();
-    const { taskId, userId, conversationId, mode } = body;
+    const { taskId, userId, conversationId, mode, resumeFromStepId } = body;
 
     const cookieUserId = request.cookies.get('aura_user_id')?.value;
     const usedUserId = userId || cookieUserId || '';
@@ -83,6 +83,24 @@ export async function POST(request: NextRequest) {
     const outputs: any[] = [];
 
     for (const step of plan.steps) {
+      // In resume mode, treat the specified step as already handled (e.g., user approved a preview draft)
+      if (resumeFromStepId && step.id === resumeFromStepId) {
+        results.push({
+          stepId: step.id,
+          success: true,
+          output: {
+            type: 'data',
+            title: `Step ${step.id} completed via preview flow`,
+            data: {
+              resumedFromPreview: true,
+              service: step.service,
+              action: step.action,
+            },
+          },
+        });
+        continue;
+      }
+
       // Check dependencies
       if (step.dependencies && step.dependencies.length > 0) {
         const dependenciesMet = step.dependencies.every(depId => {
@@ -445,7 +463,10 @@ async function executeStep(
     );
     const resolvedStep = resolveStepPlaceholders(step, previousResults);
 
-    const effectiveMode = mode ?? 'auto';
+    const effectiveMode =
+      mode === 'preview' || mode === 'preview_auto'
+        ? 'preview'
+        : 'auto';
     if (effectiveMode === 'preview' && resolvedStep.service === 'gmail' && resolvedStep.action === 'send') {
       const { to, subject, body, cc, bcc } = resolvedStep.parameters || {};
 
@@ -696,6 +717,29 @@ function resolveTemplateString(template: string, previousResults: WorkerResult[]
     if (output.data?.fileId) return String(output.data.fileId);
     if (Array.isArray(output.data?.files) && output.data.files[0]?.id) {
       return String(output.data.files[0].id);
+    }
+
+    return template;
+  }
+
+  // Special handling for {{step_X.content}} to pull text content from prior outputs
+  if (path === 'content') {
+    const output = result.output as any;
+    if (!output) return template;
+
+    const data = output.data as any;
+    if (data) {
+      if (typeof data.content === 'string' && data.content.trim().length > 0) {
+        return data.content;
+      }
+      if (typeof data.body === 'string' && data.body.trim().length > 0) {
+        return data.body;
+      }
+    }
+
+    const candidate = findTextCandidate([result]);
+    if (candidate && candidate.text && candidate.text.trim().length > 0) {
+      return candidate.text;
     }
 
     return template;

@@ -98,9 +98,9 @@ Assistant JSON:
 
     const historyText = Array.isArray(conversationHistory)
       ? conversationHistory
-          .slice(-12)
-          .map((m: any) => `${m.role === 'user' ? 'User' : 'AURA'}: ${m.content}`)
-          .join('\n')
+        .slice(-12)
+        .map((m: any) => `${m.role === 'user' ? 'User' : 'AURA'}: ${m.content}`)
+        .join('\n')
       : '';
 
     const userTurn = `User: ${message}`;
@@ -182,9 +182,9 @@ Assistant JSON:
           // Backward-compatible single suggestion
           suggestedTask: suggestedTasks[0]
             ? {
-                description: String(suggestedTasks[0].description || ''),
-                prompt: String(suggestedTasks[0].prompt || ''),
-              }
+              description: String(suggestedTasks[0].description || ''),
+              prompt: String(suggestedTasks[0].prompt || ''),
+            }
             : undefined,
           // New multi-suggestion field (front-end may optionally use this)
           suggestedTasks: suggestedTasks.map((t: any) => ({
@@ -197,13 +197,20 @@ Assistant JSON:
       { status: 200 }
     );
   } catch (error: any) {
-    console.error('/api/chat error', error);
+    console.error('❌ /api/chat error - FULL DETAILS:', {
+      message: error?.message,
+      stack: error?.stack,
+      name: error?.name,
+      code: error?.code,
+      details: error?.details,
+      fullError: error,
+    });
     return NextResponse.json<ApiResponse>(
       {
         success: true,
         data: {
           message:
-            'Sorry, I had trouble processing that right now. You can ask me about Gmail, Drive, Docs, Sheets, or Calendar — or try again in a moment.',
+            `Sorry, I had trouble processing that right now. You can ask me about Gmail, Drive, Docs, Sheets, or Calendar — or try again in a moment. ${process.env.NODE_ENV === 'development' ? `(Error: ${error?.message})` : ''}`,
         },
       },
       { status: 200 }

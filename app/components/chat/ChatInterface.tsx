@@ -28,6 +28,8 @@ interface ChatInterfaceProps {
   docDraft?: {
     title: string;
     body: string;
+    taskId?: string;
+    stepId?: string;
   } | null;
   onDocDraftCreated?: (info: { title: string; url?: string }) => void;
   onDocDraftCancel?: () => void;

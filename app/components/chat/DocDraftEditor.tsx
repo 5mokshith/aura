@@ -7,6 +7,8 @@ interface DocDraftEditorProps {
   draft: {
     title: string;
     body: string;
+    taskId?: string;
+    stepId?: string;
   };
   onCreated?: (info: { title: string; url?: string }) => void;
   onCancel?: () => void;

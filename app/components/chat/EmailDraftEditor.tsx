@@ -8,6 +8,8 @@ interface EmailDraftEditorProps {
     to: string | string[];
     subject: string;
     body: string;
+    taskId?: string;
+    stepId?: string;
   };
   onSent?: (info: { to: string | string[]; subject: string }) => void;
   onCancel?: () => void;
