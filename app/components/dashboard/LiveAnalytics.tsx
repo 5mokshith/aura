@@ -63,13 +63,10 @@ export function LiveAnalytics({ data }: LiveAnalyticsProps) {
         if (data && data.length) {
             // If real data is provided, filter it based on the selected range
             const filteredData = data.slice(-selectedRange.days);
-            console.log('LiveAnalytics - Using real data:', filteredData);
             setChartData(filteredData);
         } else {
             // Otherwise, generate sample data
-            const sampleData = generateAnalyticsData(selectedRange.days);
-            console.log('LiveAnalytics - Using sample data:', sampleData);
-            setChartData(sampleData);
+            setChartData(generateAnalyticsData(selectedRange.days));
         }
     }, [selectedRange, data]);
 
@@ -100,8 +97,8 @@ export function LiveAnalytics({ data }: LiveAnalyticsProps) {
                                 key={range.days}
                                 onClick={() => handleRangeSelect(range)}
                                 className={`w-full text-left px-3 py-2 text-sm transition-colors first:rounded-t-lg last:rounded-b-lg ${selectedRange.days === range.days
-                                    ? 'text-white bg-blue-600'
-                                    : 'text-white/70 hover:text-white hover:bg-white/5'
+                                        ? 'text-white bg-blue-600'
+                                        : 'text-white/70 hover:text-white hover:bg-white/5'
                                     }`}
                             >
                                 {range.label}
@@ -112,7 +109,7 @@ export function LiveAnalytics({ data }: LiveAnalyticsProps) {
             </div>
 
             {/* Chart */}
-            <div className="w-full h-80" style={{ minHeight: '320px' }}>
+            <div className="w-full h-80">
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart
                         data={chartData}
@@ -127,8 +124,6 @@ export function LiveAnalytics({ data }: LiveAnalyticsProps) {
                         <YAxis
                             stroke="#ffffff60"
                             style={{ fontSize: '12px' }}
-                            domain={[0, 'auto']}
-                            allowDataOverflow={false}
                         />
                         <Tooltip
                             contentStyle={{
@@ -137,12 +132,6 @@ export function LiveAnalytics({ data }: LiveAnalyticsProps) {
                                 borderRadius: '8px',
                                 color: '#fff',
                             }}
-                            labelStyle={{
-                                color: '#fff',
-                                fontWeight: 'bold',
-                                marginBottom: '8px',
-                            }}
-                            formatter={(value: any) => [`${value} actions`, '']}
                         />
                         <Legend
                             wrapperStyle={{
