@@ -169,6 +169,13 @@ export function ChatInterfaceWithRealtime({
     taskId?: string;
     stepId?: string;
   } | null>(null);
+  // Queue for pending doc draft when email draft is shown first
+  const [pendingDocDraft, setPendingDocDraft] = useState<{
+    title: string;
+    body: string;
+    taskId?: string;
+    stepId?: string;
+  } | null>(null);
   const [clientTimeZone] = useState<string>(() => {
     try {
       return Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -599,21 +606,29 @@ export function ChatInterfaceWithRealtime({
                 : undefined;
 
               if (draftDoc && draftDoc.data) {
-                setDocDraft({
+                const docData = {
                   title: draftDoc.data.title,
                   body: draftDoc.data.body,
                   taskId: draftDoc.data.taskId,
                   stepId: draftDoc.data.stepId,
-                });
-
-                const draftDocMessage: MessageType = {
-                  id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-                  role: 'assistant',
-                  content:
-                    'I have drafted this Google Doc. Please review and edit it in the chat area before I create it for you.',
-                  timestamp: new Date(),
                 };
-                setMessages((prev) => [...prev, draftDocMessage]);
+
+                // If email draft is also present, queue the doc draft to show after email is handled
+                if (hasDraftEmail) {
+                  setPendingDocDraft(docData);
+                } else {
+                  // No email draft, show doc draft immediately
+                  setDocDraft(docData);
+
+                  const draftDocMessage: MessageType = {
+                    id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    role: 'assistant',
+                    content:
+                      'I have drafted this Google Doc. Please review and edit it in the chat area before I create it for you.',
+                    timestamp: new Date(),
+                  };
+                  setMessages((prev) => [...prev, draftDocMessage]);
+                }
               }
             }
           } else {
@@ -685,6 +700,20 @@ export function ChatInterfaceWithRealtime({
       const draftMeta = emailDraft;
       setEmailDraft(null);
 
+      // If there's a pending doc draft, show it now
+      if (pendingDocDraft) {
+        setDocDraft(pendingDocDraft);
+        setPendingDocDraft(null);
+        const draftDocMessage: MessageType = {
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          role: 'assistant',
+          content:
+            'I have drafted this Google Doc. Please review and edit it in the chat area before I create it for you.',
+          timestamp: new Date(),
+        };
+        setMessages((prev) => [...prev, draftDocMessage]);
+      }
+
       let resumeTaskId = draftMeta?.taskId || currentTaskId || undefined;
       let resumeStepId = draftMeta?.stepId;
 
@@ -704,7 +733,7 @@ export function ChatInterfaceWithRealtime({
 
       if (resumeTaskId && resumeStepId && userId) {
         try {
-          await fetch('/api/agent/execute', {
+          const resumeRes = await fetch('/api/agent/execute', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -715,12 +744,77 @@ export function ChatInterfaceWithRealtime({
               resumeFromStepId: resumeStepId,
             }),
           });
+
+          // Process the resume response to show acknowledgments for remaining tasks
+          if (resumeRes.ok) {
+            const resumeJson = await resumeRes.json();
+            console.log('📤 [RESUME AFTER EMAIL] Response:', resumeJson);
+
+            if (resumeJson?.success && resumeJson.data?.outputs) {
+              const outputs = resumeJson.data.outputs;
+              console.log('📋 [RESUME AFTER EMAIL] Outputs:', outputs);
+
+              // Check for calendar events
+              const calendarEvents = outputs.filter(
+                (o: any) => o?.type === 'calendar_event'
+              );
+
+              console.log('🗓️ [RESUME AFTER EMAIL] Found calendar events:', calendarEvents);
+
+              if (calendarEvents.length > 0) {
+                calendarEvents.forEach((event: any) => {
+                  const eventMessage: MessageType = {
+                    id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    role: 'assistant',
+                    content: `Done. I've created a calendar event "${event.data?.summary || event.title}" for you.${event.url ? ` You can view it here: ${event.url}` : ''}`,
+                    timestamp: new Date(),
+                  };
+                  console.log('✅ [RESUME AFTER EMAIL] Adding calendar message:', eventMessage);
+                  setMessages((prev) => [...prev, eventMessage]);
+                });
+              }
+
+              // Check for file/document operations
+              const fileOutputs = outputs.filter(
+                (o: any) => o?.type === 'file' || o?.type === 'data'
+              );
+
+              if (fileOutputs.length > 0) {
+                fileOutputs.forEach((file: any) => {
+                  const fileMessage: MessageType = {
+                    id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    role: 'assistant',
+                    content: `Done. ${file.title || 'File operation completed successfully.'} ${file.url ? `You can access it here: ${file.url}` : ''}`,
+                    timestamp: new Date(),
+                  };
+                  console.log('✅ [RESUME AFTER EMAIL] Adding file message:', fileMessage);
+                  setMessages((prev) => [...prev, fileMessage]);
+                });
+              }
+
+              // Check for other completed tasks
+              const otherOutputs = outputs.filter(
+                (o: any) => o?.type !== 'calendar_event' && o?.type !== 'email' && o?.type !== 'document' && o?.type !== 'file' && o?.type !== 'data'
+              );
+
+              if (otherOutputs.length > 0) {
+                const completionMessage: MessageType = {
+                  id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                  role: 'assistant',
+                  content: 'All remaining tasks have been completed successfully.',
+                  timestamp: new Date(),
+                };
+                console.log('✅ [RESUME AFTER EMAIL] Adding completion message:', completionMessage);
+                setMessages((prev) => [...prev, completionMessage]);
+              }
+            }
+          }
         } catch (err) {
           console.error('Failed to resume task after email send:', err);
         }
       }
     },
-    [currentTaskId, emailDraft, userId, conversationId, messages]
+    [currentTaskId, emailDraft, userId, conversationId, messages, pendingDocDraft, setMessages]
   );
 
   const handleDocCreated = useCallback(
@@ -777,7 +871,7 @@ export function ChatInterfaceWithRealtime({
 
       if (resumeTaskId && resumeStepId && userId) {
         try {
-          await fetch('/api/agent/execute', {
+          const resumeRes = await fetch('/api/agent/execute', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -788,6 +882,71 @@ export function ChatInterfaceWithRealtime({
               resumeFromStepId: resumeStepId,
             }),
           });
+
+          // Process the resume response to show acknowledgments for remaining tasks
+          if (resumeRes.ok) {
+            const resumeJson = await resumeRes.json();
+            console.log('📤 [RESUME AFTER DOC] Response:', resumeJson);
+
+            if (resumeJson?.success && resumeJson.data?.outputs) {
+              const outputs = resumeJson.data.outputs;
+              console.log('📋 [RESUME AFTER DOC] Outputs:', outputs);
+
+              // Check for calendar events
+              const calendarEvents = outputs.filter(
+                (o: any) => o?.type === 'calendar_event'
+              );
+
+              console.log('🗓️ [RESUME AFTER DOC] Found calendar events:', calendarEvents);
+
+              if (calendarEvents.length > 0) {
+                calendarEvents.forEach((event: any) => {
+                  const eventMessage: MessageType = {
+                    id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    role: 'assistant',
+                    content: `Done. I've created a calendar event "${event.data?.summary || event.title}" for you.${event.url ? ` You can view it here: ${event.url}` : ''}`,
+                    timestamp: new Date(),
+                  };
+                  console.log('✅ [RESUME AFTER DOC] Adding calendar message:', eventMessage);
+                  setMessages((prev) => [...prev, eventMessage]);
+                });
+              }
+
+              // Check for file/document operations
+              const fileOutputs = outputs.filter(
+                (o: any) => o?.type === 'file' || o?.type === 'data'
+              );
+
+              if (fileOutputs.length > 0) {
+                fileOutputs.forEach((file: any) => {
+                  const fileMessage: MessageType = {
+                    id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    role: 'assistant',
+                    content: `Done. ${file.title || 'File operation completed successfully.'} ${file.url ? `You can access it here: ${file.url}` : ''}`,
+                    timestamp: new Date(),
+                  };
+                  console.log('✅ [RESUME AFTER DOC] Adding file message:', fileMessage);
+                  setMessages((prev) => [...prev, fileMessage]);
+                });
+              }
+
+              // Check for other completed tasks
+              const otherOutputs = outputs.filter(
+                (o: any) => o?.type !== 'calendar_event' && o?.type !== 'email' && o?.type !== 'document' && o?.type !== 'file' && o?.type !== 'data'
+              );
+
+              if (otherOutputs.length > 0) {
+                const completionMessage: MessageType = {
+                  id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                  role: 'assistant',
+                  content: 'All remaining tasks have been completed successfully.',
+                  timestamp: new Date(),
+                };
+                console.log('✅ [RESUME AFTER DOC] Adding completion message:', completionMessage);
+                setMessages((prev) => [...prev, completionMessage]);
+              }
+            }
+          }
         } catch (err) {
           console.error('Failed to resume task after doc create:', err);
         }
@@ -883,7 +1042,22 @@ export function ChatInterfaceWithRealtime({
             userId={userId}
             emailDraft={emailDraft}
             onDraftSent={handleDraftSent}
-            onDraftCancel={() => setEmailDraft(null)}
+            onDraftCancel={() => {
+              setEmailDraft(null);
+              // If there's a pending doc draft, show it now
+              if (pendingDocDraft) {
+                setDocDraft(pendingDocDraft);
+                setPendingDocDraft(null);
+                const draftDocMessage: MessageType = {
+                  id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                  role: 'assistant',
+                  content:
+                    'I have drafted this Google Doc. Please review and edit it in the chat area before I create it for you.',
+                  timestamp: new Date(),
+                };
+                setMessages((prev) => [...prev, draftDocMessage]);
+              }
+            }}
             docDraft={docDraft}
             onDocDraftCreated={handleDocCreated}
             onDocDraftCancel={() => setDocDraft(null)}

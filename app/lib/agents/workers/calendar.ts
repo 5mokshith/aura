@@ -55,8 +55,18 @@ export class CalendarWorker extends BaseWorker {
       typeof summary === 'string' && summary.trim().length > 0
         ? summary.trim()
         : (typeof step.description === 'string' && step.description.trim().length > 0
-            ? step.description.trim().slice(0, 255)
-            : 'Calendar event');
+          ? step.description.trim().slice(0, 255)
+          : 'Calendar event');
+
+    // Log calendar creation to detect duplicates
+    console.log('🗓️ [CALENDAR] Creating event:', {
+      stepId: step.id,
+      summary: safeSummary,
+      startTime,
+      endTime,
+      timestamp: new Date().toISOString(),
+      stackTrace: new Error().stack?.split('\n').slice(2, 5).join('\n')
+    });
 
     const event = {
       summary: safeSummary,
@@ -76,6 +86,12 @@ export class CalendarWorker extends BaseWorker {
     const result = await calendar.events.insert({
       calendarId: 'primary',
       requestBody: event,
+    });
+
+    console.log('✅ [CALENDAR] Event created successfully:', {
+      eventId: result.data.id,
+      summary: safeSummary,
+      htmlLink: result.data.htmlLink
     });
 
     return this.createSuccessResult(step.id, {

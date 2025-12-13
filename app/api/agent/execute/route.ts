@@ -27,6 +27,7 @@ const summarizerModel = genAI.getGenerativeModel({
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const supabase = createServiceClient();
+  const executionId = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
   try {
     const body: AgentExecuteRequest = await request.json();
@@ -34,6 +35,15 @@ export async function POST(request: NextRequest) {
 
     const cookieUserId = request.cookies.get('aura_user_id')?.value;
     const usedUserId = userId || cookieUserId || '';
+
+    console.log(`🚀 [EXECUTE] Starting task execution:`, {
+      executionId,
+      taskId,
+      mode,
+      resumeFromStepId,
+      userId: usedUserId,
+      timestamp: new Date().toISOString()
+    });
 
     // Validate input
     if (!taskId || !usedUserId) {
@@ -73,32 +83,95 @@ export async function POST(request: NextRequest) {
       .single();
     const resolvedConversationId = conversationId || taskRow?.conversation_id || null;
 
-    await logExecution(supabase, usedUserId, taskId, null, 'planner', 'info', 'Starting task execution', undefined, resolvedConversationId || undefined);
+    await logExecution(supabase, usedUserId, taskId, null, 'planner', 'info', `Starting task execution (${executionId})`, undefined, resolvedConversationId || undefined);
 
     // Update task status to running
     await updateTaskStatus(taskId, 'running');
+
+    // Load current step statuses from database to skip already-completed steps
+    const { data: stepStatuses } = await supabase
+      .from('task_steps_v2')
+      .select('step_id, status')
+      .eq('task_uuid', (await supabase
+        .from('tasks_v2')
+        .select('id')
+        .eq('task_id', taskId)
+        .single()).data?.id || '');
+
+    const completedSteps = new Set(
+      (stepStatuses || [])
+        .filter((s: any) => s.status === 'completed')
+        .map((s: any) => s.step_id)
+    );
+
+    console.log(`📋 [EXECUTE] Found ${completedSteps.size} already-completed steps:`, Array.from(completedSteps));
 
     // Execute steps sequentially
     const results: WorkerResult[] = [];
     const outputs: any[] = [];
 
+    // If resuming, we need to skip all steps up to and including the resumeFromStepId
+    let shouldSkipUntilResume = !!resumeFromStepId;
+    let hasPassedResumePoint = false;
+
     for (const step of plan.steps) {
-      // In resume mode, treat the specified step as already handled (e.g., user approved a preview draft)
-      if (resumeFromStepId && step.id === resumeFromStepId) {
+      // Skip steps that are already completed in the database
+      if (completedSteps.has(step.id)) {
+        console.log(`⏭️ [EXECUTE] Skipping already-completed step ${step.id} (found in DB)`);
         results.push({
           stepId: step.id,
           success: true,
           output: {
             type: 'data',
-            title: `Step ${step.id} completed via preview flow`,
+            title: `Step ${step.id} already completed`,
             data: {
-              resumedFromPreview: true,
+              skipped: true,
               service: step.service,
               action: step.action,
             },
           },
         });
         continue;
+      }
+
+      // In resume mode, skip all steps up to and including the resume step
+      if (shouldSkipUntilResume && !hasPassedResumePoint) {
+        if (step.id === resumeFromStepId) {
+          // Mark this step as completed (user already approved it)
+          results.push({
+            stepId: step.id,
+            success: true,
+            output: {
+              type: 'data',
+              title: `Step ${step.id} completed via preview flow`,
+              data: {
+                resumedFromPreview: true,
+                service: step.service,
+                action: step.action,
+              },
+            },
+          });
+          hasPassedResumePoint = true;
+          console.log(`⏭️ [EXECUTE] Resuming from step ${step.id}, skipping all previous steps`);
+          continue;
+        } else {
+          // Skip this step entirely (it was completed in a previous execution)
+          console.log(`⏭️ [EXECUTE] Skipping already-completed step ${step.id}`);
+          results.push({
+            stepId: step.id,
+            success: true,
+            output: {
+              type: 'data',
+              title: `Step ${step.id} already completed`,
+              data: {
+                skipped: true,
+                service: step.service,
+                action: step.action,
+              },
+            },
+          });
+          continue;
+        }
       }
 
       // Check dependencies
@@ -249,7 +322,7 @@ export async function POST(request: NextRequest) {
         [],
         Date.now() - startTime
       );
-    } catch {}
+    } catch { }
 
     return NextResponse.json<ApiResponse>(
       {
@@ -279,9 +352,8 @@ async function generateContentSummaryOutput(plan: TaskPlan, results: WorkerResul
   const maxChars = 16000;
   const inputText = trimmed.length > maxChars ? trimmed.slice(0, maxChars) : trimmed;
 
-  const prompt = `Summarize the following document for the user in clear, concise natural language. Focus on the main ideas, key points, and any important details.\n\nDocument title: ${
-    candidate.title || plan.title
-  }\n\nDocument content:\n${inputText}`;
+  const prompt = `Summarize the following document for the user in clear, concise natural language. Focus on the main ideas, key points, and any important details.\n\nDocument title: ${candidate.title || plan.title
+    }\n\nDocument content:\n${inputText}`;
 
   try {
     const result = await summarizerModel.generateContent([prompt]);
@@ -337,7 +409,7 @@ function findTextCandidate(results: WorkerResult[]): { text: string; title?: str
               title: output.title,
             };
           }
-        } catch {}
+        } catch { }
       }
     }
   }

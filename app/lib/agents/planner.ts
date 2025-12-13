@@ -8,10 +8,12 @@ const genAI = new GoogleGenerativeAI(envConfig.llm.geminiApiKey!);
 
 export class PlannerAgent {
   private model;
+  private modelName: string;
 
   constructor() {
-    this.model = genAI.getGenerativeModel({ 
-      model: envConfig.llm.geminiModel || 'gemini-2.0-flash-exp',
+    this.modelName = envConfig.llm.geminiModel || 'gemini-2.0-flash-exp';
+    this.model = genAI.getGenerativeModel({
+      model: this.modelName,
       generationConfig: {
         temperature: 0.7,
         topP: 0.95,
@@ -22,7 +24,7 @@ export class PlannerAgent {
   }
 
   /**
-   * Decompose a user prompt into executable steps
+   * Decompose a user prompt into executable steps with automatic retry and fallback
    */
   async planTask(
     prompt: string,
@@ -30,22 +32,83 @@ export class PlannerAgent {
     userTimeZone?: string,
     userLocalDate?: string
   ): Promise<TaskPlan> {
+    const maxRetries = 3;
+    const fallbackModel = 'gemini-2.0-flash-exp'; // More stable fallback
+    let lastError: Error | null = null;
+
+    // Try with primary model
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const plan = await this.executePlanTask(prompt, userId, userTimeZone, userLocalDate, this.model);
+        return plan;
+      } catch (error) {
+        lastError = error as Error;
+        const isOverloaded = error instanceof Error &&
+          (error.message.includes('503') || error.message.includes('overloaded'));
+
+        if (isOverloaded && attempt < maxRetries) {
+          // Exponential backoff: 2s, 4s, 8s
+          const delay = Math.pow(2, attempt) * 1000;
+          console.log(`Model overloaded, retrying in ${delay}ms (attempt ${attempt}/${maxRetries})...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          continue;
+        }
+
+        // If still overloaded after retries, try fallback model
+        if (isOverloaded && this.modelName !== fallbackModel) {
+          console.log(`Primary model still overloaded, trying fallback model: ${fallbackModel}`);
+          try {
+            const fallback = genAI.getGenerativeModel({
+              model: fallbackModel,
+              generationConfig: {
+                temperature: 0.7,
+                topP: 0.95,
+                topK: 40,
+                maxOutputTokens: 8192,
+              },
+            });
+            const plan = await this.executePlanTask(prompt, userId, userTimeZone, userLocalDate, fallback);
+            return plan;
+          } catch (fallbackError) {
+            console.error('Fallback model also failed:', fallbackError);
+            throw fallbackError;
+          }
+        }
+
+        // Non-retryable error or max retries exceeded
+        throw error;
+      }
+    }
+
+    throw lastError || new Error('Failed to plan task after retries');
+  }
+
+  /**
+   * Execute the actual planning logic with a specific model
+   */
+  private async executePlanTask(
+    prompt: string,
+    userId: string,
+    userTimeZone: string | undefined,
+    userLocalDate: string | undefined,
+    model: any
+  ): Promise<TaskPlan> {
     const systemPrompt = this.getSystemPrompt();
     const userPrompt = this.formatUserPrompt(prompt, userTimeZone, userLocalDate);
 
     try {
-      const result = await this.model.generateContent([systemPrompt, userPrompt]);
+      const result = await model.generateContent([systemPrompt, userPrompt]);
       const response = result.response.text();
-      
+
       // Extract JSON from response (handle markdown code blocks)
       const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/) || response.match(/\{[\s\S]*\}/);
       const jsonText = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : response;
-      
+
       const parsed = JSON.parse(jsonText);
-      
+
       // Generate task ID
       const taskId = this.generateTaskId();
-      
+
       // Convert parsed response to TaskPlan
       const plan: TaskPlan = {
         taskId,
