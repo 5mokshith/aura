@@ -43,7 +43,10 @@ export class DocsWorker extends BaseWorker {
       requestBody: { title },
     });
 
-    const documentId = createResult.data.documentId!;
+    const documentId = createResult.data.documentId;
+    if (!documentId) {
+      throw new Error('Google Docs API returned no documentId after creation');
+    }
 
     // Add content if provided
     if (content && Array.isArray(content)) {
@@ -78,6 +81,10 @@ export class DocsWorker extends BaseWorker {
     const { documentId, operations } = step.parameters || {};
 
     const requests = [];
+
+    if (!Array.isArray(operations)) {
+      throw new Error('Operations must be an array');
+    }
 
     for (const op of operations) {
       if (op.type === 'append') {
