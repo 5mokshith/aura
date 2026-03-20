@@ -73,6 +73,10 @@ export class SheetsWorker extends BaseWorker {
       title,
     } = parameters;
 
+    if (!Array.isArray(values)) {
+      throw new Error('Values must be an array of arrays');
+    }
+
     let targetSpreadsheetId = spreadsheetId as string | undefined;
 
     // If no spreadsheetId is provided, create a new spreadsheet first
@@ -85,7 +89,10 @@ export class SheetsWorker extends BaseWorker {
         },
       });
 
-      targetSpreadsheetId = createResult.data.spreadsheetId!;
+      targetSpreadsheetId = createResult.data.spreadsheetId;
+      if (!targetSpreadsheetId) {
+        throw new Error('Google Sheets API returned no spreadsheetId after creation');
+      }
     }
 
     const result = await sheets.spreadsheets.values.append({
