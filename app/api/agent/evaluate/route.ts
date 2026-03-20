@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     // In a real implementation, you'd store individual step results
     const results: WorkerResult[] = plan.steps.map((step, index) => ({
       stepId: step.id,
-      success: taskData.status === 'success',
+      success: taskData.status === 'success' || taskData.status === 'completed',
       output: outputs?.[index],
     }));
 
