@@ -28,10 +28,12 @@ export async function POST(request: NextRequest) {
   const startTime = Date.now();
   const supabase = createServiceClient();
   const executionId = `exec_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  let parsedTaskId: string | undefined;
 
   try {
     const body: AgentExecuteRequest = await request.json();
     const { taskId, userId, conversationId, mode, resumeFromStepId } = body;
+    parsedTaskId = taskId;
 
     const cookieUserId = request.cookies.get('aura_user_id')?.value;
     const usedUserId = userId || cookieUserId || '';
@@ -283,8 +285,9 @@ export async function POST(request: NextRequest) {
       resolvedConversationId || undefined
     );
 
-    // Update task status
-    const hasHardFailure = results.some(r => !r.success || !r.output);
+    // Update task status — only count explicit failures, not missing outputs
+    // (some steps like delete operations legitimately produce no output)
+    const hasHardFailure = results.some(r => !r.success);
     const finalStatus = hasHardFailure ? 'failed' : 'completed';
     await updateTaskStatus(
       taskId,
@@ -312,17 +315,19 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in /api/agent/execute:', error);
 
-    // Try to update task status to failed
-    try {
-      const body: AgentExecuteRequest = await request.json();
-      await updateTaskStatus(
-        body.taskId,
-        'failed',
-        error instanceof Error ? error.message : 'Execution error',
-        [],
-        Date.now() - startTime
-      );
-    } catch { }
+    // Try to update task status to failed using the already-parsed taskId
+    // NOTE: request.json() can only be called once per request
+    if (parsedTaskId) {
+      try {
+        await updateTaskStatus(
+          parsedTaskId,
+          'failed',
+          error instanceof Error ? error.message : 'Execution error',
+          [],
+          Date.now() - startTime
+        );
+      } catch { }
+    }
 
     return NextResponse.json<ApiResponse>(
       {
