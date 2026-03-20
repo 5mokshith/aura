@@ -80,7 +80,11 @@ export class CalendarWorker extends BaseWorker {
         dateTime: endTime,
         timeZone,
       },
-      attendees: attendees?.map((email: string) => ({ email })),
+      attendees: Array.isArray(attendees)
+        ? attendees
+            .filter((email: any) => typeof email === 'string' && email.trim().length > 0)
+            .map((email: string) => ({ email: email.trim() }))
+        : undefined,
     };
 
     const result = await calendar.events.insert({
