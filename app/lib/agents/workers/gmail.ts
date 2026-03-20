@@ -195,15 +195,15 @@ export class GmailWorker extends BaseWorker {
       format: 'full',
     });
 
-    const headers = result.data.payload.headers;
+    const headers = result.data.payload?.headers || [];
     const getHeader = (name: string) =>
       headers.find((h: any) => h.name === name)?.value;
 
     // Extract body
     let body = '';
-    if (result.data.payload.body.data) {
+    if (result.data.payload?.body?.data) {
       body = Buffer.from(result.data.payload.body.data, 'base64').toString();
-    } else if (result.data.payload.parts) {
+    } else if (result.data.payload?.parts) {
       const textPart = result.data.payload.parts.find(
         (part: any) => part.mimeType === 'text/plain' || part.mimeType === 'text/html'
       );
