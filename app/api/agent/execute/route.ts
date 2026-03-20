@@ -538,7 +538,7 @@ async function executeStep(
       { status: 'running' },
       conversationId
     );
-    const resolvedStep = resolveStepPlaceholders(step, previousResults);
+    let resolvedStep = resolveStepPlaceholders(step, previousResults);
 
     const effectiveMode =
       mode === 'preview' || mode === 'preview_auto'
@@ -646,6 +646,25 @@ async function executeStep(
         success: true,
         output: draftOutput,
       };
+    }
+
+    // In auto mode, if this is a Gmail send that looks like a summary email,
+    // regenerate the body using actual data from previous steps (the planner
+    // can't know real data at planning time).
+    if (resolvedStep.service === 'gmail' && resolvedStep.action === 'send' && previousResults.length > 0) {
+      const { to, subject } = resolvedStep.parameters || {};
+      const dataDrivenBody = await maybeGenerateEmailSummaryBodyFromResults(
+        resolvedStep,
+        previousResults,
+        to,
+        subject
+      );
+      if (dataDrivenBody && dataDrivenBody.trim().length > 0) {
+        resolvedStep = {
+          ...resolvedStep,
+          parameters: { ...resolvedStep.parameters, body: dataDrivenBody },
+        };
+      }
     }
 
     const worker = getWorker(step.service);
@@ -799,23 +818,42 @@ function resolveTemplateString(template: string, previousResults: WorkerResult[]
     return template;
   }
 
-  // Shortcut for {{step_X.documentId}} — resolve from Docs worker output
+  // Shortcut for {{step_X.documentId}} — resolve from Docs worker or Drive search output
   if (path === 'documentId') {
     const output = result.output as any;
     if (!output) return template;
 
     if (output.data?.documentId) return String(output.data.documentId);
     if (output.googleId) return String(output.googleId);
+    // Fall back to first file from a Drive search result
+    if (Array.isArray(output.data?.files) && output.data.files[0]?.id) {
+      return String(output.data.files[0].id);
+    }
 
     return template;
   }
 
-  // Shortcut for {{step_X.spreadsheetId}} — resolve from Sheets worker output
+  // Shortcut for {{step_X.spreadsheetId}} — resolve from Sheets worker or Drive search output
   if (path === 'spreadsheetId') {
     const output = result.output as any;
     if (!output) return template;
 
     if (output.data?.spreadsheetId) return String(output.data.spreadsheetId);
+    if (output.googleId) return String(output.googleId);
+    // Fall back to first file from a Drive search result
+    if (Array.isArray(output.data?.files) && output.data.files[0]?.id) {
+      return String(output.data.files[0].id);
+    }
+
+    return template;
+  }
+
+  // Shortcut for {{step_X.eventId}} — resolve from Calendar worker output
+  if (path === 'eventId') {
+    const output = result.output as any;
+    if (!output) return template;
+
+    if (output.data?.eventId) return String(output.data.eventId);
     if (output.googleId) return String(output.googleId);
 
     return template;
