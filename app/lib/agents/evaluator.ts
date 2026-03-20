@@ -45,7 +45,17 @@ export class EvaluatorAgent {
       const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/) || response.match(/\{[\s\S]*\}/);
       const jsonText = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : response;
 
-      const evaluation = JSON.parse(jsonText);
+      let evaluation: any;
+      try {
+        evaluation = JSON.parse(jsonText);
+      } catch (parseError) {
+        console.error('Evaluator JSON parse failed:', parseError);
+        return {
+          valid: false,
+          issues: ['Failed to parse evaluation response from AI'],
+          suggestions: ['Retry the evaluation'],
+        };
+      }
 
       return {
         valid: evaluation.valid,
@@ -55,11 +65,11 @@ export class EvaluatorAgent {
       };
     } catch (error) {
       console.error('Evaluator Agent Error:', error);
-      // Return a safe default evaluation
+      // Return conservative failure on evaluation error — never silently pass
       return {
-        valid: true,
-        issues: [],
-        suggestions: ['Evaluation completed with warnings'],
+        valid: false,
+        issues: ['Evaluation could not be completed due to an internal error'],
+        suggestions: ['Review task outputs manually', 'Retry if the error was transient'],
       };
     }
   }
@@ -75,7 +85,7 @@ export class EvaluatorAgent {
     const failedSteps = results.filter(r => !r.success);
     if (failedSteps.length > 0) {
       failedSteps.forEach(step => {
-        issues.push(`Step ${step.stepId} failed: ${step.error}`);
+        issues.push(`Step ${step.stepId} failed: ${step.error || 'Unknown error'}`);
         retrySteps.push(step.stepId);
       });
 
