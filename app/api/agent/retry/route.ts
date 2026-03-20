@@ -58,18 +58,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const planResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/agent/plan`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': request.headers.get('Authorization') || '',
-      },
-      body: JSON.stringify({
-        prompt: originalTask.input_prompt,
-        userId: cookieUserId,
-        conversationId: originalTask.conversation_id || undefined,
-      }),
-    });
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+    if (!appUrl) {
+      return Response.json(
+        { success: false, error: { code: 'CONFIG_ERROR', message: 'NEXT_PUBLIC_APP_URL is not configured' } } as ApiResponse,
+        { status: 500 }
+      );
+    }
+
+    const planController = new AbortController();
+    const planTimeout = setTimeout(() => planController.abort(), 60000);
+    let planResponse: Response;
+    try {
+      planResponse = await fetch(`${appUrl}/api/agent/plan`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': request.headers.get('Authorization') || '',
+        },
+        body: JSON.stringify({
+          prompt: originalTask.input_prompt,
+          userId: cookieUserId,
+          conversationId: originalTask.conversation_id || undefined,
+        }),
+        signal: planController.signal,
+      });
+    } finally {
+      clearTimeout(planTimeout);
+    }
 
     if (!planResponse.ok) {
       throw new Error('Failed to create retry plan');
@@ -82,18 +98,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Execute the new task
-    const executeResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/agent/execute`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': request.headers.get('Authorization') || '',
-      },
-      body: JSON.stringify({
-        taskId: planData.data.taskId,
-        userId: cookieUserId,
-        conversationId: originalTask.conversation_id || undefined,
-      }),
-    });
+    const execController = new AbortController();
+    const execTimeout = setTimeout(() => execController.abort(), 120000);
+    let executeResponse: Response;
+    try {
+      executeResponse = await fetch(`${appUrl}/api/agent/execute`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': request.headers.get('Authorization') || '',
+        },
+        body: JSON.stringify({
+          taskId: planData.data.taskId,
+          userId: cookieUserId,
+          conversationId: originalTask.conversation_id || undefined,
+        }),
+        signal: execController.signal,
+      });
+    } finally {
+      clearTimeout(execTimeout);
+    }
 
     if (!executeResponse.ok) {
       throw new Error('Failed to execute retry task');
