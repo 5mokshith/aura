@@ -86,11 +86,15 @@ export class DocsWorker extends BaseWorker {
       throw new Error('Operations must be an array');
     }
 
+    // Fetch document to find end index for append operations
+    const doc = await docs.documents.get({ documentId });
+    const docEndIndex = doc.data.body?.content?.[doc.data.body.content.length - 1]?.endIndex || 1;
+
     for (const op of operations) {
       if (op.type === 'append') {
         requests.push({
           insertText: {
-            location: { index: 1 },
+            location: { index: docEndIndex - 1 },
             text: op.text + '\n',
           },
         });

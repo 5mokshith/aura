@@ -2,6 +2,8 @@ import { google } from 'googleapis';
 import { getOAuth2Client } from '@/app/lib/google/auth';
 import { apiErrorResponse, AuraError } from '@/app/lib/errorHandler';
 
+const DEFAULT_TIME_ZONE = process.env.AURA_DEFAULT_TIMEZONE || 'Asia/Kolkata';
+
 /**
  * POST /api/calendar/create
  * Create calendar events with attendees and validate date formats/time zones
@@ -75,11 +77,11 @@ export async function POST(request: Request) {
       location,
       start: {
         dateTime: startTime,
-        timeZone: timeZone || 'UTC',
+        timeZone: timeZone || DEFAULT_TIME_ZONE,
       },
       end: {
         dateTime: endTime,
-        timeZone: timeZone || 'UTC',
+        timeZone: timeZone || DEFAULT_TIME_ZONE,
       },
     };
 

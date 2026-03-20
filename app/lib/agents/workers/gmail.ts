@@ -77,18 +77,18 @@ export class GmailWorker extends BaseWorker {
     const bodyForOutput =
       trimmedBody.length > maxBodyChars ? trimmedBody.slice(0, maxBodyChars) : trimmedBody;
 
-    // Create email message
-    const messageParts = [
+    // Create email message with proper MIME formatting (RFC 2822 requires \r\n)
+    const nl = '\r\n';
+    const headerLines = [
       `To: ${Array.isArray(to) ? to.join(', ') : to}`,
-      cc ? `Cc: ${Array.isArray(cc) ? cc.join(', ') : cc}` : '',
-      bcc ? `Bcc: ${Array.isArray(bcc) ? bcc.join(', ') : bcc}` : '',
+      ...(cc ? [`Cc: ${Array.isArray(cc) ? cc.join(', ') : cc}`] : []),
+      ...(bcc ? [`Bcc: ${Array.isArray(bcc) ? bcc.join(', ') : bcc}`] : []),
       `Subject: ${subject}`,
       'Content-Type: text/html; charset=utf-8',
-      '',
-      htmlBody,
-    ].filter(Boolean);
+    ];
 
-    const message = messageParts.join('\n');
+    // Headers, blank line separator, then body
+    const message = headerLines.join(nl) + nl + nl + htmlBody;
     const encodedMessage = Buffer.from(message)
       .toString('base64')
       .replace(/\+/g, '-')

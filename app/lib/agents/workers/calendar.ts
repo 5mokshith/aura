@@ -87,9 +87,12 @@ export class CalendarWorker extends BaseWorker {
         : undefined,
     };
 
+    const hasAttendees = Array.isArray(event.attendees) && event.attendees.length > 0;
+
     const result = await calendar.events.insert({
       calendarId: 'primary',
       requestBody: event,
+      sendUpdates: hasAttendees ? 'all' : 'none',
     });
 
     console.log('✅ [CALENDAR] Event created successfully:', {
