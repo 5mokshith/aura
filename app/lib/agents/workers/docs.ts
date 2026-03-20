@@ -88,16 +88,19 @@ export class DocsWorker extends BaseWorker {
 
     // Fetch document to find end index for append operations
     const doc = await docs.documents.get({ documentId });
-    const docEndIndex = doc.data.body?.content?.[doc.data.body.content.length - 1]?.endIndex || 1;
+    let appendIndex = (doc.data.body?.content?.[doc.data.body.content.length - 1]?.endIndex || 2) - 1;
 
     for (const op of operations) {
       if (op.type === 'append') {
+        const text = op.text + '\n';
         requests.push({
           insertText: {
-            location: { index: docEndIndex - 1 },
-            text: op.text + '\n',
+            location: { index: appendIndex },
+            text,
           },
         });
+        // Advance the index so the next append goes after this one
+        appendIndex += text.length;
       } else if (op.type === 'replace' && op.startIndex !== undefined && op.endIndex !== undefined) {
         requests.push({
           deleteContentRange: {

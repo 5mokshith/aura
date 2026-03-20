@@ -77,6 +77,11 @@ export class SheetsWorker extends BaseWorker {
       throw new Error('Values must be an array of arrays');
     }
 
+    // Ensure 2D array structure – wrap bare values in rows if needed
+    const normalizedValues = values.map((row: any) =>
+      Array.isArray(row) ? row : [row]
+    );
+
     let targetSpreadsheetId = spreadsheetId as string | undefined;
 
     // If no spreadsheetId is provided, create a new spreadsheet first
@@ -100,7 +105,7 @@ export class SheetsWorker extends BaseWorker {
       range,
       valueInputOption: 'USER_ENTERED',
       requestBody: {
-        values,
+        values: normalizedValues,
       },
     });
 

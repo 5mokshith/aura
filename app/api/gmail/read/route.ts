@@ -43,19 +43,33 @@ export async function GET(request: Request) {
     const subject = headers.find((h) => h.name === 'Subject')?.value || '';
     const date = headers.find((h) => h.name === 'Date')?.value || '';
 
-    // Extract body
+    // Extract body – recurse into nested multipart parts (e.g. multipart/mixed
+    // wrapping multipart/alternative) which is common for emails with attachments.
+    function findBodyData(parts: any[]): { data: string; html: boolean } | null {
+      for (const part of parts) {
+        if (part.mimeType === 'text/html' && part.body?.data) {
+          return { data: part.body.data, html: true };
+        }
+        if (part.parts) {
+          const nested = findBodyData(part.parts);
+          if (nested) return nested;
+        }
+      }
+      for (const part of parts) {
+        if (part.mimeType === 'text/plain' && part.body?.data) {
+          return { data: part.body.data, html: false };
+        }
+      }
+      return null;
+    }
+
     let body = '';
     const parts = payload?.parts || [];
 
     if (parts.length > 0) {
-      // Multipart message
-      const textPart = parts.find((p) => p.mimeType === 'text/plain');
-      const htmlPart = parts.find((p) => p.mimeType === 'text/html');
-
-      if (htmlPart?.body?.data) {
-        body = Buffer.from(htmlPart.body.data, 'base64').toString('utf-8');
-      } else if (textPart?.body?.data) {
-        body = Buffer.from(textPart.body.data, 'base64').toString('utf-8');
+      const found = findBodyData(parts);
+      if (found) {
+        body = Buffer.from(found.data, 'base64').toString('utf-8');
       }
     } else if (payload?.body?.data) {
       // Simple message

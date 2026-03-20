@@ -2,6 +2,30 @@ import { google } from 'googleapis';
 import { BaseWorker } from './base';
 import { WorkerResult, PlanStep } from '@/app/types/agent';
 
+/**
+ * Recursively find the best body content from MIME parts.
+ * Handles nested multipart (e.g. multipart/mixed > multipart/alternative).
+ */
+function extractBodyFromParts(parts: any[]): string {
+  // First pass: prefer HTML
+  for (const part of parts) {
+    if (part.mimeType === 'text/html' && part.body?.data) {
+      return Buffer.from(part.body.data, 'base64').toString();
+    }
+    if (part.parts) {
+      const nested = extractBodyFromParts(part.parts);
+      if (nested) return nested;
+    }
+  }
+  // Second pass: fall back to plain text
+  for (const part of parts) {
+    if (part.mimeType === 'text/plain' && part.body?.data) {
+      return Buffer.from(part.body.data, 'base64').toString();
+    }
+  }
+  return '';
+}
+
 function formatHtmlBody(body: string): string {
   const trimmed = (body || '').trim();
   if (!trimmed) return '';
@@ -143,17 +167,12 @@ export class GmailWorker extends BaseWorker {
         const getHeader = (name: string) =>
           headers.find((h: any) => h.name === name)?.value;
 
-        // Extract body similar to readEmail, but truncate to keep payload reasonable
+        // Extract body – handle nested multipart structures
         let body = '';
-        if (payload?.body?.data) {
+        if (payload?.parts) {
+          body = extractBodyFromParts(payload.parts);
+        } else if (payload?.body?.data) {
           body = Buffer.from(payload.body.data, 'base64').toString();
-        } else if (payload?.parts) {
-          const textPart = payload.parts.find(
-            (part: any) => part.mimeType === 'text/plain' || part.mimeType === 'text/html'
-          );
-          if (textPart?.body?.data) {
-            body = Buffer.from(textPart.body.data, 'base64').toString();
-          }
         }
 
         const maxChars = 4000;
@@ -199,17 +218,12 @@ export class GmailWorker extends BaseWorker {
     const getHeader = (name: string) =>
       headers.find((h: any) => h.name === name)?.value;
 
-    // Extract body
+    // Extract body – handle nested multipart structures
     let body = '';
-    if (result.data.payload?.body?.data) {
+    if (result.data.payload?.parts) {
+      body = extractBodyFromParts(result.data.payload.parts);
+    } else if (result.data.payload?.body?.data) {
       body = Buffer.from(result.data.payload.body.data, 'base64').toString();
-    } else if (result.data.payload?.parts) {
-      const textPart = result.data.payload.parts.find(
-        (part: any) => part.mimeType === 'text/plain' || part.mimeType === 'text/html'
-      );
-      if (textPart?.body.data) {
-        body = Buffer.from(textPart.body.data, 'base64').toString();
-      }
     }
 
     return this.createSuccessResult(step.id, {

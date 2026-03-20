@@ -799,6 +799,41 @@ function resolveTemplateString(template: string, previousResults: WorkerResult[]
     return template;
   }
 
+  // Shortcut for {{step_X.documentId}} — resolve from Docs worker output
+  if (path === 'documentId') {
+    const output = result.output as any;
+    if (!output) return template;
+
+    if (output.data?.documentId) return String(output.data.documentId);
+    if (output.googleId) return String(output.googleId);
+
+    return template;
+  }
+
+  // Shortcut for {{step_X.spreadsheetId}} — resolve from Sheets worker output
+  if (path === 'spreadsheetId') {
+    const output = result.output as any;
+    if (!output) return template;
+
+    if (output.data?.spreadsheetId) return String(output.data.spreadsheetId);
+    if (output.googleId) return String(output.googleId);
+
+    return template;
+  }
+
+  // Shortcut for {{step_X.url}} — resolve the URL/link from any output
+  if (path === 'url' || path === 'link' || path === 'htmlLink') {
+    const output = result.output as any;
+    if (!output) return template;
+
+    if (output.url) return String(output.url);
+    if (output.data?.url) return String(output.data.url);
+    if (output.data?.htmlLink) return String(output.data.htmlLink);
+    if (output.data?.webViewLink) return String(output.data.webViewLink);
+
+    return template;
+  }
+
   // Special handling for {{step_X.content}} to pull text content from prior outputs
   if (path === 'content') {
     const output = result.output as any;
@@ -822,40 +857,47 @@ function resolveTemplateString(template: string, previousResults: WorkerResult[]
     return template;
   }
 
-  // Generic dotted path resolution starting from result
-  let current: any = result;
-  if (path) {
-    const segments = path.split('.');
-    for (const segment of segments) {
-      if (!current) break;
+  // Generic dotted path resolution — try multiple roots so callers don't
+  // need to know the exact nesting (result vs result.output vs result.output.data).
+  const roots = [result, (result as any).output, (result as any).output?.data];
 
-      const arrayMatch = segment.match(/^(\w+)(\[(\d+)\])?$/);
-      if (!arrayMatch) {
-        current = current[segment as keyof typeof current];
-        continue;
-      }
+  for (const root of roots) {
+    if (!root || typeof root !== 'object') continue;
 
-      const key = arrayMatch[1];
-      const indexStr = arrayMatch[3];
+    let current: any = root;
+    if (path) {
+      const segments = path.split('.');
+      for (const segment of segments) {
+        if (!current) break;
 
-      current = current[key];
-      if (indexStr !== undefined) {
-        const idx = parseInt(indexStr, 10);
-        if (Array.isArray(current)) {
-          current = current[idx];
-        } else {
-          current = undefined;
-          break;
+        const arrayMatch = segment.match(/^(\w+)(\[(\d+)\])?$/);
+        if (!arrayMatch) {
+          current = current[segment as keyof typeof current];
+          continue;
+        }
+
+        const key = arrayMatch[1];
+        const indexStr = arrayMatch[3];
+
+        current = current[key];
+        if (indexStr !== undefined) {
+          const idx = parseInt(indexStr, 10);
+          if (Array.isArray(current)) {
+            current = current[idx];
+          } else {
+            current = undefined;
+            break;
+          }
         }
       }
     }
+
+    if (current !== undefined && current !== null) {
+      return String(current);
+    }
   }
 
-  if (current === undefined || current === null) {
-    return template;
-  }
-
-  return String(current);
+  return template;
 }
 
 /**

@@ -103,7 +103,7 @@ export class CalendarWorker extends BaseWorker {
 
     return this.createSuccessResult(step.id, {
       type: 'calendar_event',
-      title: summary,
+      title: safeSummary,
       googleId: result.data.id,
       url: result.data.htmlLink,
       data: {
