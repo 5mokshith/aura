@@ -104,7 +104,17 @@ export class PlannerAgent {
       const jsonMatch = response.match(/```json\n([\s\S]*?)\n```/) || response.match(/\{[\s\S]*\}/);
       const jsonText = jsonMatch ? (jsonMatch[1] || jsonMatch[0]) : response;
 
-      const parsed = JSON.parse(jsonText);
+      let parsed: any;
+      try {
+        parsed = JSON.parse(jsonText);
+      } catch (parseError) {
+        throw new Error(`Failed to parse planner JSON response: ${parseError instanceof Error ? parseError.message : 'Invalid JSON'}`);
+      }
+
+      // Validate parsed structure
+      if (!parsed || !Array.isArray(parsed.steps) || parsed.steps.length === 0) {
+        throw new Error('Planner response missing valid steps array');
+      }
 
       // Generate task ID
       const taskId = this.generateTaskId();
@@ -324,14 +334,23 @@ ${timezoneContext}${dateContext}Please analyze this request and create a detaile
   }
 
   private convertToSteps(rawSteps: any[]): PlanStep[] {
-    return rawSteps.map((step, index) => ({
-      id: `step_${index + 1}`,
-      description: step.description,
-      service: step.service as GoogleService,
-      action: step.action,
-      parameters: step.parameters || {},
-      dependencies: step.dependencies || [],
-    }));
+    const validServices = ['gmail', 'drive', 'docs', 'sheets', 'calendar'];
+    return rawSteps.map((step, index) => {
+      if (!step.service || !step.action) {
+        throw new Error(`Step ${index + 1} missing required 'service' or 'action' field`);
+      }
+      if (!validServices.includes(step.service)) {
+        throw new Error(`Step ${index + 1} has invalid service '${step.service}'. Valid: ${validServices.join(', ')}`);
+      }
+      return {
+        id: `step_${index + 1}`,
+        description: step.description || `Step ${index + 1}`,
+        service: step.service as GoogleService,
+        action: step.action,
+        parameters: step.parameters || {},
+        dependencies: step.dependencies || [],
+      };
+    });
   }
 
   private generateTaskId(): string {
