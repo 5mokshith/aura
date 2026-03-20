@@ -57,7 +57,10 @@ export async function getTaskPlan(taskId: string, userId: string): Promise<TaskP
     .eq('task_uuid', task.id)
     .order('created_at', { ascending: true });
 
-  if (stepsErr) return null;
+  if (stepsErr) {
+    console.error(`getTaskPlan: Failed to fetch steps for task ${taskId}:`, stepsErr.message);
+    return null;
+  }
 
   const planSteps: PlanStep[] = (steps || []).map((s: any) => ({
     id: s.step_id,
@@ -126,7 +129,10 @@ export async function updateStepStatus(
     .eq('task_id', taskId)
     .single();
 
-  if (taskErr || !task) return;
+  if (taskErr || !task) {
+    console.error(`updateStepStatus: Failed to find task ${taskId} for step ${stepId}:`, taskErr?.message || 'not found');
+    return;
+  }
 
   const updates: any = { status };
   const nowIso = new Date().toISOString();
@@ -134,9 +140,13 @@ export async function updateStepStatus(
   if (status === 'completed' || status === 'failed') updates.finished_at = nowIso;
   if (errorMessage) updates.error = errorMessage;
 
-  await supabase
+  const { error: updateErr } = await supabase
     .from('task_steps_v2')
     .update(updates)
     .eq('task_uuid', task.id)
     .eq('step_id', stepId);
+
+  if (updateErr) {
+    console.error(`updateStepStatus: Failed to update step ${stepId}:`, updateErr.message);
+  }
 }
