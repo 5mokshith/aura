@@ -207,13 +207,13 @@ Assistant JSON:
     });
     return NextResponse.json<ApiResponse>(
       {
-        success: true,
-        data: {
-          message:
-            `Sorry, I had trouble processing that right now. You can ask me about Gmail, Drive, Docs, Sheets, or Calendar — or try again in a moment. ${process.env.NODE_ENV === 'development' ? `(Error: ${error?.message})` : ''}`,
+        success: false,
+        error: {
+          code: 'CHAT_ERROR',
+          message: `Sorry, I had trouble processing that right now. You can ask me about Gmail, Drive, Docs, Sheets, or Calendar — or try again in a moment.${process.env.NODE_ENV === 'development' ? ` (Error: ${error?.message})` : ''}`,
         },
       },
-      { status: 200 }
+      { status: 500 }
     );
   }
 }
