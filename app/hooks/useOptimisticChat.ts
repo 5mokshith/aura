@@ -5,11 +5,17 @@
  * Requirements: 19.4
  */
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Message, TaskStep } from '@/app/types/chat';
 import { optimisticChatManager } from '@/app/lib/optimisticUpdates';
 import { queryKeys } from '@/app/lib/queryClient';
+
+function getUserIdFromCookie(): string {
+  if (typeof document === 'undefined') return '';
+  const match = document.cookie.split('; ').find(row => row.startsWith('aura_user_id='));
+  return match ? match.split('=')[1] : '';
+}
 
 interface UseOptimisticChatOptions {
   onError?: (error: Error) => void;
@@ -27,6 +33,7 @@ export function useOptimisticChat(options: UseOptimisticChatOptions = {}) {
   const [suggestedTask, setSuggestedTask] = useState<{ description: string; prompt: string } | null>(null);
 
   const queryClient = useQueryClient();
+  const userId = useMemo(() => getUserIdFromCookie(), []);
 
   /**
    * Send message mutation with optimistic update
@@ -39,7 +46,7 @@ export function useOptimisticChat(options: UseOptimisticChatOptions = {}) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: content,
-          userId: 'current-user-id', // TODO: Get from auth
+          userId,
           conversationHistory: history,
         }),
       });
@@ -139,7 +146,7 @@ export function useOptimisticChat(options: UseOptimisticChatOptions = {}) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           taskId,
-          userId: 'current-user-id', // TODO: Get from auth
+          userId,
         }),
       });
 
@@ -187,7 +194,7 @@ export function useOptimisticChat(options: UseOptimisticChatOptions = {}) {
       const planResponse = await fetch('/api/agent/plan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: suggestedTask.prompt, userId: 'current-user-id' }),
+        body: JSON.stringify({ prompt: suggestedTask.prompt, userId }),
       });
       const planResult = await planResponse.json();
       if (!planResult.success) throw new Error(planResult.error?.message || 'Failed to plan task');
