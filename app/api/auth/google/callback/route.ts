@@ -125,7 +125,10 @@ export async function GET(request: NextRequest) {
     // Clear the OAuth CSRF token cookie
     response.cookies.delete('oauth_csrf_token');
     
-    // Set a simple session cookie with user info
+    // NOTE: httpOnly is false because multiple client components read userId
+    // from document.cookie. Ideally these should use a server-side session API
+    // endpoint, then httpOnly can be enabled. The userId is a Google ID (not a
+    // secret token), so the exposure risk is limited.
     response.cookies.set('aura_user_id', userId, {
       httpOnly: false,
       secure: process.env.NODE_ENV === 'production',
